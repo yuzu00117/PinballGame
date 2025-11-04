@@ -128,44 +128,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="audio.cpp" />
-    <ClCompile Include="camera.cpp" />
-    <ClCompile Include="explosion.cpp" />
-    <ClCompile Include="field.cpp" />
-    <ClCompile Include="input.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="manager.cpp" />
-    <ClCompile Include="modelRenderer.cpp" />
-    <ClCompile Include="player.cpp" />
-    <ClCompile Include="polygon.cpp" />
-    <ClCompile Include="renderer.cpp" />
-    <ClCompile Include="result.cpp" />
-    <ClCompile Include="score.cpp" />
-    <ClCompile Include="soundManager.cpp" />
-    <ClCompile Include="title.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="audio.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="component.h" />
-    <ClInclude Include="explosion.h" />
-    <ClInclude Include="field.h" />
-    <ClInclude Include="gameObject.h" />
-    <ClInclude Include="input.h" />
-    <ClInclude Include="main.h" />
-    <ClInclude Include="manager.h" />
-    <ClInclude Include="modelRenderer.h" />
-    <ClInclude Include="player.h" />
-    <ClInclude Include="polygon.h" />
-    <ClInclude Include="renderer.h" />
-    <ClInclude Include="result.h" />
-    <ClInclude Include="scene.h" />
-    <ClInclude Include="score.h" />
-    <ClInclude Include="soundManager.h" />
-    <ClInclude Include="title.h" />
-    <ClInclude Include="vector3.h" />
-  </ItemGroup>
-  <ItemGroup>
     <FxCompile Include="shader\common.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
@@ -179,6 +141,48 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">shader\%(Filename).cso</ObjectFileOutput>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\audio.h" />
+    <ClInclude Include="source\camera.h" />
+    <ClInclude Include="source\component.h" />
+    <ClInclude Include="source\DirectXTex.h" />
+    <ClInclude Include="source\explosion.h" />
+    <ClInclude Include="source\field.h" />
+    <ClInclude Include="source\gameobject.h" />
+    <ClInclude Include="source\input.h" />
+    <ClInclude Include="source\main.h" />
+    <ClInclude Include="source\manager.h" />
+    <ClInclude Include="source\modelRenderer.h" />
+    <ClInclude Include="source\player.h" />
+    <ClInclude Include="source\polygon.h" />
+    <ClInclude Include="source\renderer.h" />
+    <ClInclude Include="source\result.h" />
+    <ClInclude Include="source\scene.h" />
+    <ClInclude Include="source\score.h" />
+    <ClInclude Include="source\soundManager.h" />
+    <ClInclude Include="source\title.h" />
+    <ClInclude Include="source\vector3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\audio.cpp" />
+    <ClCompile Include="source\camera.cpp" />
+    <ClCompile Include="source\explosion.cpp" />
+    <ClCompile Include="source\field.cpp" />
+    <ClCompile Include="source\input.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\manager.cpp" />
+    <ClCompile Include="source\modelRenderer.cpp" />
+    <ClCompile Include="source\player.cpp" />
+    <ClCompile Include="source\polygon.cpp" />
+    <ClCompile Include="source\renderer.cpp" />
+    <ClCompile Include="source\result.cpp" />
+    <ClCompile Include="source\score.cpp" />
+    <ClCompile Include="source\soundManager.cpp" />
+    <ClCompile Include="source\title.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="source\DirectXTex.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
