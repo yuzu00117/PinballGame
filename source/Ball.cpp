@@ -2,7 +2,7 @@
 #include "renderer.h"
 #include "ball.h"
 #include "modelRenderer.h"
-#include "animationModel.h"
+#include "AnimationModel.h"
 #include "camera.h"
 #include "manager.h"
 #include <Windows.h>
@@ -89,5 +89,5 @@ void Ball::Draw()
     world = scale * rot * trans;
 
     Renderer::SetWorldMatrix(world);
-    m_ModelRenderer->Draw();
+	m_AnimationModel->Draw();
 }

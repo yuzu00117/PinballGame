@@ -143,6 +143,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\animationModel.cpp" />
     <ClCompile Include="source\audio.cpp" />
     <ClCompile Include="source\Ball.cpp" />
     <ClCompile Include="source\camera.cpp" />
