@@ -143,7 +143,26 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="source\audio.cpp" />
+    <ClCompile Include="source\Ball.cpp" />
+    <ClCompile Include="source\camera.cpp" />
+    <ClCompile Include="source\explosion.cpp" />
+    <ClCompile Include="source\field.cpp" />
+    <ClCompile Include="source\input.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\manager.cpp" />
+    <ClCompile Include="source\modelRenderer.cpp" />
+    <ClCompile Include="source\polygon.cpp" />
+    <ClCompile Include="source\renderer.cpp" />
+    <ClCompile Include="source\result.cpp" />
+    <ClCompile Include="source\score.cpp" />
+    <ClCompile Include="source\soundManager.cpp" />
+    <ClCompile Include="source\title.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\animationModel.h" />
     <ClInclude Include="source\audio.h" />
+    <ClInclude Include="source\Ball.h" />
     <ClInclude Include="source\camera.h" />
     <ClInclude Include="source\component.h" />
     <ClInclude Include="source\DirectXTex.h" />
@@ -154,7 +173,6 @@
     <ClInclude Include="source\main.h" />
     <ClInclude Include="source\manager.h" />
     <ClInclude Include="source\modelRenderer.h" />
-    <ClInclude Include="source\player.h" />
     <ClInclude Include="source\polygon.h" />
     <ClInclude Include="source\renderer.h" />
     <ClInclude Include="source\result.h" />
@@ -163,26 +181,6 @@
     <ClInclude Include="source\soundManager.h" />
     <ClInclude Include="source\title.h" />
     <ClInclude Include="source\vector3.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="source\audio.cpp" />
-    <ClCompile Include="source\camera.cpp" />
-    <ClCompile Include="source\explosion.cpp" />
-    <ClCompile Include="source\field.cpp" />
-    <ClCompile Include="source\input.cpp" />
-    <ClCompile Include="source\main.cpp" />
-    <ClCompile Include="source\manager.cpp" />
-    <ClCompile Include="source\modelRenderer.cpp" />
-    <ClCompile Include="source\player.cpp" />
-    <ClCompile Include="source\polygon.cpp" />
-    <ClCompile Include="source\renderer.cpp" />
-    <ClCompile Include="source\result.cpp" />
-    <ClCompile Include="source\score.cpp" />
-    <ClCompile Include="source\soundManager.cpp" />
-    <ClCompile Include="source\title.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="source\DirectXTex.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

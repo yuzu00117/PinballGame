@@ -8,7 +8,7 @@
 #include "title.h"
 #include "camera.h"
 #include "field.h"
-#include "player.h"
+#include "Ball.h"
 #include "polygon.h"
 #include "result.h"
 #include "score.h"
@@ -31,7 +31,7 @@ inline std::vector<GameObject*> CreateSceneObjects(Scene scene) {
     case Scene::Game:
         objs.push_back(new Camera());
         objs.push_back(new Field());
-        objs.push_back(new Player());
+        objs.push_back(new Ball());
         objs.push_back(new Polygon2D());
         objs.push_back(new Score()); // スコア表示を追加
         objs.push_back(new SoundManager()); // 音声管理を追加

@@ -2,7 +2,7 @@
 #include "renderer.h"
 #include "camera.h"
 #include "manager.h"
-#include "player.h"
+#include "Ball.h"
 
 void Camera::Init()
 {
@@ -20,17 +20,17 @@ void Camera::Init()
 	SetCursorPos(m_CenterPos.x, m_CenterPos.y);
 	m_FirstMouse = true;
 
-    // シーン内にいる Player を探す
-    Player* player = nullptr;
+    // シーン内にいる Ball を探す
+    Ball* ball = nullptr;
     for (auto obj : Manager::GetGameObjects())
     {
-        if ((player = dynamic_cast<Player*>(obj)))
+        if ((ball = dynamic_cast<Ball*>(obj)))
             break;
     }
-    if (!player) return;
+    if (!ball) return;
 
-    // Player の位置を注視点に
-    auto p = player->GetPosition();
+    // Ball の位置を注視点に
+    auto p = ball->GetPosition();
     m_Target = XMFLOAT3(p.x, p.y, p.z);
 
     // 極座標からカメラ位置を計算
@@ -75,17 +75,17 @@ void Camera::SetDistance(float distance)
 
 void Camera::Update()
 {
-    Player* player = nullptr;
+    Ball* ball = nullptr;
     for (auto obj : Manager::GetGameObjects()) {
-        player = dynamic_cast<Player*>(obj);
-        if (player) break;
+        ball = dynamic_cast<Ball*>(obj);
+        if (ball) break;
     }
-    if (!player) return;
+    if (!ball) return;
 
-    Vector3 playerPos = player->GetPosition();
+    Vector3 ballPos = ball->GetPosition();
     
     // カメラのターゲットをプレイヤーに設定
-    m_Target = XMFLOAT3(playerPos.x, playerPos.y, playerPos.z);
+    m_Target = XMFLOAT3(ballPos.x, ballPos.y, ballPos.z);
     
     // カメラをプレイヤーの周りに配置
     // キー入力でカメラを回転
@@ -141,9 +141,9 @@ void Camera::Update()
     
     // 斜め後ろからの視点となるようオフセットを調整
     m_Position = XMFLOAT3(
-        playerPos.x + x,
-        playerPos.y + y,
-        playerPos.z + z
+        ballPos.x + x,
+        ballPos.y + y,
+        ballPos.z + z
     );
 }
 
