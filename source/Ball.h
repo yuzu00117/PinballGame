@@ -38,7 +38,6 @@ private:
     ID3D11VertexShader *m_VertexShader;                             // 頂点シェーダー
     ID3D11PixelShader *m_PixelShader;                               // ピクセルシェーダー
     class ModelRenderer *m_ModelRenderer;                           // モデルレンダラー
-	class AnimationModel* m_AnimationModel;                         // アニメーションモデル
     ID3D11ShaderResourceView *m_Texture;                            // テクスチャ
 
     Vector3 m_Position = { 0.0f, 0.0f, 0.0f };                      // 位置

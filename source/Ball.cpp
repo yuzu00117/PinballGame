@@ -2,13 +2,12 @@
 #include "renderer.h"
 #include "ball.h"
 #include "modelRenderer.h"
-#include "AnimationModel.h"
 #include "camera.h"
 #include "manager.h"
 #include <Windows.h>
 
 // デフォルトのボールスケール定義
-const Vector3 Ball::DefaultBallScale = { 1.0f, 1.0f, 1.0f };
+const Vector3 Ball::DefaultBallScale = { 0.5f, 0.5f, 0.5f };
 
 // 初期化処理
 void Ball::Init()
@@ -16,11 +15,9 @@ void Ball::Init()
     m_Position = {0.0f, 3.0f, 0.0f};
     m_Rotation = {0.0f, 0.0f, 0.0f};
 
-    //m_ModelRenderer = new ModelRenderer();
-    //m_ModelRenderer->Load("asset\\model\\ball.fbx");
+    m_ModelRenderer = new ModelRenderer();
+    m_ModelRenderer->Load("asset\\model\\ball.obj");
 
-	m_AnimationModel = new AnimationModel();
-	m_AnimationModel->Load("asset\\model\\ball.fbx");
 
     Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\unlitTextureVS.cso");
     Renderer::CreatePixelShader(&m_PixelShader, "shader\\unlitTexturePS.cso");
@@ -89,5 +86,5 @@ void Ball::Draw()
     world = scale * rot * trans;
 
     Renderer::SetWorldMatrix(world);
-	m_AnimationModel->Draw();
+	m_ModelRenderer->Draw();
 }
