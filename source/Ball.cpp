@@ -63,6 +63,18 @@ void Ball::Update()
 	if (m_Position.x < -9.5f + m_Radius) { m_Position.x = -9.5f + m_Radius; m_Velocity.x *= -m_Bounce; }
 	if (m_Position.z > 14.5f - m_Radius) { m_Position.z = 14.5f - m_Radius; m_Velocity.z *= -m_Bounce; }
 	if (m_Position.z < -14.5f + m_Radius) { m_Position.z = -14.5f + m_Radius; m_Velocity.z *= -m_Bounce; }
+
+    Field *field = nullptr;
+    for (auto obj : Manager::GetGameObjects())
+    {
+        field = dynamic_cast<Field *>(obj);
+        if (field)
+            break;
+    }
+    if (field)
+    {
+        field->ResolveBallCollision(m_Position, m_Velocity, m_Radius);
+    }
 }
 
 // •`‰æˆ—

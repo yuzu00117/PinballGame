@@ -173,6 +173,7 @@
     <ClInclude Include="source\input.h" />
     <ClInclude Include="source\main.h" />
     <ClInclude Include="source\manager.h" />
+    <ClInclude Include="source\MathUtil.h" />
     <ClInclude Include="source\modelRenderer.h" />
     <ClInclude Include="source\polygon.h" />
     <ClInclude Include="source\renderer.h" />
