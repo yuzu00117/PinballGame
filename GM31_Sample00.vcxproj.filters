@@ -16,6 +16,9 @@
     <Filter Include="shader">
       <UniqueIdentifier>{8e324f3e-d9bd-4249-9c60-e6135efcdf57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\コライダー">
+      <UniqueIdentifier>{e41a8dfa-57cc-41b4-8df1-3994a7427061}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader\common.hlsl">
@@ -83,6 +86,9 @@
     <ClCompile Include="source\Flipper.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="source\BoxCollider.cpp">
+      <Filter>ヘッダー ファイル\コライダー</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\input.h">
@@ -130,9 +136,6 @@
     <ClInclude Include="source\camera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="source\component.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="source\DirectXTex.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -155,6 +158,21 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="source\Flipper.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Collider.h">
+      <Filter>ヘッダー ファイル\コライダー</Filter>
+    </ClInclude>
+    <ClInclude Include="source\BoxCollider.h">
+      <Filter>ヘッダー ファイル\コライダー</Filter>
+    </ClInclude>
+    <ClInclude Include="source\ColliderGroup.h">
+      <Filter>ヘッダー ファイル\コライダー</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Transform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Component.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

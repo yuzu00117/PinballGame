@@ -146,6 +146,7 @@
     <ClCompile Include="source\animationModel.cpp" />
     <ClCompile Include="source\audio.cpp" />
     <ClCompile Include="source\Ball.cpp" />
+    <ClCompile Include="source\BoxCollider.cpp" />
     <ClCompile Include="source\Bumper.cpp" />
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="source\explosion.cpp" />
@@ -166,9 +167,12 @@
     <ClInclude Include="source\animationModel.h" />
     <ClInclude Include="source\audio.h" />
     <ClInclude Include="source\Ball.h" />
+    <ClInclude Include="source\BoxCollider.h" />
     <ClInclude Include="source\Bumper.h" />
     <ClInclude Include="source\camera.h" />
-    <ClInclude Include="source\component.h" />
+    <ClInclude Include="source\Collider.h" />
+    <ClInclude Include="source\ColliderGroup.h" />
+    <ClInclude Include="source\Component.h" />
     <ClInclude Include="source\DirectXTex.h" />
     <ClInclude Include="source\explosion.h" />
     <ClInclude Include="source\field.h" />
@@ -186,6 +190,7 @@
     <ClInclude Include="source\score.h" />
     <ClInclude Include="source\soundManager.h" />
     <ClInclude Include="source\title.h" />
+    <ClInclude Include="source\Transform.h" />
     <ClInclude Include="source\vector3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
