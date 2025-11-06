@@ -117,7 +117,7 @@ public:
 	}
 
 //ƒxƒNƒgƒ‹‚ð³‹K‰»‚·‚é
-	void nomalize()
+	void Normalize()
 	{
 		float magSq = x * x + y * y + z * z;
 		if (magSq > 0.0f)
