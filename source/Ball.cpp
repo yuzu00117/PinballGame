@@ -46,7 +46,7 @@ void Ball::Update()
 
     // ---- テーブルの疑似傾斜（XZ方向のごく小さい加速度）----
     // 例：手前(?Z)へ 0.90 m/s^2、ほんの少し右(+X)へ 0.10 m/s^2
-    const Vector3 SlopeAccel = { +0.10f, 0.0f, -2.0f };
+    const Vector3 SlopeAccel = { 0.0f, 0.0f, -2.0f };
     // 転がり減衰（床に接地しているときの速度にかかる弱いブレーキ）
     const float RollingFriction = 0.985f;   // 0.98?0.995 あたりで微調整
     // 空中減衰（空中のときは極わずかに減速）
