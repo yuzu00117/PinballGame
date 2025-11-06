@@ -146,6 +146,7 @@
     <ClCompile Include="source\animationModel.cpp" />
     <ClCompile Include="source\audio.cpp" />
     <ClCompile Include="source\Ball.cpp" />
+    <ClCompile Include="source\Bumper.cpp" />
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="source\explosion.cpp" />
     <ClCompile Include="source\field.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="source\animationModel.h" />
     <ClInclude Include="source\audio.h" />
     <ClInclude Include="source\Ball.h" />
+    <ClInclude Include="source\Bumper.h" />
     <ClInclude Include="source\camera.h" />
     <ClInclude Include="source\component.h" />
     <ClInclude Include="source\DirectXTex.h" />

@@ -3,6 +3,7 @@
 #include "manager.h"
 #include "renderer.h"
 #include "audio.h"
+#include "input.h"
 #include <windows.h>
 #include "scene.h"
 
@@ -12,6 +13,7 @@ std::vector<GameObject*> Manager::m_SceneGameObjects;
 void Manager::Init() {
     Renderer::Init();
     Audio::InitMaster(); // オーディオシステムの初期化
+    Input::Init();
 
 	// 初期シーンのゲームオブジェクトを生成
     m_SceneGameObjects = CreateSceneObjects(m_CurrentScene);
@@ -31,13 +33,16 @@ void Manager::Uninit() {
     Audio::UninitMaster(); // オーディオシステムの終了
 }
 
-void Manager::Update() {
+void Manager::Update()
+{
+    // キー入力を監視
+    Input::Update();
+
     for (auto obj : m_SceneGameObjects) {
         obj->Update();
     }
         
     // Enter キー（VK_RETURN）が押されていたら、現在のシーンに応じて次のシーンへ
-
 	// 押下チェック
 	static bool prevEnter = false;
 	SHORT ks = GetAsyncKeyState(VK_RETURN);
@@ -58,8 +63,8 @@ void Manager::Update() {
 	prevEnter = currEnter; // 前回の状態を更新
 }
 
-void Manager::Draw() {
-
+void Manager::Draw()
+{
 	Renderer::Begin(); // レンダリング開始
 
 	// シーンのゲームオブジェクトを描画
@@ -70,7 +75,8 @@ void Manager::Draw() {
 	Renderer::End(); // レンダリング終了
 }
 
-void Manager::ChangeScene(Scene newScene) {
+void Manager::ChangeScene(Scene newScene)
+{
     // 旧シーン解放
     for (auto obj : m_SceneGameObjects) {
         obj->Uninit();

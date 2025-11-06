@@ -4,6 +4,7 @@
 #include "modelRenderer.h"
 #include "camera.h"
 #include "manager.h"
+#include "input.h"
 #include <Windows.h>
 
 // デフォルトのボールスケール定義
@@ -47,6 +48,12 @@ void Ball::Update()
 	m_Velocity += Gravity * DeltaTime;
 	m_Position += m_Velocity * DeltaTime;
 
+    // SPACEキーで発射
+    if (Input::GetKeyTrigger(VK_SPACE))
+    {
+        m_Velocity.z += 12.0f;
+    }
+
 	// 床での反発
     if (m_Position.y - m_Radius < 0.0f)
     {
@@ -64,6 +71,7 @@ void Ball::Update()
 	if (m_Position.z > 14.5f - m_Radius) { m_Position.z = 14.5f - m_Radius; m_Velocity.z *= -m_Bounce; }
 	if (m_Position.z < -14.5f + m_Radius) { m_Position.z = -14.5f + m_Radius; m_Velocity.z *= -m_Bounce; }
 
+    // フィールドとの衝突
     Field *field = nullptr;
     for (auto obj : Manager::GetGameObjects())
     {
@@ -75,6 +83,12 @@ void Ball::Update()
     {
         field->ResolveBallCollision(m_Position, m_Velocity, m_Radius);
     }
+
+    for (auto obj : Manager::GetGameObjects()) {
+    if (auto* b = dynamic_cast<Bumper*>(obj)) {
+        b->Resolve(m_Position, m_Velocity, m_Radius);
+    }
+}
 }
 
 // 描画処理
