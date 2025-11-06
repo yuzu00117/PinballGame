@@ -150,6 +150,7 @@
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="source\explosion.cpp" />
     <ClCompile Include="source\field.cpp" />
+    <ClCompile Include="source\Flipper.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\manager.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="source\DirectXTex.h" />
     <ClInclude Include="source\explosion.h" />
     <ClInclude Include="source\field.h" />
+    <ClInclude Include="source\Flipper.h" />
     <ClInclude Include="source\gameobject.h" />
     <ClInclude Include="source\input.h" />
     <ClInclude Include="source\main.h" />
