@@ -12,9 +12,9 @@ using namespace DirectX;
 // メッシュ形状列挙型
 enum class MeshShape
 {
+	Plane,
 	Box,
 	Sphere,
-	Plane,
 	Custom
 };
 
@@ -60,6 +60,7 @@ public:
         if (SUCCEEDED(LoadFromWICFile(filePath.c_str(), WIC_FLAGS_NONE, &Metadata, Image)))
         {
             CreateShaderResourceView(Renderer::GetDevice(), Image.GetImages(), Image.GetImageCount(), Metadata, &m_Texture);
+			m_EnableTexture = true;
         }
 	}
 
@@ -177,7 +178,7 @@ public:
         if (m_Texture)
             ctx->PSSetShaderResources(0, 1, &m_Texture);
 
-        ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        ctx->IASetPrimitiveTopology(GetTopology());
         ctx->Draw(m_VertexCount, 0);
     }
 	
@@ -199,6 +200,25 @@ private:
         Renderer::GetDevice()->CreateBuffer(&bd, &sd, &m_VertexBuffer);
     }
 
+	/// <summary>
+	/// トポロジーを設定する
+	/// </summary>
+	D3D11_PRIMITIVE_TOPOLOGY GetTopology() const
+	{
+		switch (m_Shape)
+		{
+			case MeshShape::Plane:
+				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+			case MeshShape::Box:
+				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			case MeshShape::Sphere:
+				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			default:
+				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		}
+	}
+
+	// リソース解放
     void Release()
     {
         if (m_Texture)       { m_Texture->Release(); m_Texture = nullptr; }
