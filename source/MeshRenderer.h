@@ -4,6 +4,7 @@
 #include "Component.h"
 #include "renderer.h"
 #include "vector3.h"
+#include "Transform.h"
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
@@ -25,11 +26,13 @@ class MeshRenderer : public Component
 {	
 // --- 変数定義 ---
 public:
+    // ポインタ類
 	ID3D11Buffer*               m_VertexBuffer  = nullptr;
     ID3D11InputLayout*          m_VertexLayout  = nullptr;
     ID3D11VertexShader*         m_VertexShader  = nullptr;
     ID3D11PixelShader*          m_PixelShader   = nullptr;
     ID3D11ShaderResourceView*   m_Texture       = nullptr;
+    Transform*                  m_Transform     = nullptr;
 
 	MeshShape m_Shape = MeshShape::Box;    					// メッシュ形状
 	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);				// メッシュ色
@@ -67,10 +70,10 @@ public:
 	/// <summary>
 	/// シェーダーを設定する
 	/// </summary>
-	void LoadShader(const std::wstring& vsFilePath, const std::wstring& psFilePath)
+	void LoadShader(const char* vsFilePath, const char* psFilePath)
 	{
-        Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, vsFilePath.c_str());
-        Renderer::CreatePixelShader(&m_PixelShader, psFilePath.c_str());
+        Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, vsFilePath);
+        Renderer::CreatePixelShader(&m_PixelShader, psFilePath);
     }
 
 	/// <summary>
@@ -95,9 +98,10 @@ public:
 		{
 			v[i].Normal = { 0.0f, 1.0f, 0.0f };
 			v[i].Diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
-			v[i].TexCoord = { (i % 2), (i / 2) };
+			v[i].TexCoord = { (i % 2) ? 1.0f : 0.0f, (i / 2) ? 1.0f : 0.0f };
 		}
 		MakeVertexBuffer(v, 4);
+        m_Shape = MeshShape::Plane;
 	}
 
 	/// <summary>
@@ -122,6 +126,7 @@ public:
 
         // 今回は四角形×2 = 6面にしてもOKだけど、簡易的に描画する場合は前後だけでもよい。
         MakeVertexBuffer(v, _countof(v));
+        m_Shape = MeshShape::Box;
     }
 
 	/// <summary>
@@ -144,11 +149,20 @@ public:
                     radius * cosf(phi),
                     radius * sinf(phi) * sinf(theta)
                 };
-                Vector3 n = pos.Normalize();
-                vertices.push_back({pos, n, {1,1,1,1}, {u,v}});
+                Vector3 n = pos;
+                n.Normalize();
+
+                VERTEX_3D vertex{};
+                vertex.Position = { pos.x, pos.y, pos.z };
+                vertex.Normal = { n.x, n.y, n.z };
+                vertex.Diffuse = {1,1,1,1};
+                vertex.TexCoord = {u, v};
+        
+                vertices.push_back(vertex);
             }
         }
         MakeVertexBuffer(vertices.data(), (UINT)vertices.size());
+        m_Shape = MeshShape::Sphere;
     }
 
 	/// <summary>
@@ -156,9 +170,10 @@ public:
 	/// </summary>
 	void Draw() override
     {
-        if (!m_Owner) return;
-        XMMATRIX world = m_Owner->m_Transform.GetWorldMatrix();
+        // ワールド行列の取得
+        XMMATRIX world = m_Transform->GetWorldMatrix();
 
+        // マテリアル設定
         MATERIAL mat{};
         mat.Diffuse = m_Color;
         mat.Ambient = {1,1,1,1};
@@ -167,6 +182,7 @@ public:
         Renderer::SetMaterial(mat);
         Renderer::SetWorldMatrix(world);
 
+        // 描画
         auto ctx = Renderer::GetDeviceContext();
         ctx->IASetInputLayout(m_VertexLayout);
         ctx->VSSetShader(m_VertexShader, nullptr, 0);
