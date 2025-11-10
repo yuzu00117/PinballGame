@@ -39,6 +39,8 @@ public:
 	bool m_EnableTexture = false;                         	// テクスチャ有効フラグ
 
 private:
+    ID3D11Buffer* m_IndexBuffer = nullptr;                  // インデックスバッファ
+    UINT m_IndexCount = 0;                                	// インデックス数
 	UINT m_VertexCount = 0;                             	// 頂点数
 
 // --- 関数定義 ---
@@ -110,28 +112,62 @@ public:
 	void CreateBox(float w, float h, float d)
     {
         const float hw = w * 0.5f, hh = h * 0.5f, hd = d * 0.5f;
-        VERTEX_3D v[] =
+        // 24頂点（各面4頂点×6面）
+        VERTEX_3D v[24] =
         {
             // 前面
-            {{-hw,-hh,-hd}, {0,0,-1}, {1,1,1,1}, {0,1}},
-            {{-hw, hh,-hd}, {0,0,-1}, {1,1,1,1}, {0,0}},
-            {{ hw,-hh,-hd}, {0,0,-1}, {1,1,1,1}, {1,1}},
-            {{ hw, hh,-hd}, {0,0,-1}, {1,1,1,1}, {1,0}},
+            { { -hw, -hh,  hd }, { 0, 0,  1 }, {1,1,1,1}, {0,1} },
+            { {  hw, -hh,  hd }, { 0, 0,  1 }, {1,1,1,1}, {1,1} },
+            { { -hw,  hh,  hd }, { 0, 0,  1 }, {1,1,1,1}, {0,0} },
+            { {  hw,  hh,  hd }, { 0, 0,  1 }, {1,1,1,1}, {1,0} },
             // 背面
-            {{-hw,-hh, hd}, {0,0,1}, {1,1,1,1}, {1,1}},
-            {{ hw,-hh, hd}, {0,0,1}, {1,1,1,1}, {0,1}},
-            {{-hw, hh, hd}, {0,0,1}, {1,1,1,1}, {1,0}},
-            {{ hw, hh, hd}, {0,0,1}, {1,1,1,1}, {0,0}},
+            { {  hw, -hh, -hd }, { 0, 0, -1 }, {1,1,1,1}, {0,1} },
+            { { -hw, -hh, -hd }, { 0, 0, -1 }, {1,1,1,1}, {1,1} },
+            { {  hw,  hh, -hd }, { 0, 0, -1 }, {1,1,1,1}, {0,0} },
+            { { -hw,  hh, -hd }, { 0, 0, -1 }, {1,1,1,1}, {1,0} },
+            // 右面
+            { {  hw, -hh, -hd }, { 1, 0, 0 }, {1,1,1,1}, {0,1} },
+            { {  hw, -hh,  hd }, { 1, 0, 0 }, {1,1,1,1}, {1,1} },
+            { {  hw,  hh, -hd }, { 1, 0, 0 }, {1,1,1,1}, {0,0} },
+            { {  hw,  hh,  hd }, { 1, 0, 0 }, {1,1,1,1}, {1,0} },
+            // 左面
+            { { -hw, -hh,  hd }, { -1, 0, 0 }, {1,1,1,1}, {0,1} },
+            { { -hw, -hh, -hd }, { -1, 0, 0 }, {1,1,1,1}, {1,1} },
+            { { -hw,  hh,  hd }, { -1, 0, 0 }, {1,1,1,1}, {0,0} },
+            { { -hw,  hh, -hd }, { -1, 0, 0 }, {1,1,1,1}, {1,0} },
+            // 上面
+            { { -hw,  hh, -hd }, { 0, 1, 0 }, {1,1,1,1}, {0,1} },
+            { {  hw,  hh, -hd }, { 0, 1, 0 }, {1,1,1,1}, {1,1} },
+            { { -hw,  hh,  hd }, { 0, 1, 0 }, {1,1,1,1}, {0,0} },
+            { {  hw,  hh,  hd }, { 0, 1, 0 }, {1,1,1,1}, {1,0} },
+            // 底面
+            { { -hw, -hh,  hd }, { 0, -1, 0 }, {1,1,1,1}, {0,1} },
+            { {  hw, -hh,  hd }, { 0, -1, 0 }, {1,1,1,1}, {1,1} },
+            { { -hw, -hh, -hd }, { 0, -1, 0 }, {1,1,1,1}, {0,0} },
+            { {  hw, -hh, -hd }, { 0, -1, 0 }, {1,1,1,1}, {1,0} },
         };
 
-        // 今回は四角形×2 = 6面にしてもOKだけど、簡易的に描画する場合は前後だけでもよい。
-        MakeVertexBuffer(v, _countof(v));
+        // 36インデックス（各面2三角形×3頂点×6面）
+        const uint16_t indices[36] =
+        {
+            0,1,2 , 2,1,3,       // 前面
+            4,5,6 , 6,5,7,       // 背
+            8,9,10, 10,9,11,     // 右面
+            12,13,14, 14,13,15,  // 左面
+            16,17,18, 18,17,19,  // 上面
+            20,21,22, 22,21,23   // 底面
+        };
+
+        // 頂点バッファとインデックスバッファの作成
+        MakeVertexBuffer(v, 24);
+        MakeIndexBuffer(indices, 36);
         m_Shape = MeshShape::Box;
     }
 
 	/// <summary>
 	/// 球メッシュを作成
 	/// </summary>
+    // TODO: インデックスバッファを使って最適化する
 	void CreateSphere(float radius, int slices = 16, int stacks = 16)
     {
         std::vector<VERTEX_3D> vertices;
@@ -190,12 +226,25 @@ public:
 
         UINT stride = sizeof(VERTEX_3D), offset = 0;
         ctx->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
-
+        
+        // テクスチャ設定
         if (m_Texture)
+        {
             ctx->PSSetShaderResources(0, 1, &m_Texture);
+        }
 
-        ctx->IASetPrimitiveTopology(GetTopology());
-        ctx->Draw(m_VertexCount, 0);
+        // インデックスバッファがある場合はそちらを使用
+        if (m_IndexBuffer && m_IndexCount > 0)
+        {
+            ctx->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+            ctx->IASetPrimitiveTopology(GetTopology());
+            ctx->DrawIndexed(m_IndexCount, 0, 0);
+        }
+        else
+        {
+            ctx->IASetPrimitiveTopology(GetTopology());
+            ctx->Draw(m_VertexCount, 0);
+        }
     }
 	
 private:
@@ -214,6 +263,24 @@ private:
         sd.pSysMem = verts;
 
         Renderer::GetDevice()->CreateBuffer(&bd, &sd, &m_VertexBuffer);
+    }
+
+    /// <summary>
+    /// インデックスバッファを作成する
+    /// </summary>
+    void MakeIndexBuffer(const uint16_t* indices, UINT count)
+    {
+        m_IndexCount = count;
+
+        D3D11_BUFFER_DESC bd{};
+        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.ByteWidth = sizeof(uint16_t) * count;
+        bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+        D3D11_SUBRESOURCE_DATA sd{};
+        sd.pSysMem = indices;
+
+        Renderer::GetDevice()->CreateBuffer(&bd, &sd, &m_IndexBuffer);
     }
 
 	/// <summary>
@@ -242,5 +309,6 @@ private:
         if (m_VertexLayout)  { m_VertexLayout->Release(); m_VertexLayout = nullptr; }
         if (m_VertexShader)  { m_VertexShader->Release(); m_VertexShader = nullptr; }
         if (m_PixelShader)   { m_PixelShader->Release(); m_PixelShader = nullptr; }
+        if (m_IndexBuffer)   { m_IndexBuffer->Release(); m_IndexBuffer = nullptr; }
     }
 };
