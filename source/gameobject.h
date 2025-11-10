@@ -2,12 +2,12 @@
 #include "Transform.h"
 #include "Collider.h"
 #include "Component.h"
+#include "MeshRenderer.h"
 #include <memory>
 #include <vector>
 #include <type_traits>
     
 class Collider;
-// class MeshRenderer; // TODO: 将来的に実装予定
 
 /// <summary>
 /// ゲームオブジェクトの基底クラス
@@ -35,11 +35,6 @@ public:
     // 描画処理
     virtual void Draw()
     {
-        // if (m_MeshRenderer)
-        // {
-        //     m_MeshRenderer->Draw(m_Transform.GetWorldMatrix());
-        // }
-
         // コンポーネントの描画
         for (auto& c : m_Components)
         {
@@ -61,8 +56,10 @@ public:
         // GameObjectとの連携を設定
         comp->m_Owner = this;
 
-        // ColliderやTransformを持つ場合は自動リンク
+        // ColliderやMeshRendererのTransformリンク
         if constexpr (std::is_base_of<Collider, T>::value)
+            comp->m_Transform = &m_Transform;
+        if constexpr (std::is_base_of<MeshRenderer, T>::value)
             comp->m_Transform = &m_Transform;
 
         comp->Init(); // 初期化呼び出し
@@ -84,6 +81,5 @@ public:
 
     // --- 変数定義 ---
     Transform m_Transform;                                      // オブジェクトのTransform情報
-    // std::unique_ptr<MeshRenderer> m_MeshRenderer = nullptr;  // TODO: 将来的に実装予定
     std::vector<std::unique_ptr<Component>> m_Components;       // 所属するコンポーネントのリスト
 };
