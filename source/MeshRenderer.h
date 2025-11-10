@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
+
 using namespace DirectX;
 
 // メッシュ形状列挙型
@@ -21,6 +22,7 @@ enum class MeshShape
 
 /// <summary>
 /// MeshRenderer メッシュの描画を担当するコンポーネント
+/// Transformのスケール x ローカルスケール を掛け合わせた値で描画される
 /// </summary>
 class MeshRenderer : public Component
 {	
@@ -34,7 +36,8 @@ public:
     ID3D11ShaderResourceView*   m_Texture       = nullptr;
     Transform*                  m_Transform     = nullptr;
 
-	MeshShape m_Shape = MeshShape::Box;    					// メッシュ形状
+    Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f };            // ローカルスケール
+	MeshShape m_Shape = MeshShape::Custom;    			    // メッシュ形状
 	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);				// メッシュ色
 	bool m_EnableTexture = false;                         	// テクスチャ有効フラグ
 
@@ -52,9 +55,12 @@ public:
 	/// <summary>
 	/// ライフサイクルメソッド
 	/// </summary>
-	void Init() override;
-	void Uninit() override;
+	void Init() override {};
+	void Uninit() override { Release(); };
 
+    // ----------------------------------------------------------------------
+    // 基本操作
+    // ----------------------------------------------------------------------
 	/// <summary>
 	/// テクスチャを設定する
 	/// </summary>
@@ -78,23 +84,28 @@ public:
         Renderer::CreatePixelShader(&m_PixelShader, psFilePath);
     }
 
-	/// <summary>
-	/// メッシュ形状を設定する
-	/// </summary>
-	void SetMeshShape(MeshShape shape) { m_Shape = shape; }
+    /// <summary>
+    /// ローカルスケールを設定する
+    /// </summary>
+    void SetLocalScale(float x, float y, float z)
+    {
+        m_LocalScale = { x, y, z };
+    }
 
-	/// <summary>
-	/// Planeメッシュを作成
-	/// </summary>
-	void CreatePlane(float width, float height)
-	{
-		float w = width / 2.0f, h = height / 2.0f;
+    /// ------------------------------------------------------------------------
+    /// 単位形状メッシュ作成
+    /// ------------------------------------------------------------------------
+    /// <summary>
+    /// 単位平面メッシュを作成（Plane）
+    /// </summary>
+    void CreateUnitPlane()
+    {
+        // 幅1、高さ1の平面を作成
 		VERTEX_3D v[4];
-
-		v[0].Position = {-w, 0.0f, -h};
-		v[1].Position = { w, 0.0f, -h};
-		v[2].Position = {-w, 0.0f,  h};
-		v[3].Position = { w, 0.0f,  h};
+		v[0].Position = {-0.5f, 0.0f,  0.5f};
+		v[1].Position = { 0.5f, 0.0f,  0.5f};
+		v[2].Position = {-0.5f, 0.0f, -0.5f};
+		v[3].Position = { 0.5f, 0.0f, -0.5f};
 
 		for (int i = 0; i < 4; ++i)
 		{
@@ -104,59 +115,60 @@ public:
 		}
 		MakeVertexBuffer(v, 4);
         m_Shape = MeshShape::Plane;
-	}
+    }
 
-	/// <summary>
-	/// Boxメッシュを作成
-	/// </summary>
-	void CreateBox(float w, float h, float d)
+    /// <summary>
+    /// 単位立方体メッシュを作成（Box）
+    /// </summary>
+    void CreateUnitBox()
     {
-        const float hw = w * 0.5f, hh = h * 0.5f, hd = d * 0.5f;
+        const float h = 0.5f;
+
         // 24頂点（各面4頂点×6面）
         VERTEX_3D v[24] =
         {
             // 前面
-            { { -hw, -hh,  hd }, { 0, 0,  1 }, {1,1,1,1}, {0,1} },
-            { {  hw, -hh,  hd }, { 0, 0,  1 }, {1,1,1,1}, {1,1} },
-            { { -hw,  hh,  hd }, { 0, 0,  1 }, {1,1,1,1}, {0,0} },
-            { {  hw,  hh,  hd }, { 0, 0,  1 }, {1,1,1,1}, {1,0} },
+            {{-h,-h, h},{0,0,1},{1,1,1,1},{0,1}},
+            {{ h,-h, h},{0,0,1},{1,1,1,1},{1,1}},
+            {{-h, h, h},{0,0,1},{1,1,1,1},{0,0}},
+            {{ h, h, h},{0,0,1},{1,1,1,1},{1,0}},
             // 背面
-            { {  hw, -hh, -hd }, { 0, 0, -1 }, {1,1,1,1}, {0,1} },
-            { { -hw, -hh, -hd }, { 0, 0, -1 }, {1,1,1,1}, {1,1} },
-            { {  hw,  hh, -hd }, { 0, 0, -1 }, {1,1,1,1}, {0,0} },
-            { { -hw,  hh, -hd }, { 0, 0, -1 }, {1,1,1,1}, {1,0} },
+            {{ h,-h,-h},{0,0,-1},{1,1,1,1},{0,1}},
+            {{-h,-h,-h},{0,0,-1},{1,1,1,1},{1,1}},
+            {{ h, h,-h},{0,0,-1},{1,1,1,1},{0,0}},
+            {{-h, h,-h},{0,0,-1},{1,1,1,1},{1,0}},
             // 右面
-            { {  hw, -hh, -hd }, { 1, 0, 0 }, {1,1,1,1}, {0,1} },
-            { {  hw, -hh,  hd }, { 1, 0, 0 }, {1,1,1,1}, {1,1} },
-            { {  hw,  hh, -hd }, { 1, 0, 0 }, {1,1,1,1}, {0,0} },
-            { {  hw,  hh,  hd }, { 1, 0, 0 }, {1,1,1,1}, {1,0} },
+            {{ h,-h, h},{1,0,0},{1,1,1,1},{0,1}},
+            {{ h, h, h},{1,0,0},{1,1,1,1},{0,0}},
+            {{ h,-h,-h},{1,0,0},{1,1,1,1},{1,1}},
+            {{ h, h,-h},{1,0,0},{1,1,1,1},{1,0}},
             // 左面
-            { { -hw, -hh,  hd }, { -1, 0, 0 }, {1,1,1,1}, {0,1} },
-            { { -hw, -hh, -hd }, { -1, 0, 0 }, {1,1,1,1}, {1,1} },
-            { { -hw,  hh,  hd }, { -1, 0, 0 }, {1,1,1,1}, {0,0} },
-            { { -hw,  hh, -hd }, { -1, 0, 0 }, {1,1,1,1}, {1,0} },
+            {{-h,-h,-h},{-1,0,0},{1,1,1,1},{0,1}},
+            {{-h, h,-h},{-1,0,0},{1,1,1,1},{0,0}},
+            {{-h,-h, h},{-1,0,0},{1,1,1,1},{1,1}},
+            {{-h, h, h},{-1,0,0},{1,1,1,1},{1,0}},
             // 上面
-            { { -hw,  hh, -hd }, { 0, 1, 0 }, {1,1,1,1}, {0,1} },
-            { {  hw,  hh, -hd }, { 0, 1, 0 }, {1,1,1,1}, {1,1} },
-            { { -hw,  hh,  hd }, { 0, 1, 0 }, {1,1,1,1}, {0,0} },
-            { {  hw,  hh,  hd }, { 0, 1, 0 }, {1,1,1,1}, {1,0} },
-            // 底面
-            { { -hw, -hh,  hd }, { 0, -1, 0 }, {1,1,1,1}, {0,1} },
-            { {  hw, -hh,  hd }, { 0, -1, 0 }, {1,1,1,1}, {1,1} },
-            { { -hw, -hh, -hd }, { 0, -1, 0 }, {1,1,1,1}, {0,0} },
-            { {  hw, -hh, -hd }, { 0, -1, 0 }, {1,1,1,1}, {1,0} },
+            {{-h, h, h},{0,1,0},{1,1,1,1},{0,1}},
+            {{-h, h,-h},{0,1,0},{1,1,1,1},{0,0}},
+            {{ h, h, h},{0,1,0},{1,1,1,1},{1,1}},
+            {{ h, h,-h},{0,1,0},{1,1,1,1},{1,0}},
+            // 下面
+            {{-h,-h,-h},{0,-1,0},{1,1,1,1},{0,1}},
+            {{-h,-h, h},{0,-1,0},{1,1,1,1},{0,0}},
+            {{ h,-h,-h},{0,-1,0},{1,1,1,1},{1,1}},
+            {{ h,-h, h},{0,-1,0},{1,1,1,1},{1,0}},
         };
 
         // 36インデックス（各面2三角形×3頂点×6面）
         const uint16_t indices[36] =
-        {
-            0,1,2 , 2,1,3,       // 前面
-            4,5,6 , 6,5,7,       // 背
-            8,9,10, 10,9,11,     // 右面
-            12,13,14, 14,13,15,  // 左面
-            16,17,18, 18,17,19,  // 上面
-            20,21,22, 22,21,23   // 底面
-        };
+            {
+                0, 1, 2, 2, 1, 3,       // 前面
+                4, 5, 6, 6, 5, 7,       // 背面
+                8, 9, 10, 10, 9, 11,    // 右面
+                12, 13, 14, 14, 13, 15, // 左面
+                16, 17, 18, 18, 17, 19, // 上面
+                20, 21, 22, 22, 21, 23  // 下面
+            };
 
         // 頂点バッファとインデックスバッファの作成
         MakeVertexBuffer(v, 24);
@@ -164,50 +176,60 @@ public:
         m_Shape = MeshShape::Box;
     }
 
-	/// <summary>
-	/// 球メッシュを作成
-	/// </summary>
-    // TODO: インデックスバッファを使って最適化する
-	void CreateSphere(float radius, int slices = 16, int stacks = 16)
+    /// <summary>
+    /// UnitSphereメッシュを作成
+    /// </summary>
+    void CreateUnitSphere(int slices = 16, int stacks = 16)
     {
         std::vector<VERTEX_3D> vertices;
-        for (int i = 0; i <= stacks; i++)
+        vertices.reserve((stacks + 1) * (slices + 1));
+
+        float radius = 0.5f;
+
+        for (int i = 0; i <= stacks; ++i)
         {
-            float v = (float)i / stacks;
+            float v = static_cast<float>(i) / stacks;
             float phi = XM_PI * v;
-            for (int j = 0; j <= slices; j++)
+
+            for (int j = 0; j <= slices; ++j)
             {
-                float u = (float)j / slices;
+                float u = static_cast<float>(j) / slices;
                 float theta = XM_2PI * u;
 
-                Vector3 pos{
+                Vector3 pos
+                {
                     radius * sinf(phi) * cosf(theta),
                     radius * cosf(phi),
                     radius * sinf(phi) * sinf(theta)
                 };
-                Vector3 n = pos;
-                n.Normalize();
 
-                VERTEX_3D vertex{};
-                vertex.Position = { pos.x, pos.y, pos.z };
-                vertex.Normal = { n.x, n.y, n.z };
-                vertex.Diffuse = {1,1,1,1};
-                vertex.TexCoord = {u, v};
-        
-                vertices.push_back(vertex);
+            Vector3 norm = pos;
+            norm.Normalize();
+
+            VERTEX_3D vertex{};
+            vertex.Position = { pos.x, pos.y, pos.z };
+            vertex.Normal = { norm.x, norm.y, norm.z };
+            vertex.Diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+            vertex.TexCoord = { u, v };
+            vertices.push_back(vertex);
             }
         }
-        MakeVertexBuffer(vertices.data(), (UINT)vertices.size());
+
+        MakeVertexBuffer(vertices.data(), static_cast<UINT>(vertices.size()));
         m_Shape = MeshShape::Sphere;
     }
 
+    /// ----------------------------------------------------------------------
+    /// 描画処理
+    /// ----------------------------------------------------------------------
 	/// <summary>
 	/// メッシュの描画
 	/// </summary>
 	void Draw() override
     {
-        // ワールド行列の取得
-        XMMATRIX world = m_Transform->GetWorldMatrix();
+        // ローカルスケールを反映したワールド行列を取得
+        const auto localScaleMatrix = XMMatrixScaling(m_LocalScale.x, m_LocalScale.y, m_LocalScale.z);
+        const auto world = localScaleMatrix * m_Transform->GetWorldMatrix();
 
         // マテリアル設定
         MATERIAL mat{};
