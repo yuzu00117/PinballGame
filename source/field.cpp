@@ -1,23 +1,13 @@
 #include "main.h"
 #include "renderer.h"
 #include "field.h"
-#include "MathUtil.h"
-#include <algorithm>
-#include <cmath>
 
-// --- XZ 2D ヘルパ ---
-static inline Vector3 XZ(const Vector3& v){ return {v.x, 0.0f, v.z}; }
-static inline float   dotXZ(const Vector3& a, const Vector3& b){ return a.x*b.x + a.z*b.z; }
-static inline float   lenXZ(const Vector3& v){ return std::sqrt(v.x*v.x + v.z*v.z); }
-static float closestT(const Vector3& p, const Vector3& a, const Vector3& b){
-    Vector3 ap = XZ(p - a), ab = XZ(b - a);
-    float ab2 = dotXZ(ab, ab);
-    if (ab2 <= 1e-6f) return 0.0f;
-    float t = dotXZ(ap, ab) / ab2;
-    return Clamp(t, 0.0f, 1.0f);
-}
+// コンポーネント関連
+#include "MeshRenderer.h"
+#include "ColliderGroup.h"
+#include "BoxCollider.h"
 
-// ----------------- GameObject 基本 -----------------
+// 初期化処理
 void Field::Init()
 {
     // --- 床メッシュ（既存どおり） ---
