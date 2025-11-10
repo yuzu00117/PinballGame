@@ -7,7 +7,6 @@
 /// <summary>
 /// 枠組みフィールドクラス
 /// </summary>
-/// TODO: 後でメッシュコライダーにする
 
 // 壁セグメント構造体
 struct WALL_SEGMENT
