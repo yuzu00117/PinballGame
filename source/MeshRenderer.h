@@ -38,7 +38,7 @@ public:
 
     Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f };            // ローカルスケール
 	MeshShape m_Shape = MeshShape::Custom;    			    // メッシュ形状
-	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);				// メッシュ色
+	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);				// メッシュ色（デフォルトは白）
 	bool m_EnableTexture = false;                         	// テクスチャ有効フラグ
 
 private:

@@ -99,7 +99,7 @@ void Ball::Update()
     }
     if (field)
     {
-        field->ResolveBallCollision(m_Position, m_Velocity, m_Radius);
+        //field->ResolveBallCollision(m_Position, m_Velocity, m_Radius);
     }
     // ƒoƒ“ƒp[‚Æ‚ÌÕ“Ë
     for (auto obj : Manager::GetGameObjects())
