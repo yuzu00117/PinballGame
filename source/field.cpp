@@ -10,62 +10,67 @@
 // 初期化処理
 void Field::Init()
 {
-    // --- メッシュレンダラーの追加と設定 ---
-    m_MeshRenderer = AddComponent<MeshRenderer>();
-    m_MeshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);
-    // m_MeshRenderer->SetTexture(TexturePath);
-    m_MeshRenderer->CreateUnitPlane();
+    // ----------------------------------------------------------------------
+    // 床の作成
+    // ----------------------------------------------------------------------
+    m_Floor = AddComponent<MeshRenderer>();
+    m_Floor->LoadShader(VertexShaderPath, PixelShaderPath);
+    m_Floor->SetTexture(TexturePath);
+    m_Floor->CreateUnitPlane();
+    m_Floor->SetLocalScale(HalfWidth * 2.0f, 1.0f, HalfHeight * 2.0f);
 
-    // --- スケール調整 ---
-    m_MeshRenderer->SetLocalScale(HalfWidth * 2.0f, 1.0f, HalfHeight * 2.0f);
+    // ----------------------------------------------------------------------
+    // 壁の作成
+    // ----------------------------------------------------------------------
+    const float yCenter = WallHeight * 0.5f;
 
-    // --- 当たり判定の追加 ---
-    // 外周4辺の壁をBoxColliderで設定
-    m_ColliderGroup = AddComponent<ColliderGroup>();
+    auto MakeWall = [&](const Vector3& position, const Vector3& scale)
+    {
+        // 子オブジェクトとして壁を作成
+        GameObject* wallObj = CreateChild();
+        wallObj->m_Transform.Position = position;
+        wallObj->m_Transform.Scale = scale;
 
-    // 下
-    {
-        auto* BoxCollier = m_ColliderGroup->AddCollider<BoxCollider>();
-        BoxCollier->m_ColliderType = ColliderType::Box;
-        BoxCollier->Size = { HalfWidth * 2.0f, WallHeight, WallThick };
-        BoxCollier->Center = { 0.0f, WallHeight * 0.5f, -HalfHeight + WallThick * 0.5f };
-    }
-    // 上
-    {
-        auto* BoxCollier = m_ColliderGroup->AddCollider<BoxCollider>();
-        BoxCollier->m_ColliderType = ColliderType::Box;
-        BoxCollier->Size = { HalfWidth * 2.0f, WallHeight, WallThick };
-        BoxCollier->Center = { 0.0f, WallHeight * 0.5f, HalfHeight - WallThick * 0.5f };
-    }
-    // 左
-    {
-        auto* BoxCollier = m_ColliderGroup->AddCollider<BoxCollider>();
-        BoxCollier->m_ColliderType = ColliderType::Box;
-        BoxCollier->Size = { WallThick, WallHeight, HalfHeight * 2.0f };
-        BoxCollier->Center = { -HalfWidth + WallThick * 0.5f, WallHeight * 0.5f, 0.0f };
-    }
-    // 右
-    {
-        auto* BoxCollier = m_ColliderGroup->AddCollider<BoxCollider>();
-        BoxCollier->m_ColliderType = ColliderType::Box;
-        BoxCollier->Size = { WallThick, WallHeight, HalfHeight * 2.0f };
-        BoxCollier->Center = { HalfWidth - WallThick * 0.5f, WallHeight * 0.5f, 0.0f };
-    }
+        // 見た目の設定
+        auto wallMesh = wallObj->AddComponent<MeshRenderer>();
+        wallMesh->LoadShader(VertexShaderPath, PixelShaderPath);    // シェーダーの設定
+        wallMesh->CreateUnitBox();                                  // メッシュの作成
+        wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);      // 色の設定
+        // wallMesh->SetTexture(TexturePath);                          // テクスチャの設定
+
+        // 当たり判定の設定
+        auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
+        auto boxCollider = wallColliderGroup->AddCollider<BoxCollider>();
+        boxCollider->Center = { 0.0f, 0.0f, 0.0f };
+        boxCollider->Size = { 1.0f, 1.0f, 1.0f };
+    };
+
+    // 壁の作成
+    MakeWall({ 0.0f, yCenter,  HalfHeight + WallThick * 0.5f }, 
+             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // 前
+    MakeWall({ 0.0f, yCenter, -HalfHeight - WallThick * 0.5f }, 
+             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // 後
+    MakeWall({ -HalfWidth - WallThick * 0.5f, yCenter, 0.0f }, 
+             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 左
+    MakeWall({ HalfWidth + WallThick * 0.5f, yCenter, 0.0f }, 
+             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 右
 }
 
 void Field::Uninit()
 {
-    m_MeshRenderer = nullptr;
+    m_Floor = nullptr;
     m_ColliderGroup = nullptr;
 }
 
 void Field::Update()
 {
-    // 今は特に無し
+    // フィールド固有の更新処理
+    GameObject::Update();
 }
 
 void Field::Draw()
 {
-    // MeshRenderer側で描画処理を行う
-    m_MeshRenderer->Draw();
+    // フィールド固有の描画処理
+    GameObject::Draw();
+
 }
