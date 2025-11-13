@@ -46,10 +46,16 @@ void ModelRenderer::LoadShader(const char *vsFilePath, const char *psFilePath)
 // ------------------------------------------------------------
 void ModelRenderer::Draw()
 {
+	auto* ctx = Renderer::GetDeviceContext();
+
+	// ワールド行列設定
+	XMMATRIX localScaleMatrix = XMMatrixScaling(m_LocalScale.x, m_LocalScale.y, m_LocalScale.z);
+	XMMATRIX worldMatrix = localScaleMatrix * m_Transform->GetWorldMatrix();
+	Renderer::SetWorldMatrix(worldMatrix);
+
 	// 頂点バッファ設定
 	UINT stride = sizeof(VERTEX_3D);
 	UINT offset = 0;
-	auto *ctx = Renderer::GetDeviceContext();
 	ctx->IASetVertexBuffers(0, 1, &m_Model->VertexBuffer, &stride, &offset);
 
 	// インデックスバッファ設定
@@ -58,28 +64,41 @@ void ModelRenderer::Draw()
 	// プリミティブトポロジ設定
 	ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// シェーダー・レイアウト設定（設定されていれば）
+	if (m_VertexLayout) ctx->IASetInputLayout(m_VertexLayout);
+	if (m_VertexShader) ctx->VSSetShader(m_VertexShader, nullptr, 0);
+	if (m_PixelShader) ctx->PSSetShader(m_PixelShader, nullptr, 0);
+
+	// サブセットごとにマテリアルとテクスチャを設定して描画
 	for (unsigned int i = 0; i < m_Model->SubsetNum; i++)
 	{
 		// マテリアル設定
 		Renderer::SetMaterial(m_Model->SubsetArray[i].Material.Material);
 
-		// テクスチャ設定（無ければ必ずNULLで上書き）
+		// テクスチャ設定
 		if (m_Model->SubsetArray[i].Material.Texture)
 		{
 			ctx->PSSetShaderResources(0, 1, &m_Model->SubsetArray[i].Material.Texture);
 		}
 		else
 		{
-			ID3D11ShaderResourceView *nullSrv = nullptr;
+			ID3D11ShaderResourceView* nullSrv = nullptr;
 			ctx->PSSetShaderResources(0, 1, &nullSrv);
 		}
 
 		// ポリゴン描画
-		ctx->DrawIndexed(m_Model->SubsetArray[i].IndexNum,
-						 m_Model->SubsetArray[i].StartIndex, 0);
+		ctx->DrawIndexed(
+			m_Model->SubsetArray[i].IndexNum,
+			m_Model->SubsetArray[i].StartIndex,
+			0);
 	}
 }
 
+// ------------------------------------------------------------
+// モデルプール関連
+// -----------------------------------------------------------
+
+// モデルの事前読み込み
 void ModelRenderer::Preload(const char *FileName)
 {
 	if (m_ModelPool.count(FileName) > 0)
@@ -93,6 +112,7 @@ void ModelRenderer::Preload(const char *FileName)
 	m_ModelPool[FileName] = model;
 }
 
+// モデルプールの全解放
 void ModelRenderer::UnloadAll()
 {
 	for (std::pair<const std::string, MODEL *> pair : m_ModelPool)
@@ -114,6 +134,9 @@ void ModelRenderer::UnloadAll()
 	m_ModelPool.clear();
 }
 
+// ------------------------------------------------------------
+// モデル読み込み
+// ------------------------------------------------------------
 void ModelRenderer::Load(const char *FileName)
 {
 	if (m_ModelPool.count(FileName) > 0)

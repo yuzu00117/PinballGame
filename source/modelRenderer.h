@@ -64,10 +64,20 @@ private:
 	// ----------------------------------------------------------------------
 	// 関数定義
 	// ----------------------------------------------------------------------
+	/// <summary>
+	/// モデル読み込み補助関数
+	/// </summary>
 	static void LoadModel(const char* FileName, MODEL* Model);
-	static void LoadObj(const char* FileName, MODEL_OBJ* ModelObj);
-	static void LoadMaterial(const char* FileName, MODEL_MATERIAL** MaterialArray, unsigned int* MaterialNum);
 
+	/// <summary>
+	/// OBJファイル読み込み
+	/// </summary>
+	static void LoadObj(const char* FileName, MODEL_OBJ* ModelObj);
+
+	/// <summary>
+	/// マテリアル読み込み
+	/// </summary>
+	static void LoadMaterial(const char* FileName, MODEL_MATERIAL** MaterialArray, unsigned int* MaterialNum);
 
 public:
 	// ----------------------------------------------------------------------
@@ -105,7 +115,7 @@ public:
 	/// <summary>
 	/// モデルを読み込む
 	/// </summary>
-	void LoadModel(const char* FileName);
+	void Load(const char* FileName);
 
 	/// <summary>
 	/// モデル用シェーダーを設定する
