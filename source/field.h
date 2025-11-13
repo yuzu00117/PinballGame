@@ -2,21 +2,14 @@
 
 #include "gameobject.h"
 #include "vector3.h"
-#include <vector>
+
+// 前方宣言
+class MeshRenderer;
+class ColliderGroup;
 
 /// <summary>
-/// 枠組みフィールドクラス
+/// ピンボールのフィールドオブジェクトクラス
 /// </summary>
-
-// 壁セグメント構造体
-struct WALL_SEGMENT
-{
-    Vector3 Start;              // 壁の開始位置
-    Vector3 End;                // 壁の終了位置
-    float Radius = 0.5f;        // 壁の太さ
-    float Restitution = 0.8f;   // 反発係数
-};
-
 class Field : public GameObject
 {
 public:
@@ -26,23 +19,17 @@ public:
     void Update() override;
     void Draw() override;
 
-    // 物理インターフェース
-    void ResolveBallCollision(Vector3& ballPos, Vector3& ballVel, float ballRadius) const;
-
-    // 壁管理
-    void ClearWalls();
-    void AddWall(const WALL_SEGMENT& wall);
-    void BuildDefaultFrame(float halfW = 9.5f, float halfH = 14.5f, float thick = 0.2f);
-
-    const std::vector<WALL_SEGMENT>& GetWalls() const { return m_Walls; }
-
 private:
+    // --- 定数定義 ---
+    static constexpr float HalfWidth  = 9.5f;                                       // フィールドの幅の半分
+    static constexpr float HalfHeight = 14.5f;                                      // フィールドの高さの半分
+    static constexpr float WallThick  = 1.0f;                                       // 壁の厚さ
+    static constexpr float WallHeight = 2.0f;                                       // 壁の高さ
+    static constexpr const wchar_t* TexturePath = L"asset\\texture\\field004.jpg";  // テクスチャのパス
+    static constexpr const char* VertexShaderPath = "shader\\unlitTextureVS.cso";   // 頂点シェーダのパス
+    static constexpr const char* PixelShaderPath  = "shader\\unlitTexturePS.cso";   // ピクセルシェーダのパス
+    
     // --- 変数定義 ---
-    ID3D11Buffer*               m_VertexBuffer  = nullptr;
-    ID3D11InputLayout*          m_VertexLayout  = nullptr;
-    ID3D11VertexShader*         m_VertexShader  = nullptr;
-    ID3D11PixelShader*          m_PixelShader   = nullptr;
-    ID3D11ShaderResourceView*   m_Texture       = nullptr;
-
-    std::vector<WALL_SEGMENT>   m_Walls;      // 壁セグメント配列
+    MeshRenderer* m_Floor = nullptr;
+    ColliderGroup* m_ColliderGroup = nullptr;
 };
