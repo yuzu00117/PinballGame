@@ -8,6 +8,11 @@
 class BoxCollider : public Collider
 {
 public:
+    // --- 変数定義 ---
+    Vector3 Center = { 0.0f, 0.0f, 0.0f }; // ボックスの中心座標
+    Vector3 Size = { 1.0f, 1.0f, 1.0f };   // ボックスのサイズ（幅・高さ・奥行き）
+    float Restitution = 0.8f;              // 反発係数
+    
     // --- 関数定義 ---
     /// <summary>
     /// ワールド座標を返す
@@ -26,9 +31,4 @@ public:
     /// コライダーのデバッグ描画
     /// </summary>
     void DebugDraw() override;
-
-    // --- 変数定義 ---
-    Vector3 Center = { 0.0f, 0.0f, 0.0f }; // ボックスの中心座標
-    Vector3 Size = { 1.0f, 1.0f, 1.0f };   // ボックスのサイズ（幅・高さ・奥行き）
-    float Restitution = 0.8f;              // 反発係数
 };
