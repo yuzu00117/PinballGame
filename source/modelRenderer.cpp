@@ -8,8 +8,42 @@
 #include "renderer.h"
 #include "modelRenderer.h"
 
+using namespace DirectX;
+
+// 静的メンバ変数の初期化
 std::unordered_map<std::string, MODEL *> ModelRenderer::m_ModelPool;
 
+// ------------------------------------------------------------
+// ライフサイクルメソッド
+// ------------------------------------------------------------
+void ModelRenderer::Uninit()
+{
+	// シェーダー解放
+	m_VertexShader->Release();
+	m_VertexShader = nullptr;
+
+	m_PixelShader->Release();
+	m_PixelShader = nullptr;
+
+	m_VertexLayout->Release();
+	m_VertexLayout = nullptr;
+
+	// モデルはプールで管理されているため解放しない
+	m_Model = nullptr;
+}
+
+// ------------------------------------------------------------
+// シェーダー読み込み
+// ------------------------------------------------------------
+void ModelRenderer::LoadShader(const char *vsFilePath, const char *psFilePath)
+{
+	Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, vsFilePath);
+	Renderer::CreatePixelShader(&m_PixelShader, psFilePath);
+}
+
+// ------------------------------------------------------------
+// モデル描画
+// ------------------------------------------------------------
 void ModelRenderer::Draw()
 {
 	// 頂点バッファ設定

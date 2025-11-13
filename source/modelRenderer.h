@@ -1,6 +1,13 @@
 #pragma once
 
+#include "component.h"
+#include "Transform.h"
+#include "vector3.h"
+#include <string>
+#include <unordered_map>
+#include <DirectXMath.h>
 
+using namespace DirectX;
 
 // マテリアル構造体
 struct MODEL_MATERIAL
@@ -12,7 +19,6 @@ struct MODEL_MATERIAL
 
 };
 
-
 // 描画サブセット構造体
 struct SUBSET
 {
@@ -20,7 +26,6 @@ struct SUBSET
 	unsigned int	IndexNum;
 	MODEL_MATERIAL	Material;
 };
-
 
 // モデル構造体
 struct MODEL_OBJ
@@ -44,33 +49,76 @@ struct MODEL
 	unsigned int	SubsetNum;
 };
 
-
-#include "component.h"
-#include <string>
-#include <unordered_map>
-
-
+/// <summary>
+/// 3Dモデルを描画するコンポーネント
+/// </summary>
 class ModelRenderer : public Component
 {
 private:
+	// ----------------------------------------------------------------------
+	// 変数定義
+	// ----------------------------------------------------------------------
+	static std::unordered_map<std::string, MODEL*> m_ModelPool;	// モデルプール
+	MODEL* m_Model{};
 
-	static std::unordered_map<std::string, MODEL*> m_ModelPool;
-
+	// ----------------------------------------------------------------------
+	// 関数定義
+	// ----------------------------------------------------------------------
 	static void LoadModel(const char* FileName, MODEL* Model);
 	static void LoadObj(const char* FileName, MODEL_OBJ* ModelObj);
 	static void LoadMaterial(const char* FileName, MODEL_MATERIAL** MaterialArray, unsigned int* MaterialNum);
 
-	MODEL* m_Model{};
 
 public:
+	// ----------------------------------------------------------------------
+	// 変数定義
+	// ----------------------------------------------------------------------
+	Transform* m_Transform = nullptr; 				// 所属するTransformコンポーネントへのポインタ
+	Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f }; 	// ローカルスケール
 
+	// モデル用シェーダー
+	ID3D11VertexShader* m_VertexShader = nullptr;	// 頂点シェーダー
+	ID3D11PixelShader* m_PixelShader = nullptr;		// ピクセルシェーダー
+	ID3D11InputLayout* m_VertexLayout = nullptr;	// 頂点レイアウト
+
+	// ----------------------------------------------------------------------
+	// 関数定義
+	// ----------------------------------------------------------------------
+	/// <summary>
+	/// ライフサイクルメソッド
+	/// </summary>
+	ModelRenderer() = default;
+	~ModelRenderer() override { Uninit(); }
+
+	void Init() override {};
+	void Uninit() override;
+
+	/// <summary>
+	/// 静的操作
+	/// </summary>
 	static void Preload(const char* FileName);
 	static void UnloadAll();
 
-
+	// インスタンス操作
 	using Component::Component;
 
-	void Load(const char* FileName);
-	void Draw() override;
+	/// <summary>
+	/// モデルを読み込む
+	/// </summary>
+	void LoadModel(const char* FileName);
 
+	/// <summary>
+	/// モデル用シェーダーを設定する
+	/// </summary>
+	void LoadShader(const char* vsFilePath, const char* psFilePath);
+
+	/// <summary>
+	/// ローカルスケールを設定する
+	/// </summary>
+	void SetLocalScale(float x, float y, float z) { m_LocalScale = { x, y, z }; }
+
+	/// <summary>
+	/// モデルの描画
+	/// </summary>
+	void Draw() override;
 };
