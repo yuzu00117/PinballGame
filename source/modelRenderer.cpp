@@ -7,6 +7,7 @@
 #include "main.h"
 #include "renderer.h"
 #include "modelRenderer.h"
+#include "gameobject.h"
 
 using namespace DirectX;
 
@@ -16,8 +17,28 @@ std::unordered_map<std::string, MODEL *> ModelRenderer::m_ModelPool;
 // ------------------------------------------------------------
 // ライフサイクルメソッド
 // ------------------------------------------------------------
+void ModelRenderer::Init()
+{
+	// OwnerからTransformコンポーネントを取得
+	m_Transform = m_Owner->GetComponent<Transform>();
+
+	// 念の為アサーション
+	assert(m_Transform && "ModelRenderer::Init: Transform component not found in Owner GameObject");
+
+	// まだシェーダーが設定されていなければデフォルトシェーダーを読み込む
+	if (!m_VertexShader || !m_PixelShader || !m_VertexLayout)
+	{
+		LoadShader(kDefaultVSPath, kDefaultPSPath);
+	}
+}
+
 void ModelRenderer::Uninit()
 {
+	// アサーション
+	assert(m_VertexShader && "ModelRenderer::Uninit: VertexShader is null");
+	assert(m_PixelShader && "ModelRenderer::Uninit: PixelShader is null");
+	assert(m_VertexLayout && "ModelRenderer::Uninit: VertexLayout is null");
+
 	// シェーダー解放
 	m_VertexShader->Release();
 	m_VertexShader = nullptr;
@@ -46,6 +67,10 @@ void ModelRenderer::LoadShader(const char *vsFilePath, const char *psFilePath)
 // ------------------------------------------------------------
 void ModelRenderer::Draw()
 {
+	// アサーション
+	assert(m_Model && "ModelRenderer::Draw: Model is null");
+	assert(m_Transform && "ModelRenderer::Draw: Transform is null");
+
 	auto* ctx = Renderer::GetDeviceContext();
 
 	// ワールド行列設定
