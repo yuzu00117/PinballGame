@@ -41,8 +41,6 @@ void Field::Init()
         // “–‚½‚è”»’è‚Ìİ’è
         auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
         auto boxCollider = wallColliderGroup->AddCollider<BoxCollider>();
-        boxCollider->Center = { 0.0f, 0.0f, 0.0f };
-        boxCollider->Size = { 1.0f, 1.0f, 1.0f };
     };
 
     // •Ç‚Ìì¬
