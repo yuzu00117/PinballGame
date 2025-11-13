@@ -4,6 +4,8 @@
 #include "vector3.h"
 #include "gameobject.h"
 
+class ModelRenderer;
+
 /// <summary>
 /// ピンボールのボールクラス
 /// </summary>
@@ -40,9 +42,6 @@ private:
     class ModelRenderer *m_ModelRenderer;                           // モデルレンダラー
     ID3D11ShaderResourceView *m_Texture;                            // テクスチャ
 
-    Vector3 m_Position = { 0.0f, 0.0f, 0.0f };                      // 位置
-    Vector3 m_Rotation = { 0.0f, 0.0f, 0.0f };                      // 回転
-    Vector3 m_Scale = DefaultBallScale;                             // スケール
     Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };                      // 速度
     float m_Radius = DefaultBallRadius;                             // 半径
     float m_Bounce = DefaultBallBounce;                             // 反発係数

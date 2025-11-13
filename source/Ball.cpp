@@ -13,8 +13,10 @@ const Vector3 Ball::DefaultBallScale = { 0.5f, 0.5f, 0.5f };
 // ‰Šú‰»ˆ—
 void Ball::Init()
 {
-    m_Position = {0.0f, 3.0f, 0.0f};
-    m_Rotation = {0.0f, 0.0f, 0.0f};
+    // Transform‚Ì‰ŠúÝ’è
+    m_Transform.Position = { 0.0f, 3.0f, 0.0f };
+    m_Transform.Rotation = { 0.0f, 0.0f, 0.0f };
+    m_Transform.Scale = DefaultBallScale;
 
     m_ModelRenderer = new ModelRenderer();
     m_ModelRenderer->Load("asset\\model\\ball.obj");
