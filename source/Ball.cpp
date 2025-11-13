@@ -20,8 +20,8 @@ void Ball::Init()
     m_ModelRenderer->Load("asset\\model\\ball.obj");
 
 
-    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\unlitTextureVS.cso");
-    Renderer::CreatePixelShader(&m_PixelShader, "shader\\unlitTexturePS.cso");
+    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\unlitTextureVS.cso");
+    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\unlitTexturePS.cso");
 }
 
 // I—¹ˆ—

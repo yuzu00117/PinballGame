@@ -4,11 +4,14 @@
 #include "renderer.h"
 #include "audio.h"
 #include "input.h"
-#include <windows.h>
 #include "scene.h"
+#include "DebugSettings.h"
+#include <windows.h>
 
 Manager::Scene Manager::m_CurrentScene = Manager::Scene::Title; // 初期シーンはタイトル
 std::vector<GameObject*> Manager::m_SceneGameObjects;
+
+bool g_EnableColliderDebugDraw = false; // コライダーのデバッグ描画（デフォルト無効）
 
 void Manager::Init() {
     Renderer::Init();
@@ -41,6 +44,14 @@ void Manager::Update()
     for (auto obj : m_SceneGameObjects) {
         obj->Update();
     }
+
+    // デバッグ用コライダー描画
+    static bool prevDebugDraw = false;
+    bool currDebugDraw = Input::GetKeyPress(VK_F1); // F1キーで切り替え
+    if (currDebugDraw && !prevDebugDraw) {
+        g_EnableColliderDebugDraw = !g_EnableColliderDebugDraw;
+    }
+    prevDebugDraw = currDebugDraw;
         
     // Enter キー（VK_RETURN）が押されていたら、現在のシーンに応じて次のシーンへ
 	// 押下チェック

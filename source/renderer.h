@@ -41,7 +41,11 @@ struct LIGHT
 	XMFLOAT4	Ambient;
 };
 
-
+struct DebugLineVertex
+{
+	DirectX::XMFLOAT3 Position;
+	DirectX::XMFLOAT4 Color;
+};
 
 class Renderer
 {
@@ -103,4 +107,7 @@ public:
 
 	// 追加：テキスト描画
 	static void DrawText(const std::wstring& text, float x, float y);
+
+	// デバッグ線
+	static void DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount);
 };

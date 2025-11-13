@@ -52,6 +52,14 @@ public:
         return hit;
     }
 
+    /// <summary>
+    /// デバッグ描画
+    /// </summary>
+    void DebugDraw() override
+    {
+        for (auto& c : colliders) c->DebugDraw(); // 各コライダーのデバッグ描画を呼び出す
+    }
+
     // --- 変数定義 ---
     std::vector<std::unique_ptr<Collider>> colliders;           // コライダーのリスト
     ColliderGroup() { m_ColliderType = ColliderType::Group; }   // コライダーの種類をグループに設定

@@ -26,8 +26,8 @@ private:
     static constexpr float WallThick  = 1.0f;                                       // 壁の厚さ
     static constexpr float WallHeight = 2.0f;                                       // 壁の高さ
     static constexpr const wchar_t* TexturePath = L"asset\\texture\\field004.jpg";  // テクスチャのパス
-    static constexpr const char* VertexShaderPath = "shader\\unlitTextureVS.cso";   // 頂点シェーダのパス
-    static constexpr const char* PixelShaderPath  = "shader\\unlitTexturePS.cso";   // ピクセルシェーダのパス
+    static constexpr const char* VertexShaderPath = "shader\\bin\\unlitTextureVS.cso";   // 頂点シェーダのパス
+    static constexpr const char* PixelShaderPath  = "shader\\bin\\unlitTexturePS.cso";   // ピクセルシェーダのパス
     
     // --- 変数定義 ---
     MeshRenderer* m_Floor = nullptr;
