@@ -3,6 +3,7 @@
 #include "Collider.h"
 #include "Component.h"
 #include "MeshRenderer.h"
+#include "DebugSettings.h"
 #include <memory>
 #include <vector>
 #include <type_traits>
@@ -47,6 +48,18 @@ public:
         for (auto& Component : m_Components) Component->Draw();
         // 子オブジェクトの描画
         for (auto& Child : m_Children) Child->Draw();
+
+        // デバッグ用コライダー描画
+        if (g_EnableColliderDebugDraw)
+        {
+            for (auto& component : m_Components)
+            {
+                if (auto collider = dynamic_cast<Collider*>(component.get()))
+                {
+                    collider->DebugDraw();
+                }
+            }
+        }
     }
 
     /// <summary>

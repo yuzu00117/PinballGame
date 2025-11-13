@@ -50,8 +50,8 @@
 //    assert(m_Texture);
 //
 //    // シェーダー読み込み
-//    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\unlitTextureVS.cso");
-//    Renderer::CreatePixelShader(&m_PixelShader, "shader\\unlitTexturePS.cso");
+//    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\unlitTextureVS.cso");
+//    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\unlitTexturePS.cso");
 //}
 //
 //void Explosion::Uninit()

@@ -35,6 +35,13 @@ IDWriteFactory* Renderer::m_DWriteFactory = nullptr;
 IDWriteTextFormat* Renderer::m_TextFormat = nullptr;
 ID2D1SolidColorBrush* Renderer::m_Brush = nullptr;
 
+// デバッグ描画用静的変数
+static ID3D11Buffer* 		s_DebugVB 		= nullptr;
+static UINT 				s_DebugVBBytes 	= 0;
+static ID3D11VertexShader*	s_DebugLineVS	= nullptr;
+static ID3D11PixelShader*	s_DebugLinePS	= nullptr;
+static ID3D11InputLayout*	s_DebugLineIL	= nullptr;
+
 
 void Renderer::Init()
 {
@@ -492,4 +499,81 @@ void Renderer::DrawText(const std::wstring& text, float x, float y)
 
 	// 3) 描画確定
 	m_D2DRT->EndDraw();
+}
+
+// デバッグ描画用パイプライン確保
+static void EnsureDebugLinePipeline()
+{
+	const char* vsPath = "shader\\bin\\DebugLineVS.cso";
+	const char* psPath = "shader\\bin\\DebugLinePS.cso";
+
+	// バイトコード読み込み
+	FILE* fp = fopen(vsPath, "rb"); assert(fp);
+	fseek(fp, 0, SEEK_END); long vsSize = ftell(fp); fseek(fp, 0, SEEK_SET);
+	std::vector<unsigned char> vsBlob(vsSize);
+	fread(vsBlob.data(), 1, vsSize, fp); fclose(fp);
+
+	// VS/IL 作成
+	Renderer::GetDevice()->CreateVertexShader(vsBlob.data(), vsSize, nullptr, &s_DebugLineVS);
+
+	D3D11_INPUT_ELEMENT_DESC il[] = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,                 D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, sizeof(float)*3,   D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+    Renderer::GetDevice()->CreateInputLayout(il, _countof(il), vsBlob.data(), vsSize, &s_DebugLineIL);
+
+    // PS作成
+    fp = fopen(psPath, "rb"); assert(fp);
+    fseek(fp, 0, SEEK_END); long psSize = ftell(fp); fseek(fp, 0, SEEK_SET);
+    std::vector<unsigned char> psBlob(psSize);
+    fread(psBlob.data(), 1, psSize, fp); fclose(fp);
+    Renderer::GetDevice()->CreatePixelShader(psBlob.data(), psSize, nullptr, &s_DebugLinePS);
+}
+
+// デバッグライン描画
+void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
+{
+    if (!vertices || vertexCount == 0) return;
+
+    EnsureDebugLinePipeline();
+
+    auto* dev = GetDevice();
+    auto* ctx = GetDeviceContext();
+
+    // 動的VBを確保/拡張（毎フレーム使い回し）
+    const UINT bytesNeeded = sizeof(DebugLineVertex) * vertexCount;
+    if (!s_DebugVB || s_DebugVBBytes < bytesNeeded)
+    {
+        if (s_DebugVB) { s_DebugVB->Release(); s_DebugVB = nullptr; }
+        s_DebugVBBytes = std::max<UINT>(bytesNeeded, 4096); // 少し余裕を確保
+
+        D3D11_BUFFER_DESC bd{};
+        bd.Usage = D3D11_USAGE_DYNAMIC;
+        bd.ByteWidth = s_DebugVBBytes;
+        bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        dev->CreateBuffer(&bd, nullptr, &s_DebugVB);
+    }
+
+    // データ転送
+    D3D11_MAPPED_SUBRESOURCE msr{};
+    ctx->Map(s_DebugVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+    memcpy(msr.pData, vertices, bytesNeeded);
+    ctx->Unmap(s_DebugVB, 0);
+
+    // 行列：World=I（BoxCollider側でworld変換済みを渡している想定）
+    // 既存の WVP 定数バッファ更新APIをそのまま使う
+    Renderer::SetWorldMatrix(DirectX::XMMatrixIdentity());  // 既存APIあり :contentReference[oaicite:2]{index=2}
+    // View/Projection は「直前に設定されている値」を流用（通常の3D描画と同じ）
+
+    // パイプライン設定（シンプルVS/PS・独自IL・LINELIST）
+    UINT stride = sizeof(DebugLineVertex), offset = 0;
+    ctx->IASetInputLayout(s_DebugLineIL);
+    ctx->IASetVertexBuffers(0, 1, &s_DebugVB, &stride, &offset);
+    ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+    ctx->VSSetShader(s_DebugLineVS, nullptr, 0);
+    ctx->PSSetShader(s_DebugLinePS, nullptr, 0);
+
+    // 深度は通常ONのままでOK（必要なら SetDepthEnable(false) で2D重ね描きに）
+    ctx->Draw(vertexCount, 0);
 }

@@ -50,10 +50,10 @@ void Polygon2D::Init()
     assert(m_Texture);
 
     Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout,
-        "shader\\unlitTextureVS.cso");
+        "shader\\bin\\unlitTextureVS.cso");
 
     Renderer::CreatePixelShader(&m_PixelShader,
-        "shader\\unlitTexturePS.cso");
+        "shader\\bin\\unlitTexturePS.cso");
 }
 
 void Polygon2D::Uninit()

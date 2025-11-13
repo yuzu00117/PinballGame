@@ -31,8 +31,8 @@ void Flipper::Init()
     m_ModelRenderer->Load("asset\\model\\FlipperTest.obj");
 
     // シェーダー作成
-    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\unlitTextureVS.cso");
-    Renderer::CreatePixelShader(&m_PixelShader, "shader\\unlitTexturePS.cso");
+    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\unlitTextureVS.cso");
+    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\unlitTexturePS.cso");
 }
 
 // 終了処理
