@@ -1,6 +1,7 @@
 #include "SphereCollider.h"
 #include "BoxCollider.h"
 #include "renderer.h"
+#include "MathUtil.h"
 #include <algorithm>
 
 // è’ìÀèàóù
@@ -36,9 +37,9 @@ bool SphereCollider::OnCollision(Collider& other)
         Vector3 p = GetWorldPosition();
 
         // ç≈ãﬂê⁄ì_ÇBoxÇ…Clamp
-        float cx = std::max(boxMin.x, std::min(p.x, boxMax.x));
-        float cy = std::max(boxMin.y, std::min(p.y, boxMax.y));
-        float cz = std::max(boxMin.z, std::min(p.z, boxMax.z));
+        float cx = Clamp(p.x, boxMin.x, boxMax.x);
+        float cy = Clamp(p.y, boxMin.y, boxMax.y);
+        float cz = Clamp(p.z, boxMin.z, boxMax.z);
 
         float dx = p.x - cx;
         float dy = p.y - cy;
