@@ -146,6 +146,7 @@
     <ClCompile Include="source\result.cpp" />
     <ClCompile Include="source\score.cpp" />
     <ClCompile Include="source\soundManager.cpp" />
+    <ClCompile Include="source\SphereCollider.cpp" />
     <ClCompile Include="source\title.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,9 +177,10 @@
     <ClInclude Include="source\scene.h" />
     <ClInclude Include="source\score.h" />
     <ClInclude Include="source\soundManager.h" />
+    <ClInclude Include="source\SphereCollider.h" />
     <ClInclude Include="source\title.h" />
     <ClInclude Include="source\Transform.h" />
-    <ClInclude Include="source\vector3.h" />
+    <ClInclude Include="source\Vector3.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader\src\common.hlsl">
