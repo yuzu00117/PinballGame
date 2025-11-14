@@ -18,7 +18,9 @@ template<typename T>
 /// <returns>ƒNƒ‰ƒ“ƒvŒã‚Ì’l</returns>
 inline T Clamp(T value, T minVal, T maxVal)
 {
-	return std::min(std::max(value, minVal), maxVal);
+	if (value < minVal) return minVal;
+	if (value > maxVal) return maxVal;
+	return value;
 }
 
 #endif //_MATHUTIL_H
