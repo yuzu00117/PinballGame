@@ -11,45 +11,41 @@
 class Collider;
 
 /// <summary>
-/// ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ÌŠî’êƒNƒ‰ƒX
+/// ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åŸºåº•ã‚¯ãƒ©ã‚¹
 /// </summary>
 class GameObject  
-{  
+{
 public:
-    // --- •Ï”’è‹` ---
-    Transform m_Transform;                                  // ƒIƒuƒWƒFƒNƒg‚ÌTransformî•ñ
-
-protected:
-    GameObject* m_Parent = nullptr;                         // eƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
-    std::vector<std::unique_ptr<Component>> m_Components;   // Š‘®‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌƒŠƒXƒg
-    std::vector<std::unique_ptr<GameObject>> m_Children;    // qƒIƒuƒWƒFƒNƒg‚ÌƒŠƒXƒg
-
-public:
-    // --- ŠÖ”’è‹` ---
+    // ------------------------------------------------------------------------------
+    // é–¢æ•°å®šç¾©
+    // ------------------------------------------------------------------------------
+    /// <summary>
+    /// ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ãƒ»ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+    /// </summary>
     virtual ~GameObject() = default;
 
     /// <summary>
-    /// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+    /// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«ãƒ¡ã‚½ãƒƒãƒ‰
     /// </summary>
     virtual void Init() {}  
     virtual void Uninit() {}  
     virtual void Update()
     {
-        // ƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌXV
+        // ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®æ›´æ–°
         for (auto& Component : m_Components) Component->Update();
-        // qƒIƒuƒWƒFƒNƒg‚ÌXV
+        // å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ›´æ–°
         for (auto& Child : m_Children) Child->Update();
     }
 
-    // •`‰æˆ—
+    // æç”»å‡¦ç†
     virtual void Draw()
     {
-        // ƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì•`‰æ
+        // ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®æç”»
         for (auto& Component : m_Components) Component->Draw();
-        // qƒIƒuƒWƒFƒNƒg‚Ì•`‰æ
+        // å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æç”»
         for (auto& Child : m_Children) Child->Draw();
 
-        // ƒfƒoƒbƒO—pƒRƒ‰ƒCƒ_[•`‰æ
+        // ãƒ‡ãƒãƒƒã‚°ç”¨ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼æç”»
         if (g_EnableColliderDebugDraw)
         {
             for (auto& component : m_Components)
@@ -63,7 +59,7 @@ public:
     }
 
     /// <summary>
-    /// ”CˆÓ‚ÌComponent‚ğ’Ç‰Á‚·‚é
+    /// ä»»æ„ã®Componentã‚’è¿½åŠ ã™ã‚‹
     /// </summary>
     template <typename T, typename... Args>
     T *AddComponent(Args &&...args)
@@ -73,22 +69,22 @@ public:
         auto comp = std::make_unique<T>(std::forward<Args>(args)...);
         T *ptr = comp.get();
 
-        // GameObject‚Æ‚Ì˜AŒg‚ğİ’è
+        // GameObjectã¨ã®é€£æºã‚’è¨­å®š
         comp->m_Owner = this;
 
-        // Collider‚âMeshRenderer‚ÌTransformƒŠƒ“ƒN
+        // Colliderã‚„MeshRendererã®Transformãƒªãƒ³ã‚¯
         if constexpr (std::is_base_of<Collider, T>::value)
             comp->m_Transform = &m_Transform;
         if constexpr (std::is_base_of<MeshRenderer, T>::value)
             comp->m_Transform = &m_Transform;
 
-        comp->Init(); // ‰Šú‰»ŒÄ‚Ño‚µ
+        comp->Init(); // åˆæœŸåŒ–å‘¼ã³å‡ºã—
         m_Components.push_back(std::move(comp));
         return ptr;
     }
 
     /// <summary>
-    /// w’èƒ^ƒCƒv‚ÌComponent‚ğæ“¾‚·‚éi—áFGetComponent<BoxCollider>()j
+    /// æŒ‡å®šã‚¿ã‚¤ãƒ—ã®Componentã‚’å–å¾—ã™ã‚‹ï¼ˆä¾‹ï¼šGetComponent<BoxCollider>()ï¼‰
     /// </summary>
     template <typename T>
     T *GetComponent()
@@ -100,7 +96,7 @@ public:
     }
 
     /// <summary>
-    /// qƒIƒuƒWƒFƒNƒg‚ğ’Ç‰Á‚·‚é
+    /// å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿½åŠ ã™ã‚‹
     /// </summary>
     GameObject* CreateChild()
     {
@@ -121,7 +117,7 @@ public:
     }
 
     /// <summary>
-    /// qƒIƒuƒWƒFƒNƒg‚ğƒAƒ^ƒbƒ`‚·‚é
+    /// å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚¢ã‚¿ãƒƒãƒã™ã‚‹
     /// </summary>
     void AttachChild(std::unique_ptr<GameObject> child)
     {
@@ -131,7 +127,7 @@ public:
     }
 
     /// <summary>
-    /// qƒIƒuƒWƒFƒNƒg‚ğƒfƒ^ƒbƒ`‚·‚é
+    /// å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒ‡ã‚¿ãƒƒãƒã™ã‚‹
     /// </summary>
     void DetachAllChildren()
     {
@@ -142,4 +138,17 @@ public:
         }
         m_Children.clear();
     }
+
+    // ------------------------------------------------------------------------------
+    // å¤‰æ•°å®šç¾©
+    // ------------------------------------------------------------------------------
+    Transform m_Transform; // ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®Transformæƒ…å ±
+
+protected:
+    // -------------------------------------------------------------------------------
+    // å¤‰æ•°å®šç¾©
+    // -------------------------------------------------------------------------------
+    GameObject* m_Parent = nullptr;                         // è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿
+    std::vector<std::unique_ptr<Component>> m_Components;   // æ‰€å±ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®ãƒªã‚¹ãƒˆ
+    std::vector<std::unique_ptr<GameObject>> m_Children;    // å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒªã‚¹ãƒˆ
 };
