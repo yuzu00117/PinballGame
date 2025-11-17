@@ -14,7 +14,7 @@ public:
 	using Scene = ::Scene;
     static void ChangeScene(Scene newScene);
 
-	// Œ»İ‚ÌƒV[ƒ“‚Ì GameObject‚ğæ“¾
+	// ç¾åœ¨ã®ã‚·ãƒ¼ãƒ³ã® GameObjectã‚’å–å¾—
     static const std::vector<GameObject*>& GetGameObjects() {
         return m_SceneGameObjects;
     }
