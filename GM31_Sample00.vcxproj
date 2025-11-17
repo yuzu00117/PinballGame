@@ -143,7 +143,7 @@
     <ClCompile Include="source\manager.cpp" />
     <ClCompile Include="source\modelRenderer.cpp" />
     <ClCompile Include="source\polygon.cpp" />
-    <ClCompile Include="source\renderer.cpp" />
+    <ClCompile Include="source\Renderer.cpp" />
     <ClCompile Include="source\result.cpp" />
     <ClCompile Include="source\score.cpp" />
     <ClCompile Include="source\soundManager.cpp" />
@@ -173,7 +173,7 @@
     <ClInclude Include="source\MeshRenderer.h" />
     <ClInclude Include="source\ModelRenderer.h" />
     <ClInclude Include="source\polygon.h" />
-    <ClInclude Include="source\renderer.h" />
+    <ClInclude Include="source\Renderer.h" />
     <ClInclude Include="source\result.h" />
     <ClInclude Include="source\scene.h" />
     <ClInclude Include="source\score.h" />
