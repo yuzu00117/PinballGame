@@ -20,7 +20,7 @@ std::unordered_map<std::string, MODEL *> ModelRenderer::m_ModelPool;
 void ModelRenderer::Init()
 {
 	// OwnerからTransformコンポーネントを取得
-	m_Transform = m_Owner->GetComponent<Transform>();
+	m_Transform = &m_Owner->m_Transform;
 
 	// 念の為アサーション
 	assert(m_Transform && "ModelRenderer::Init: Transform component not found in Owner GameObject");
@@ -433,6 +433,10 @@ void ModelRenderer::LoadObj(const char *FileName, MODEL_OBJ *ModelObj)
 
 			ModelObj->SubsetArray[sc].StartIndex = ic;
 
+			// まずデフォルトマテリアルを設定
+			ModelObj->SubsetArray[sc].Material = defaultMat;
+
+			// mtlが正しく読み込まれていればマテリアルを設定
 			for (unsigned int i = 0; i < materialNum; i++)
 			{
 				if (strcmp(str, materialArray[i].Name) == 0)
@@ -513,7 +517,7 @@ void ModelRenderer::LoadObj(const char *FileName, MODEL_OBJ *ModelObj)
 	delete[] materialArray;
 }
 
-// マテリアル読み込み///////////////////////////////////////////////////////////////////
+// マテリアル読み込み
 void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **MaterialArray, unsigned int *MaterialNum)
 {
 
@@ -525,7 +529,14 @@ void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **Material
 
 	FILE *file;
 	file = fopen(FileName, "rt");
-	assert(file);
+
+	// ファイルが見つからなかったら空で返す
+	if (!file)
+	{
+		*MaterialArray = nullptr;
+		*MaterialNum = 0;
+		return;
+	}
 
 	MODEL_MATERIAL *materialArray;
 	unsigned int materialNum = 0;

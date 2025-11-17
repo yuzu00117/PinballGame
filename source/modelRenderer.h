@@ -120,19 +120,19 @@ private:
 	// ----------------------------------------------------------------------
 	// 定数定義
 	// ----------------------------------------------------------------------
-	static constexpr const char* kDefaultVSPath = "data/shader/ModelVS.hlsl"; 	// デフォルト頂点シェーダーパス
-	static constexpr const char* kDefaultPSPath = "data/shader/ModelPS.hlsl"; 	// デフォルトピクセルシェーダーパス
+	static constexpr const char* kDefaultVSPath = "shader\\bin\\unlitTextureVS.cso"; 	// デフォルト頂点シェーダーパス
+	static constexpr const char* kDefaultPSPath = "shader\\bin\\unlitTexturePS.cso"; 	// デフォルトピクセルシェーダーパス
 
 	// ----------------------------------------------------------------------
 	// 変数定義
 	// ----------------------------------------------------------------------
-	Transform* m_Transform = nullptr; 							// 所属するTransformコンポーネントへのポインタ
-	Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f }; 				// ローカルスケール
-	static std::unordered_map<std::string, MODEL*> m_ModelPool;	// モデルプール
-	MODEL* m_Model{};											// 所属するモデル
+	Transform* m_Transform = nullptr; 													// 所属するTransformコンポーネントへのポインタ
+	Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f }; 										// ローカルスケール
+	static std::unordered_map<std::string, MODEL*> m_ModelPool;							// モデルプール
+	MODEL* m_Model{};																	// 所属するモデル
 
 	// モデル用シェーダー
-	ID3D11VertexShader *m_VertexShader = nullptr; 				// 頂点シェーダー
-	ID3D11PixelShader *m_PixelShader = nullptr;	  				// ピクセルシェーダー
-	ID3D11InputLayout *m_VertexLayout = nullptr;  				// 頂点レイアウト
+	ID3D11VertexShader *m_VertexShader = nullptr; 										// 頂点シェーダー
+	ID3D11PixelShader *m_PixelShader = nullptr;	  										// ピクセルシェーダー
+	ID3D11InputLayout *m_VertexLayout = nullptr;  										// 頂点レイアウト
 };

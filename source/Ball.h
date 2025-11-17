@@ -1,51 +1,52 @@
 #ifndef _BALL_H
 #define _BALL_H
 
-#include "vector3.h"
-#include "gameobject.h"
+#include "Vector3.h"
+#include "GameObject.h"
+
+class ModelRenderer;
+class ColliderGroup;
 
 /// <summary>
-/// ƒsƒ“ƒ{[ƒ‹‚Ìƒ{[ƒ‹ƒNƒ‰ƒX
+/// ãƒ”ãƒ³ãƒœãƒ¼ãƒ«ã®ãƒœãƒ¼ãƒ«ã‚¯ãƒ©ã‚¹
 /// </summary>
 class Ball : public GameObject
 {
 public:
-    // --- ŠÖ”éŒ¾ ---
+    // ------------------------------------------------------------------------------
+    // é–¢æ•°å®£è¨€
+    // ------------------------------------------------------------------------------
     void Init() override;
     void Uninit() override;
     void Update() override;
     void Draw() override;
 
-    // ˆÊ’u‚Ìæ“¾Eİ’è
-    const Vector3& GetPosition() const { return m_Position; }
-    void SetPosition(const Vector3& pos) { m_Position = pos; }
+    // ã‚²ãƒƒã‚¿ãƒ¼
+    Vector3& GetPosition() { return m_Transform.Position; }
+    Vector3& GetVelocity() { return m_Velocity; }
 
-    // ‘¬“x‚Ìæ“¾Eİ’è
-    const Vector3& GetVelocity() const { return m_Velocity; }
-    void SetVelocity(const Vector3& vel) { m_Velocity = vel; }
-
-    // ”¼Œa‚Ìæ“¾
+    // åŠå¾„ã®å–å¾—
     float GetRadius() const { return m_Radius; }
 
 private:
-	// --- ’è”’è‹` ---
-	static const Vector3 DefaultBallScale;                          // ƒfƒtƒHƒ‹ƒg‚Ìƒ{[ƒ‹ƒXƒP[ƒ‹
-	static constexpr float DefaultBallRadius = 0.5f;                // ƒfƒtƒHƒ‹ƒg‚Ìƒ{[ƒ‹”¼Œa
-	static constexpr float DefaultBallBounce = 0.8f;                // ƒfƒtƒHƒ‹ƒg‚Ì”½”­ŒW”
+    // ------------------------------------------------------------------------------
+	// å®šæ•°å®šç¾©
+    // ------------------------------------------------------------------------------
+    // ãƒœãƒ¼ãƒ«ã®å±æ€§ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤
+	inline static const Vector3 kDefaultBallScale = { 0.5f, 0.5f, 0.5f };   // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒœãƒ¼ãƒ«ã‚¹ã‚±ãƒ¼ãƒ«
+	static constexpr float kDefaultBallRadius = 0.5f;                       // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ãƒœãƒ¼ãƒ«åŠå¾„
+	static constexpr float kDefaultBallBounce = 0.8f;                       // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®åç™ºä¿‚æ•°
 
-    // --- •Ï”’è‹` ---
-    ID3D11InputLayout *m_VertexLayout;                              // ’¸“_ƒŒƒCƒAƒEƒg
-    ID3D11VertexShader *m_VertexShader;                             // ’¸“_ƒVƒF[ƒ_[
-    ID3D11PixelShader *m_PixelShader;                               // ƒsƒNƒZƒ‹ƒVƒF[ƒ_[
-    class ModelRenderer *m_ModelRenderer;                           // ƒ‚ƒfƒ‹ƒŒƒ“ƒ_ƒ‰[
-    ID3D11ShaderResourceView *m_Texture;                            // ƒeƒNƒXƒ`ƒƒ
+    // ------------------------------------------------------------------------------
+    // å¤‰æ•°å®šç¾© 
+    // ------------------------------------------------------------------------------
+    ModelRenderer* m_ModelRenderer = nullptr;                               // ãƒ¢ãƒ‡ãƒ«ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼
+    ColliderGroup* m_ColliderGroup = nullptr;                               // ã‚³ãƒªã‚¸ãƒ§ãƒ³ã‚°ãƒ«ãƒ¼ãƒ—
 
-    Vector3 m_Position = { 0.0f, 0.0f, 0.0f };                      // ˆÊ’u
-    Vector3 m_Rotation = { 0.0f, 0.0f, 0.0f };                      // ‰ñ“]
-    Vector3 m_Scale = DefaultBallScale;                             // ƒXƒP[ƒ‹
-    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };                      // ‘¬“x
-    float m_Radius = DefaultBallRadius;                             // ”¼Œa
-    float m_Bounce = DefaultBallBounce;                             // ”½”­ŒW”
+    // ãƒœãƒ¼ãƒ«ã®å±æ€§
+    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };                              // é€Ÿåº¦
+    float m_Radius = kDefaultBallRadius;                                    // åŠå¾„
+    float m_Bounce = kDefaultBallBounce;                                    // åç™ºä¿‚æ•°
 };
 
 #endif // _BALL_H

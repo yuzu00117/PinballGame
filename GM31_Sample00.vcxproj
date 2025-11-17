@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -164,13 +165,13 @@
     <ClInclude Include="source\explosion.h" />
     <ClInclude Include="source\field.h" />
     <ClInclude Include="source\Flipper.h" />
-    <ClInclude Include="source\gameobject.h" />
+    <ClInclude Include="source\GameObject.h" />
     <ClInclude Include="source\input.h" />
     <ClInclude Include="source\main.h" />
     <ClInclude Include="source\manager.h" />
     <ClInclude Include="source\MathUtil.h" />
     <ClInclude Include="source\MeshRenderer.h" />
-    <ClInclude Include="source\modelRenderer.h" />
+    <ClInclude Include="source\ModelRenderer.h" />
     <ClInclude Include="source\polygon.h" />
     <ClInclude Include="source\renderer.h" />
     <ClInclude Include="source\result.h" />

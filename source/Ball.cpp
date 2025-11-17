@@ -1,141 +1,71 @@
 #include "main.h"
 #include "renderer.h"
 #include "ball.h"
-#include "modelRenderer.h"
 #include "camera.h"
 #include "manager.h"
 #include "input.h"
 #include <Windows.h>
 
-// ƒfƒtƒHƒ‹ƒg‚Ìƒ{[ƒ‹ƒXƒP[ƒ‹’è‹`
-const Vector3 Ball::DefaultBallScale = { 0.5f, 0.5f, 0.5f };
+// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+#include "ModelRenderer.h"
+#include "ColliderGroup.h"
+#include "SphereCollider.h"
 
-// ‰Šú‰»ˆ—
+// åˆæœŸåŒ–å‡¦ç†
 void Ball::Init()
 {
-    m_Position = {0.0f, 3.0f, 0.0f};
-    m_Rotation = {0.0f, 0.0f, 0.0f};
+    // Transformã®åˆæœŸè¨­å®š
+    m_Transform.Position = { 0.0f, 3.0f, 0.0f };
+    m_Transform.Rotation = { 0.0f, 0.0f, 0.0f };
+    m_Transform.Scale = kDefaultBallScale;
 
-    m_ModelRenderer = new ModelRenderer();
-    m_ModelRenderer->Load("asset\\model\\ball.obj");
+    // ModelRendererã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®è¿½åŠ 
+    m_ModelRenderer = AddComponent<ModelRenderer>();
+    m_ModelRenderer->Load("asset//model//ball.obj");
 
+    // ColliderGroupã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®è¿½åŠ 
+    m_ColliderGroup = AddComponent<ColliderGroup>();
 
-    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\unlitTextureVS.cso");
-    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\unlitTexturePS.cso");
+    SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
+    sphereCollider->m_radius = m_Radius;        // åŠå¾„ã‚’è¨­å®š
+    sphereCollider->m_restitution = m_Bounce;   // åç™ºä¿‚æ•°ã‚’è¨­å®š
 }
 
-// I—¹ˆ—
+// çµ‚äº†å‡¦ç†
 void Ball::Uninit()
 {
-    // ƒ‚ƒfƒ‹ƒŒƒ“ƒ_ƒ‰[‚Ì‰ğ•ú
-    delete m_ModelRenderer;
+    // ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®è§£æ”¾
     m_ModelRenderer = nullptr;
-    
-    // ƒVƒF[ƒ_[‚Ì‰ğ•ú
-    m_VertexLayout->Release();
-    m_VertexShader->Release();
-    m_PixelShader->Release();
+    m_ColliderGroup = nullptr;
 }
 
-// XVˆ—
+// æ›´æ–°å‡¦ç†
 void Ball::Update()
 {
-    // ŠÈˆÕ•¨—‰‰Z
-	const float DeltaTime = 1.0f / 60.0f;
-	const Vector3 Gravity = { 0.0f, -9.8f, 0.0f };
+	const float deltaTime = 1.0f / 60.0f;
+	const Vector3 gravity = { 0.0f, -9.8f, 0.0f };
 
-    // ---- ƒe[ƒuƒ‹‚Ì‹^—ŒXÎiXZ•ûŒü‚Ì‚²‚­¬‚³‚¢‰Á‘¬“xj----
-    // —áFè‘O(?Z)‚Ö 0.90 m/s^2A‚Ù‚ñ‚Ì­‚µ‰E(+X)‚Ö 0.10 m/s^2
-    const Vector3 SlopeAccel = { 0.0f, 0.0f, -2.0f };
-    // “]‚ª‚èŒ¸Ši°‚ÉÚ’n‚µ‚Ä‚¢‚é‚Æ‚«‚Ì‘¬“x‚É‚©‚©‚éã‚¢ƒuƒŒ[ƒLj
-    const float RollingFriction = 0.985f;   // 0.98?0.995 ‚ ‚½‚è‚Å”÷’²®
-    // ‹ó’†Œ¸Ši‹ó’†‚Ì‚Æ‚«‚Í‹É‚í‚¸‚©‚ÉŒ¸‘¬j
-    const float AirDamping = 0.999f;        // 0.998?1.0
+    // é€Ÿåº¦ã«é‡åŠ›ã‚’åŠ ç®—
+    m_Velocity += gravity * deltaTime;
 
-	// ‘¬“x‚Éd—Í‚ğ‰ÁZ
-	m_Velocity += Gravity * DeltaTime;
-    // ‹^—ŒXÎ‚ğ‰ÁZ
-    m_Velocity += SlopeAccel * DeltaTime;
-    // Œ¸Šˆ—
-	m_Position += m_Velocity * DeltaTime;
+    // ä½ç½®æ›´æ–°
+    m_Transform.Position += m_Velocity * deltaTime;
 
-    // SPACEƒL[‚Å”­Ë
+#ifndef NDEBUG
+    // SPACEã‚­ãƒ¼ã§ç™ºå°„
     if (Input::GetKeyTrigger(VK_SPACE))
     {
         m_Velocity.z += 12.0f;
     }
+#endif
 
-	// °‚Å‚Ì”½”­
-    const bool OnFloor = (m_Position.y - m_Radius <= 0.0f);
-    if (OnFloor)
-    {
-        m_Position.y = m_Radius;
-		m_Velocity.y = -m_Velocity.y * m_Bounce;
-
-		// “]‚ª‚èŒ¸Š
-        m_Velocity.x *= RollingFriction;
-        m_Velocity.z *= RollingFriction;
-    }
-    else
-    {
-        // ‹ó’†Œ¸Š
-        m_Velocity.x *= AirDamping;
-        m_Velocity.z *= AirDamping;
-    }
-
-	// ŠÈˆÕ•Ç”½”­
-    if (m_Position.x > 9.5f - m_Radius) { m_Position.x = 9.5f - m_Radius; m_Velocity.x *= -m_Bounce; }
-	if (m_Position.x < -9.5f + m_Radius) { m_Position.x = -9.5f + m_Radius; m_Velocity.x *= -m_Bounce; }
-	if (m_Position.z > 14.5f - m_Radius) { m_Position.z = 14.5f - m_Radius; m_Velocity.z *= -m_Bounce; }
-	if (m_Position.z < -14.5f + m_Radius) { m_Position.z = -14.5f + m_Radius; m_Velocity.z *= -m_Bounce; }
-
-    // ƒtƒB[ƒ‹ƒh‚Æ‚ÌÕ“Ë
-    Field *field = nullptr;
-    for (auto obj : Manager::GetGameObjects())
-    {
-        field = dynamic_cast<Field *>(obj);
-        if (field)
-            break;
-    }
-    if (field)
-    {
-        //field->ResolveBallCollision(m_Position, m_Velocity, m_Radius);
-    }
-    // ƒoƒ“ƒp[‚Æ‚ÌÕ“Ë
-    for (auto obj : Manager::GetGameObjects())
-    {
-        if (auto *b = dynamic_cast<Bumper *>(obj))
-        {
-            b->Resolve(m_Position, m_Velocity, m_Radius);
-        }
-        // ƒtƒŠƒbƒp[‚Æ‚ÌÕ“Ë
-        if (auto *f = dynamic_cast<Flipper *>(obj))
-        {
-            f->Resolve(m_Position, m_Velocity, m_Radius, DeltaTime);
-        }
-    }
+    // ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®æ›´æ–°
+    GameObject::Update();
 }
 
-// •`‰æˆ—
+// æç”»å‡¦ç†
 void Ball::Draw()
 {
-    // “ü—ÍƒŒƒCƒAƒEƒg
-    Renderer::GetDeviceContext()->IASetInputLayout(m_VertexLayout);
-
-    // ƒVƒF[ƒ_[İ’è
-    Renderer::GetDeviceContext()->VSSetShader(m_VertexShader, NULL, 0);
-    Renderer::GetDeviceContext()->PSSetShader(m_PixelShader, NULL, 0);
-
-    // ƒeƒNƒXƒ`ƒƒİ’è
-    Renderer::GetDeviceContext()->PSSetShaderResources(0, 1, &m_Texture);
-
-    // ƒ}ƒgƒŠƒNƒXİ’è
-    XMMATRIX world, scale, rot, trans;
-    scale = XMMatrixScaling(m_Scale.x, m_Scale.y, m_Scale.z);
-    rot = XMMatrixRotationRollPitchYaw(m_Rotation.x, m_Rotation.y, m_Rotation.z);
-    trans = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-    world = scale * rot * trans;
-
-    Renderer::SetWorldMatrix(world);
-	m_ModelRenderer->Draw();
+    // ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®æç”»
+    GameObject::Draw();
 }
