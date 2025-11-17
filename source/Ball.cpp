@@ -59,13 +59,6 @@ void Ball::Update()
     }
 #endif
 
-    // 床での反発処理
-    if (m_Transform.Position.y - m_Radius <= 0.0f)
-    {
-        m_Transform.Position.y = m_Radius; // 床にめり込まないように位置修正
-        m_Velocity.y = -m_Velocity.y * m_Bounce; // 反発係数を考慮して速度反転 
-    }
-
     // コンポーネントの更新
     GameObject::Update();
 }
