@@ -7,7 +7,9 @@
 #include <Windows.h>
 
 // コンポーネント
-#include "modelRenderer.h"
+#include "ModelRenderer.h"
+#include "ColliderGroup.h"
+#include "SphereCollider.h"
 
 // 初期化処理
 void Ball::Init()
@@ -20,12 +22,21 @@ void Ball::Init()
     // ModelRendererコンポーネントの追加
     m_ModelRenderer = AddComponent<ModelRenderer>();
     m_ModelRenderer->Load("asset//model//ball.obj");
+
+    // ColliderGroupコンポーネントの追加
+    m_ColliderGroup = AddComponent<ColliderGroup>();
+
+    SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
+    sphereCollider->m_radius = m_Radius;        // 半径を設定
+    sphereCollider->m_restitution = m_Bounce;   // 反発係数を設定
 }
 
 // 終了処理
 void Ball::Uninit()
 {
-    m_ModelRenderer = nullptr; // ModelRendererコンポーネントはGameObjectが自動的に解放する
+    // コンポーネントの解放
+    m_ModelRenderer = nullptr;
+    m_ColliderGroup = nullptr;
 }
 
 // 更新処理

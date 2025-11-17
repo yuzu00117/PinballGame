@@ -5,6 +5,7 @@
 #include "GameObject.h"
 
 class ModelRenderer;
+class ColliderGroup;
 
 /// <summary>
 /// ピンボールのボールクラス
@@ -39,7 +40,8 @@ private:
     // ------------------------------------------------------------------------------
     // 変数定義 
     // ------------------------------------------------------------------------------
-    ModelRenderer *m_ModelRenderer = nullptr;                               // モデルレンダラー
+    ModelRenderer* m_ModelRenderer = nullptr;                               // モデルレンダラー
+    ColliderGroup* m_ColliderGroup = nullptr;                               // コリジョングループ
 
     // ボールの属性
     Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };                              // 速度
