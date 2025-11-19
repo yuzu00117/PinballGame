@@ -5,38 +5,22 @@
 #include "Component.h"
 #include <memory>
 
-class GameObject; // ‘O•ûéŒ¾
+class GameObject; // å‰æ–¹å®£è¨€
 
 /// <summary>
-/// ƒRƒ‰ƒCƒ_[‚Ìí—Ş‚ğ•\‚·—ñ‹“Œ^
-/// </summary>
-enum class ColliderType {
-    Box,
-    Sphere,
-    Capsule,
-    Group,
-    Unknown
-};
-
-/// <summary>
-/// ƒRƒ‰ƒCƒ_[‚ÌŠî’êƒNƒ‰ƒX
+/// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®åŸºåº•ã‚¯ãƒ©ã‚¹
 /// </summary>
 class Collider : public Component
 {
 public:
-    // --- ’è”’è‹` ---
-    static constexpr XMFLOAT4 s_DebugColor = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f); // ƒfƒoƒbƒO•`‰æ—p‚ÌFi—Îj
-    // --- •Ï”’è‹` ---
-    ColliderType m_ColliderType = ColliderType::Unknown;    // ƒRƒ‰ƒCƒ_[‚Ìí—Ş
-    Transform* m_Transform = nullptr;                       // ƒRƒ‰ƒCƒ_[‚ªŠ‘®‚·‚éƒIƒuƒWƒFƒNƒg‚ÌTransformƒ|ƒCƒ“ƒ^
-    GameObject* m_Owner = nullptr;                          // Š‘®‚·‚éƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
-
-    // --- ŠÖ”’è‹` ---
-    // ƒfƒtƒHƒ‹ƒgƒfƒXƒgƒ‰ƒNƒ^
+    // ------------------------------------------------------------------------------
+    // --- é–¢æ•°å®šç¾©
+    // ------------------------------------------------------------------------------
+    // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
     virtual ~Collider() = default;
 
     /// <summary>
-    /// ƒRƒ‰ƒCƒ_[‚Ìƒ[ƒ‹ƒhÀ•W‚ğ•Ô‚·
+    /// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã‚’è¿”ã™
     /// </summary>
     virtual Vector3 GetWorldPosition() const
     {
@@ -44,12 +28,24 @@ public:
     }
 
     /// <summary>
-    /// ‘¼‚ÌƒRƒ‰ƒCƒ_[‚Æ‚ÌÕ“Ëˆ—
+    /// ä»–ã®ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã¨ã®è¡çªå‡¦ç†
     /// </summary>
     virtual bool OnCollision(Collider& other) = 0;
 
     /// <summary>
-    /// ƒRƒ‰ƒCƒ_[‚ÌƒfƒoƒbƒO•`‰æ
+    /// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ‡ãƒãƒƒã‚°æç”»
     /// </summary>
     virtual void DebugDraw() {}
+
+    // ------------------------------------------------------------------------------
+    // --- å®šæ•°å®šç¾©
+    // ------------------------------------------------------------------------------
+    static constexpr XMFLOAT4 s_DebugColor = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f); // ãƒ‡ãƒãƒƒã‚°æç”»ç”¨ã®è‰²ï¼ˆç·‘ï¼‰
+    
+    // ------------------------------------------------------------------------------
+    // --- å¤‰æ•°å®šç¾©
+    // ------------------------------------------------------------------------------
+    Transform* m_Transform = nullptr;                       // ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ãŒæ‰€å±ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®Transformãƒã‚¤ãƒ³ã‚¿
+    GameObject* m_Owner = nullptr;                          // æ‰€å±ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®ãƒã‚¤ãƒ³ã‚¿
+
 };

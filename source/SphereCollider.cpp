@@ -1,42 +1,40 @@
-#include "SphereCollider.h"
-#include "BoxCollider.h"
-#include "renderer.h"
+#include "main.h"
 #include "MathUtil.h"
-#include <algorithm>
+#include "renderer.h"
 
-// Õ“Ëˆ—
+// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼é–¢é€£
+#include "BoxCollider.h"
+#include "SphereCollider.h"
+
+// è¡çªå‡¦ç†
 bool SphereCollider::OnCollision(Collider& other)
 {
     // --- Sphere vs Sphere ---
-    if (other.m_ColliderType == ColliderType::Sphere)
+    if (auto* s = dynamic_cast<SphereCollider*>(&other))
     {
-        const SphereCollider& s = static_cast<SphereCollider&>(other);
-
         Vector3 a = GetWorldPosition();
-        Vector3 b = s.GetWorldPosition();
+        Vector3 b = s->GetWorldPosition();
 
         float distSq =
             (a.x - b.x) * (a.x - b.x) +
             (a.y - b.y) * (a.y - b.y) +
             (a.z - b.z) * (a.z - b.z);
 
-        float r = m_radius + s.m_radius;
+        float r = m_radius + s->m_radius;
         return distSq <= r * r;
     }
 
     // --- Sphere vs Box ---
-    if (other.m_ColliderType == ColliderType::Box)
+    if (auto* b = dynamic_cast<BoxCollider*>(&other))
     {
-        const BoxCollider& b = static_cast<BoxCollider&>(other);
+        // Boxã®min / maxã‚’è¨ˆç®—
+        Vector3 boxMin = b->Center - b->Size * 0.5f;
+        Vector3 boxMax = b->Center + b->Size * 0.5f;
 
-        // Box‚Ìmin / max‚ğŒvZ
-        Vector3 boxMin = b.Center - b.Size * 0.5f;
-        Vector3 boxMax = b.Center + b.Size * 0.5f;
-
-        // Sphere‚Ì’†S
+        // Sphereã®ä¸­å¿ƒ
         Vector3 p = GetWorldPosition();
 
-        // Å‹ßÚ“_‚ğBox‚ÉClamp
+        // æœ€è¿‘æ¥ç‚¹ã‚’Boxã«Clamp
         float cx = Clamp(p.x, boxMin.x, boxMax.x);
         float cy = Clamp(p.y, boxMin.y, boxMax.y);
         float cz = Clamp(p.z, boxMin.z, boxMax.z);
@@ -52,7 +50,7 @@ bool SphereCollider::OnCollision(Collider& other)
     return false;
 }
 
-// ƒfƒoƒbƒO—pƒƒCƒ„[ƒ{ƒbƒNƒX•`‰æ
+// ãƒ‡ãƒãƒƒã‚°ç”¨ãƒ¯ã‚¤ãƒ¤ãƒ¼ãƒœãƒƒã‚¯ã‚¹æç”»
 static void DrawWireUnitBox(const XMMATRIX& worldMatrix, const XMFLOAT4& color)
 {
     const int segments = 32;
@@ -75,17 +73,17 @@ static void DrawWireUnitBox(const XMMATRIX& worldMatrix, const XMFLOAT4& color)
         float t0 = XM_2PI * (i / (float)segments);
         float t1 = XM_2PI * ((i + 1) / (float)segments);
 
-        // XY•½–Ê
+        // XYå¹³é¢
         addLine({ cosf(t0), sinf(t0), 0.0f }, { cosf(t1), sinf(t1), 0.0f });
-        // YZ•½–Ê
+        // YZå¹³é¢
         addLine({ 0.0f, cosf(t0), sinf(t0) }, { 0.0f, cosf(t1), sinf(t1) });
-        // ZX•½–Ê
+        // ZXå¹³é¢
         addLine({ sinf(t0), 0.0f, cosf(t0) }, { sinf(t1), 0.0f, cosf(t1) });
     }
     Renderer::DrawDebugLines(v, index);
 }
 
-// ƒRƒ‰ƒCƒ_[‚ÌƒfƒoƒbƒO•`‰æ
+// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ‡ãƒãƒƒã‚°æç”»
 void SphereCollider::DebugDraw()
 {
     const XMMATRIX S = XMMatrixScaling(m_radius, m_radius, m_radius);
