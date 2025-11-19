@@ -2,16 +2,16 @@
 #include "renderer.h"
 #include "field.h"
 
-// ƒRƒ“ƒ|[ƒlƒ“ƒgŠÖ˜A
+// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆé–¢é€£
 #include "MeshRenderer.h"
 #include "ColliderGroup.h"
 #include "BoxCollider.h"
 
-// ‰Šú‰»ˆ—
+// åˆæœŸåŒ–å‡¦ç†
 void Field::Init()
 {
     // ----------------------------------------------------------------------
-    // °‚Ìì¬
+    // åºŠã®ä½œæˆ
     // ----------------------------------------------------------------------
     m_Floor = AddComponent<MeshRenderer>();
     m_Floor->LoadShader(VertexShaderPath, PixelShaderPath);
@@ -20,38 +20,38 @@ void Field::Init()
     m_Floor->SetLocalScale(HalfWidth * 2.0f, 1.0f, HalfHeight * 2.0f);
 
     // ----------------------------------------------------------------------
-    // •Ç‚Ìì¬
+    // å£ã®ä½œæˆ
     // ----------------------------------------------------------------------
     const float yCenter = WallHeight * 0.5f;
 
     auto MakeWall = [&](const Vector3& position, const Vector3& scale)
     {
-        // qƒIƒuƒWƒFƒNƒg‚Æ‚µ‚Ä•Ç‚ğì¬
+        // å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ã—ã¦å£ã‚’ä½œæˆ
         GameObject* wallObj = CreateChild();
         wallObj->m_Transform.Position = position;
         wallObj->m_Transform.Scale = scale;
 
-        // Œ©‚½–Ú‚Ìİ’è
+        // è¦‹ãŸç›®ã®è¨­å®š
         auto wallMesh = wallObj->AddComponent<MeshRenderer>();
-        wallMesh->LoadShader(VertexShaderPath, PixelShaderPath);    // ƒVƒF[ƒ_[‚Ìİ’è
-        wallMesh->CreateUnitBox();                                  // ƒƒbƒVƒ…‚Ìì¬
-        wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);      // F‚Ìİ’è
-        // wallMesh->SetTexture(TexturePath);                          // ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+        wallMesh->LoadShader(VertexShaderPath, PixelShaderPath);    // ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®è¨­å®š
+        wallMesh->CreateUnitBox();                                  // ãƒ¡ãƒƒã‚·ãƒ¥ã®ä½œæˆ
+        wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);      // è‰²ã®è¨­å®š
+        // wallMesh->SetTexture(TexturePath);                          // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®è¨­å®š
 
-        // “–‚½‚è”»’è‚Ìİ’è
+        // å½“ãŸã‚Šåˆ¤å®šã®è¨­å®š
         auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
         auto boxCollider = wallColliderGroup->AddCollider<BoxCollider>();
     };
 
-    // •Ç‚Ìì¬
+    // å£ã®ä½œæˆ
     MakeWall({ 0.0f, yCenter,  HalfHeight + WallThick * 0.5f }, 
-             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // ‘O
+             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // å‰
     MakeWall({ 0.0f, yCenter, -HalfHeight - WallThick * 0.5f }, 
-             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // Œã
+             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // å¾Œ
     MakeWall({ -HalfWidth - WallThick * 0.5f, yCenter, 0.0f }, 
-             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // ¶
+             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // å·¦
     MakeWall({ HalfWidth + WallThick * 0.5f, yCenter, 0.0f }, 
-             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // ‰E
+             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // å³
 }
 
 void Field::Uninit()
@@ -62,13 +62,13 @@ void Field::Uninit()
 
 void Field::Update()
 {
-    // ƒtƒB[ƒ‹ƒhŒÅ—L‚ÌXVˆ—
+    // ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å›ºæœ‰ã®æ›´æ–°å‡¦ç†
     GameObject::Update();
 }
 
 void Field::Draw()
 {
-    // ƒtƒB[ƒ‹ƒhŒÅ—L‚Ì•`‰æˆ—
+    // ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰å›ºæœ‰ã®æç”»å‡¦ç†
     GameObject::Draw();
 
 }

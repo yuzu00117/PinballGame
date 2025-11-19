@@ -1,17 +1,34 @@
-// manager.h
 #pragma once
+
 #include <vector>
 #include "gameObject.h"
 #include "scene.h"
 
+/// <summary>
+/// ゲームの管理をするマネージャークラス
+/// シーンの切り替え・GameObjectの管理・描画処理などを担当
+/// </summary>
 class Manager {
 public:
+    // ----------------------------------------------------------------------
+    // 関数定義
+    // ----------------------------------------------------------------------
+    /// <summary>
+    /// ライフサイクルメソッド
+    /// </summary>
     static void Init();
     static void Uninit();
     static void Update();
     static void Draw();
 
+	/// <summary>
+    /// シーン列挙型のエイリアス
+    /// </summary>
 	using Scene = ::Scene;
+
+    /// <summary>
+    /// シーン変更
+    /// </summary>
     static void ChangeScene(Scene newScene);
 
 	// 現在のシーンの GameObjectを取得
@@ -20,6 +37,17 @@ public:
     }
 
 private:
-    static Scene m_CurrentScene;
-    static std::vector<GameObject*> m_SceneGameObjects;
+    // ----------------------------------------------------------------------
+    // 関数定義
+    // ----------------------------------------------------------------------
+    /// <summary>
+    /// コライダー同士の当たり判定処理
+    /// </summary>
+    static void CheckCollisions();
+
+    // ----------------------------------------------------------------------
+    // 変数定義
+    // ----------------------------------------------------------------------
+    static Scene m_CurrentScene;                        // 現在のシーン
+    static std::vector<GameObject*> m_SceneGameObjects; // 現在のシーンのGameObjectリスト
 };

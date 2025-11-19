@@ -1,19 +1,21 @@
-#include "BoxCollider.h"
+#include "main.h"
 #include "renderer.h"
-#include <algorithm>
-#include <cmath>
+#include "MathUtil.h"
+
+// コライダー関連
+#include "BoxCollider.h"
+#include "SphereCollider.h"
 
 // 汎用 Box vs Box / Box vs Sphere 対応予定
 bool BoxCollider::OnCollision(Collider& other)
 {
-    if (other.m_ColliderType == ColliderType::Box)
+    if (auto* b = dynamic_cast<BoxCollider*>(&other))
     {
         // --- Box vs Box ---
-        const BoxCollider& b = static_cast<const BoxCollider&>(other);
         Vector3 minA = Center - Size * 0.5f;
         Vector3 maxA = Center + Size * 0.5f;
-        Vector3 minB = b.Center - b.Size * 0.5f;
-        Vector3 maxB = b.Center + b.Size * 0.5f;
+        Vector3 minB = b->Center - b->Size * 0.5f;
+        Vector3 maxB = b->Center + b->Size * 0.5f;
 
         bool hit =
             (minA.x <= maxB.x && maxA.x >= minB.x) &&
@@ -23,6 +25,26 @@ bool BoxCollider::OnCollision(Collider& other)
         return hit;
     }
 
+    // --- Box vs Sphere ---
+    if (auto* s = dynamic_cast<SphereCollider*>(&other))
+    {
+        Vector3 center = s->GetWorldPosition();
+
+        Vector3 boxMin = Center - Size * 0.5f;
+        Vector3 boxMax = Center + Size * 0.5f;
+
+        float cx = Clamp(center.x, boxMin.x, boxMax.x);
+        float cy = Clamp(center.y, boxMin.y, boxMax.y);
+        float cz = Clamp(center.z, boxMin.z, boxMax.z);
+
+        float dx = center.x - cx;
+        float dy = center.y - cy;
+        float dz = center.z - cz;
+
+        float distSq = dx*dx + dy*dy + dz*dz;
+
+        return distSq <= s->m_radius * s->m_radius;
+    }
     // TODO: SphereColliderなどが増えたらここに対応追加
     return false;
 }

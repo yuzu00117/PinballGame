@@ -62,5 +62,4 @@ public:
 
     // --- 変数定義 ---
     std::vector<std::unique_ptr<Collider>> colliders;           // コライダーのリスト
-    ColliderGroup() { m_ColliderType = ColliderType::Group; }   // コライダーの種類をグループに設定
 };
