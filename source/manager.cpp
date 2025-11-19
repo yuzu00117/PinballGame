@@ -1,49 +1,77 @@
-﻿// manager.cpp
-#include "main.h"
+﻿#include "main.h"
 #include "manager.h"
 #include "renderer.h"
-#include "audio.h"
-#include "input.h"
 #include "scene.h"
 #include "DebugSettings.h"
+#include "Collider.h"
+#include "ColliderGroup.h"
+
+// システム関連
+#include "audio.h"
+#include "input.h"
 #include <windows.h>
 
+// 静的メンバ変数の定義
 Manager::Scene Manager::m_CurrentScene = Manager::Scene::Title; // 初期シーンはタイトル
-std::vector<GameObject*> Manager::m_SceneGameObjects;
+std::vector<GameObject*> Manager::m_SceneGameObjects;           // 現在のシーンのGameObjectリスト
 
-bool g_EnableColliderDebugDraw = false; // コライダーのデバッグ描画（デフォルト無効）
+// デバッグ用コライダー描画フラグ
+bool g_EnableColliderDebugDraw = false; // デフォルトは無効
 
-void Manager::Init() {
+// ----------------------------------------------------------------------
+// 初期化処理
+// ----------------------------------------------------------------------
+void Manager::Init() 
+{
+    // レンダラー初期化
     Renderer::Init();
-    Audio::InitMaster(); // オーディオシステムの初期化
+
+    // オーディオシステム初期化
+    Audio::InitMaster();
+
+    // 入力システム初期化
     Input::Init();
 
-	// 初期シーンのゲームオブジェクトを生成
+	// 現在のシーンのゲームオブジェクトを生成
     m_SceneGameObjects = CreateSceneObjects(m_CurrentScene);
-    for (auto obj : m_SceneGameObjects) obj->Init();
+    // 生成したGameObjectのInitを呼び出して初期化
+    for (GameObject* gameObject : m_SceneGameObjects) gameObject->Init();
 }
 
+// ----------------------------------------------------------------------
+// 終了処理
+// ----------------------------------------------------------------------
 void Manager::Uninit() {
 
-	// シーンのゲームオブジェクトを解放
-    for (auto obj : m_SceneGameObjects) {
-        obj->Uninit();
-        delete obj;
+	// 現在のシーンのゲームオブジェクトを解放
+    for (GameObject* gameObject : m_SceneGameObjects) {
+        gameObject->Uninit();
+        delete gameObject;
     }
     m_SceneGameObjects.clear();
 
-	Renderer::Uninit(); // レンダラーの解放
-    Audio::UninitMaster(); // オーディオシステムの終了
+    // レンダラー終了処理
+	Renderer::Uninit();
+
+    // オーディオシステム終了処理
+    Audio::UninitMaster();
 }
 
+// ----------------------------------------------------------------------
+// 更新処理
+// ----------------------------------------------------------------------
 void Manager::Update()
 {
-    // キー入力を監視
+    // 入力状態の更新
     Input::Update();
 
-    for (auto obj : m_SceneGameObjects) {
-        obj->Update();
+    // 各シーンのゲームオブジェクトを更新
+    for (GameObject* gameObject : m_SceneGameObjects) {
+        gameObject->Update();
     }
+
+    // コライダー同士の当たり判定処理
+    CheckCollisions();
 
     // デバッグ用コライダー描画
     static bool prevDebugDraw = false;
@@ -74,24 +102,30 @@ void Manager::Update()
 	prevEnter = currEnter; // 前回の状態を更新
 }
 
+// ----------------------------------------------------------------------
+// 描画処理
+// ----------------------------------------------------------------------
 void Manager::Draw()
 {
 	Renderer::Begin(); // レンダリング開始
 
 	// シーンのゲームオブジェクトを描画
-    for (auto obj : m_SceneGameObjects) {
-        obj->Draw();
+    for (GameObject* gameObject : m_SceneGameObjects) {
+        gameObject->Draw();
     }
 
 	Renderer::End(); // レンダリング終了
 }
 
+// ----------------------------------------------------------------------
+// シーン変更処理
+// ----------------------------------------------------------------------
 void Manager::ChangeScene(Scene newScene)
 {
     // 旧シーン解放
-    for (auto obj : m_SceneGameObjects) {
-        obj->Uninit();
-        delete obj;
+    for (GameObject* gameObject : m_SceneGameObjects) {
+        gameObject->Uninit();
+        delete gameObject;
     }
     m_SceneGameObjects.clear();
 
@@ -103,5 +137,53 @@ void Manager::ChangeScene(Scene newScene)
 
     for (auto obj : m_SceneGameObjects) {
         obj->Init();
+    }
+}
+
+// ----------------------------------------------------------------------
+// コライダー同士の当たり判定処理
+// ----------------------------------------------------------------------
+void Manager::CheckCollisions()
+{
+    std::vector<Collider*> colliders;
+    colliders.reserve(m_SceneGameObjects.size());
+
+    // シーン内の全コライダーを収集
+    for (GameObject* gameObject : m_SceneGameObjects)
+    {
+        if (!gameObject) continue; // nullptrの場合はスキップ
+
+        // もしColliderGroupを使っている場合は、まずそれを優先
+        if (auto* colliderGroup = gameObject->GetComponent<ColliderGroup>())
+        {
+            colliders.push_back(colliderGroup);
+            continue;
+        }
+
+        // 単体のColliderを持つ場合
+        if (auto* collider = gameObject->GetComponent<Collider>())
+        {
+            colliders.push_back(collider);
+        }
+    }
+
+    const size_t n = colliders.size();
+
+    // 全ペアに対して、OnCollisionを呼び出す
+    for (size_t i = 0; i < n; ++i)
+    {
+        Collider* colliderA = colliders[i];
+        if (!colliderA) continue;
+
+        for (size_t j = i + 1; j < n; ++j)
+        {
+            Collider* colliderB = colliders[j];
+            if (!colliderB) continue;
+
+            // a→b と b→a の両方で当たり判定を行う（双方向対応）
+            bool hitA = colliderA->OnCollision(*colliderB);
+            // もし「あたったときのイベント」を処理したい場合は、ここで処理を追加
+            // 例: if (hitA) { /* aがbに当たったときの処理 * / }
+        }
     }
 }

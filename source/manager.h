@@ -1,9 +1,13 @@
-// manager.h
 #pragma once
+
 #include <vector>
 #include "gameObject.h"
 #include "scene.h"
 
+/// <summary>
+/// ゲームの管理をするマネージャークラス
+/// シーンの切り替え・GameObjectの管理・描画処理などを担当
+/// </summary>
 class Manager {
 public:
     // ----------------------------------------------------------------------
@@ -17,7 +21,9 @@ public:
     static void Update();
     static void Draw();
 
-    // WHY: usingって変数？
+	/// <summary>
+    /// シーン列挙型のエイリアス
+    /// </summary>
 	using Scene = ::Scene;
 
     /// <summary>
@@ -32,8 +38,16 @@ public:
 
 private:
     // ----------------------------------------------------------------------
+    // 関数定義
+    // ----------------------------------------------------------------------
+    /// <summary>
+    /// コライダー同士の当たり判定処理
+    /// </summary>
+    static void CheckCollisions();
+
+    // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
-    static Scene m_CurrentScene;
-    static std::vector<GameObject*> m_SceneGameObjects;
+    static Scene m_CurrentScene;                        // 現在のシーン
+    static std::vector<GameObject*> m_SceneGameObjects; // 現在のシーンのGameObjectリスト
 };
