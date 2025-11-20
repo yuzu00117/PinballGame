@@ -14,6 +14,7 @@
 // 静的メンバ変数の定義
 Manager::Scene Manager::m_CurrentScene = Manager::Scene::Title; // 初期シーンはタイトル
 std::vector<GameObject*> Manager::m_SceneGameObjects;           // 現在のシーンのGameObjectリスト
+std::set<Manager::ColliderPair> Manager::m_PreviousPairs;       // 前フレームの衝突ペア情報
 
 // デバッグ用コライダー描画フラグ
 bool g_EnableColliderDebugDraw = false; // デフォルトは無効
@@ -168,8 +169,9 @@ void Manager::CheckCollisions()
     }
 
     const size_t n = colliders.size();
+    std::set<ColliderPair> currentPairs; // 今フレームの衝突ペア情報
 
-    // 全ペアに対して、OnCollisionを呼び出す
+    // ペアごとの当たり判定処理
     for (size_t i = 0; i < n; ++i)
     {
         Collider* colliderA = colliders[i];
@@ -180,10 +182,55 @@ void Manager::CheckCollisions()
             Collider* colliderB = colliders[j];
             if (!colliderB) continue;
 
-            // a→b と b→a の両方で当たり判定を行う（双方向対応）
-            bool hitA = colliderA->OnCollision(*colliderB);
-            // もし「あたったときのイベント」を処理したい場合は、ここで処理を追加
-            // 例: if (hitA) { /* aがbに当たったときの処理 * / }
+            // 当たり判定を行う
+            CollisionInfo infoA;
+            CollisionInfo infoB;
+            if (colliderA->CheckCollision(colliderB, infoA, infoB))
+            {
+                // 衝突ペアを記録
+                ColliderPair pair = MakePair(colliderA, colliderB);
+                currentPairs.insert(pair);
+
+                // 前フレームに衝突していたか確認
+                bool wasColliding = (m_PreviousPairs.find(pair) != m_PreviousPairs.end());
+
+                if (wasColliding)
+                {
+                    // 衝突継続イベント
+                    colliderA->InvokeOnCollisionStay(infoA);
+                    colliderB->InvokeOnCollisionStay(infoB);
+                }
+                else
+                {
+                    // 衝突開始イベント
+                    colliderA->InvokeOnCollisionEnter(infoA);
+                    colliderB->InvokeOnCollisionEnter(infoB);
+                }
+            }
         }
     }
+
+    // Exit判定
+    for (const auto& pair : m_PreviousPairs)
+    {
+        if (currentPairs.find(pair) == currentPairs.end())
+        {
+            Collider* a = pair.a;
+            Collider* b = pair.b;
+            if (!a || !b) continue;
+
+            // 衝突終了イベント
+            CollisionInfo infoA{};
+            infoA.self = a;
+            infoA.other = b;
+
+            CollisionInfo infoB{};
+            infoB.self = b;
+            infoB.other = a;
+
+            a->InvokeOnCollisionExit(infoA);
+            b->InvokeOnCollisionExit(infoB);
+        }
+    }
+    m_PreviousPairs.swap(currentPairs); // 今フレームの情報を保存 for 次フレーム
 }

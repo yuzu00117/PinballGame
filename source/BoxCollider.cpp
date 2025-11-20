@@ -2,71 +2,131 @@
 #include "renderer.h"
 #include "MathUtil.h"
 
-// ƒRƒ‰ƒCƒ_[ŠÖ˜A
+// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼é–¢é€£
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 
-// ”Ä—p Box vs Box / Box vs Sphere ‘Î‰—\’è
-bool BoxCollider::OnCollision(Collider& other)
+// ----------------------------------------------------------------------
+// è¡çªå‡¦ç†
+// ----------------------------------------------------------------------
+// Box vs Boxã®è¡çªåˆ¤å®š
+static bool BoxVsBox(BoxCollider* a, BoxCollider* b,
+                      CollisionInfo& outA, CollisionInfo& outB)
 {
-    if (auto* b = dynamic_cast<BoxCollider*>(&other))
+    Vector3 minA, maxA;
+    Vector3 minB, maxB;
+    a->GetWorldAABB(minA, maxA);
+    b->GetWorldAABB(minB, maxB);
+
+    float overLapX = std::min(maxA.x, maxB.x) - std::max(minA.x, minB.x);
+    float overLapY = std::min(maxA.y, maxB.y) - std::max(minA.y, minB.y);
+    float overLapZ = std::min(maxA.z, maxB.z) - std::max(minA.z, minB.z);
+
+    if (overLapX <= 0.0f || overLapY <= 0.0f || overLapZ <= 0.0f)
+        return false;
+
+    // ä¸€ç•ªæµ…ã„ã‚ã‚Šè¾¼ã¿ã®è»¸ã‚’é¸ã¶
+    float penetration = overLapX;
+    Vector3 normal{ 1.0f, 0.0f, 0.0f };
+
+    Vector3 centerA = (minA + maxA) * 0.5f;
+    Vector3 centerB = (minB + maxB) * 0.5f;
+    Vector3 diff = centerB - centerA;
+
+    if (overLapY < penetration)
     {
-        // --- Box vs Box ---
-        Vector3 minA, maxA;
-        Vector3 minB, maxB;
-        GetWorldAABB(minA, maxA);
-        b->GetWorldAABB(minB, maxB);
-
-        bool hit =
-            (minA.x <= maxB.x && maxA.x >= minB.x) &&
-            (minA.y <= maxB.y && maxA.y >= minB.y) &&
-            (minA.z <= maxB.z && maxA.z >= minB.z);
-
-        return hit;
+        penetration = overLapY;
+        normal = { 0, diff.y >= 0.0f ? 1.0f : -1.0f, 0 };
+    }
+    if (overLapZ < penetration)
+    {
+        penetration = overLapZ;
+        normal = { 0, 0, diff.z >= 0.0f ? 1.0f : -1.0f };
+    }
+    if (penetration == overLapX)    
+    {
+        normal.x = diff.x >= 0.0f ? 1.0f : -1.0f;
     }
 
-    // --- Box vs Sphere ---
-    if (auto* s = dynamic_cast<SphereCollider*>(&other))
-    {
-        Vector3 boxMin, boxMax;
-        GetWorldAABB(boxMin, boxMax);
+    Vector3 contact = (centerA + centerB) * 0.5f;
 
-        Vector3 center = s->GetWorldPosition();
+    outA.self         = a;
+    outA.other        = b;
+    outA.normal       = normal;
+    outA.penetration  = penetration;
+    outA.contactPoint = contact;
 
-        float cx = Clamp(center.x, boxMin.x, boxMax.x);
-        float cy = Clamp(center.y, boxMin.y, boxMax.y);
-        float cz = Clamp(center.z, boxMin.z, boxMax.z);
+    outB.self         = b;
+    outB.other        = a;
+    outB.normal       = -normal;
+    outB.penetration  = penetration;
+    outB.contactPoint = contact;
 
-        float dx = center.x - cx;
-        float dy = center.y - cy;
-        float dz = center.z - cz;
+    return true;
+}        
 
-        float distSq = dx*dx + dy*dy + dz*dz;
+// Box vs Sphereã®è¡çªåˆ¤å®š
+static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
+                        CollisionInfo& outB, CollisionInfo& outS)
+{
+    Vector3 boxMin, boxMax;
+    b->GetWorldAABB(boxMin, boxMax);
 
-        return distSq <= s->m_radius * s->m_radius;
-    }
-    // TODO: SphereCollider‚È‚Ç‚ª‘‚¦‚½‚ç‚±‚±‚É‘Î‰’Ç‰Á
-    return false;
+    Vector3 center = s->GetWorldPosition();
+
+    // æœ€è¿‘æ¥ç‚¹
+    float cx = Clamp(center.x, boxMin.x, boxMax.x);
+    float cy = Clamp(center.y, boxMin.y, boxMax.y);
+    float cz = Clamp(center.z, boxMin.z, boxMax.z);
+    Vector3 closest{ cx, cy, cz };
+
+    Vector3 diff = center - closest;
+    float dist = diff.Length();
+    float radius = s->m_radius;
+
+    if (dist > radius)
+        return false;
+
+    // è¡çªæƒ…å ±ã®è¨­å®š
+    Vector3 normal = (dist > 0.0001f) ? (diff / dist) : Vector3(0, 1, 0);
+    float penetration = radius - dist;
+    Vector3 contact = closest;
+
+    // Boxè¦–ç‚¹
+    outB.self         = b;
+    outB.other        = s;
+    outB.normal       = -normal;
+    outB.penetration  = penetration;
+    outB.contactPoint = contact;
+
+    // Sphereè¦–ç‚¹
+    outS.self         = s;
+    outS.other        = b;
+    outS.normal       = normal;
+    outS.penetration  = penetration;
+    outS.contactPoint = contact;
+
+    return true;
 }
 
 static void DrawWireUnitBox(const XMMATRIX& worldMatrix, const XMFLOAT4& color)
 {
-    // ƒ{ƒbƒNƒX‚Ì’¸“_‚ğ’è‹`
+    // ãƒœãƒƒã‚¯ã‚¹ã®é ‚ç‚¹ã‚’å®šç¾©
     const XMFLOAT3 p[8] = {
         {-0.5f,-0.5f,-0.5f},{+0.5f,-0.5f,-0.5f},{+0.5f,+0.5f,-0.5f},{-0.5f,+0.5f,-0.5f},
         {-0.5f,-0.5f,+0.5f},{+0.5f,-0.5f,+0.5f},{+0.5f,+0.5f,+0.5f},{-0.5f,+0.5f,+0.5f}
     };
 
-    // ƒƒCƒ„[ƒtƒŒ[ƒ€‚ÌƒGƒbƒW‚ğ’è‹`
+    // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã‚¨ãƒƒã‚¸ã‚’å®šç¾©
     const uint16_t e[24] = {
-        0,1, 1,2, 2,3, 3,0, // ‰º
-        4,5, 5,6, 6,7, 7,4, // ã
-        0,4, 1,5, 2,6, 3,7  // ’Œ
+        0,1, 1,2, 2,3, 3,0, // ä¸‹
+        4,5, 5,6, 6,7, 7,4, // ä¸Š
+        0,4, 1,5, 2,6, 3,7  // æŸ±
     };
 
     DebugLineVertex v[24];
 
-    // ˆÊ’u‚ğworlds—ñ‚Å•ÏŠ·‚µ‚Ä’¸“_ƒoƒbƒtƒ@‚ÉƒZƒbƒg
+    // ä½ç½®ã‚’worldè¡Œåˆ—ã§å¤‰æ›ã—ã¦é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã«ã‚»ãƒƒãƒˆ
     for (int i = 0; i < 24; ++i)
     {
         XMVECTOR VertexPosition = XMVector3Transform(XMLoadFloat3(&p[e[i]]), worldMatrix);
@@ -74,26 +134,26 @@ static void DrawWireUnitBox(const XMMATRIX& worldMatrix, const XMFLOAT4& color)
         v[i].Color = color;
     }
 
-    // •`‰æ
+    // æç”»
     Renderer::DrawDebugLines(v, 24);
 }
 
-// ƒRƒ‰ƒCƒ_[‚ÌƒfƒoƒbƒO•`‰æ
+// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ‡ãƒãƒƒã‚°æç”»
 void BoxCollider::DebugDraw()
 {
-    // ƒ[ƒ‹ƒhs—ñ‚ğì¬
+    // ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã‚’ä½œæˆ
     const XMMATRIX ScaleMatrix = XMMatrixScaling(Size.x, Size.y, Size.z);
     const XMMATRIX TransformMatrix = XMMatrixTranslation(Center.x, Center.y, Center.z);
     const XMMATRIX WorldMatrix = (m_Transform ? (ScaleMatrix * TransformMatrix * m_Transform->GetWorldMatrix()) : (ScaleMatrix * TransformMatrix));
 
-    // –Ú—§‚ÂFi”¼“§–¾j? D‚İ‚Å•ÏX‰Â
+    // ç›®ç«‹ã¤è‰²ï¼ˆåŠé€æ˜ï¼‰? å¥½ã¿ã§å¤‰æ›´å¯
     DrawWireUnitBox(WorldMatrix, s_DebugColor);
 }
 
-// ƒ[ƒ‹ƒhÀ•WŒn‚Å‚ÌAABB‚ğæ“¾‚·‚é
+// ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ç³»ã§ã®AABBã‚’å–å¾—ã™ã‚‹
 void BoxCollider::GetWorldAABB(Vector3& outMin, Vector3& outMax) const
 {
-    // ƒ[ƒ‹ƒh’†S
+    // ãƒ¯ãƒ¼ãƒ«ãƒ‰ä¸­å¿ƒ
     Vector3 worldCenter = Center;
     Vector3 worldSize = Size;
 
@@ -112,4 +172,22 @@ void BoxCollider::GetWorldAABB(Vector3& outMin, Vector3& outMax) const
     Vector3 half = worldSize * 0.5f;
     outMin = worldCenter - half;
     outMax = worldCenter + half;
+}
+
+bool BoxCollider::CheckCollision(Collider* other,
+                                 CollisionInfo& outSelf,
+                                 CollisionInfo& outOther)
+{
+    // --- Box vs Box ---
+    if (auto* box = dynamic_cast<BoxCollider*>(other))
+    {
+        return BoxVsBox(this, box, outSelf, outOther);
+    }
+
+    // --- Box vs Sphere ---
+    if (auto* sphere = dynamic_cast<SphereCollider*>(other))
+    {
+        return BoxVsSphere(this, sphere, outSelf, outOther);
+    }
+    return false;
 }

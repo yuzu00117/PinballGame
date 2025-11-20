@@ -6,7 +6,7 @@
 #include "CollisionInfo.h"
 #include <memory>
 
-class GameObject; // 前方宣言
+class GameObject;
 
 /// <summary>
 /// コライダーの基底クラス
@@ -38,21 +38,10 @@ public:
     /// <summary>
     /// GameObjectに転送するイベント
     /// </summary>
-    void InvokeOnCollisionEnter(const CollisionInfo& info)
-    {
-        if (m_Owner) m_Owner->OnCollisionEnter(info);
-    }
-
-    void InvokeOnCollisionStay(const CollisionInfo& info)
-    {
-        if (m_Owner) m_Owner->OnCollisionStay(info);
-    }
-
-    void InvokeOnCollisionExit(const CollisionInfo& info)
-    {
-        if (m_Owner) m_Owner->OnCollisionExit(info);
-    }
-
+    void InvokeOnCollisionEnter(const CollisionInfo& info);
+    void InvokeOnCollisionStay(const CollisionInfo& info);
+    void InvokeOnCollisionExit(const CollisionInfo& info);
+    
     /// <summary>
     /// コライダーのデバッグ描画
     /// </summary>

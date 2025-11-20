@@ -81,6 +81,9 @@
     <ClCompile Include="source\SphereCollider.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="source\Collider.cpp">
+      <Filter>ヘッダー ファイル\コライダー</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\input.h">

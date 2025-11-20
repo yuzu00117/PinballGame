@@ -3,19 +3,19 @@
 #include "Collider.h"
 
 /// <summary>
-/// ƒ{ƒbƒNƒXƒRƒ‰ƒCƒ_[ƒNƒ‰ƒX
+/// ãƒœãƒƒã‚¯ã‚¹ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚¯ãƒ©ã‚¹
 /// </summary>
 class BoxCollider : public Collider
 {
 public:
-    // --- •Ï”’è‹` ---
-    Vector3 Center = { 0.0f, 0.0f, 0.0f }; // ƒ{ƒbƒNƒX‚Ì’†SÀ•W
-    Vector3 Size = { 1.0f, 1.0f, 1.0f };   // ƒ{ƒbƒNƒX‚ÌƒTƒCƒYi•E‚‚³E‰œs‚«j
-    float Restitution = 0.8f;              // ”½”­ŒW”
+    // --- å¤‰æ•°å®šç¾© ---
+    Vector3 Center = { 0.0f, 0.0f, 0.0f }; // ãƒœãƒƒã‚¯ã‚¹ã®ä¸­å¿ƒåº§æ¨™
+    Vector3 Size = { 1.0f, 1.0f, 1.0f };   // ãƒœãƒƒã‚¯ã‚¹ã®ã‚µã‚¤ã‚ºï¼ˆå¹…ãƒ»é«˜ã•ãƒ»å¥¥è¡Œãï¼‰
+    float Restitution = 0.8f;              // åç™ºä¿‚æ•°
     
-    // --- ŠÖ”’è‹` ---
+    // --- é–¢æ•°å®šç¾© ---
     /// <summary>
-    /// ƒ[ƒ‹ƒhÀ•W‚ğ•Ô‚·
+    /// ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã‚’è¿”ã™
     /// </summary>
     Vector3 GetWorldPosition() const override
     {
@@ -23,17 +23,19 @@ public:
     }
 
     /// <summary>
-    /// Õ“Ëˆ—
+    /// è¡çªå‡¦ç†
     /// </summary>
-    bool OnCollision(Collider& other) override;
+    bool CheckCollision(Collider* other,
+                        CollisionInfo& outSelf,
+                        CollisionInfo& outOther) override;
 
     /// <summary>
-    /// ƒRƒ‰ƒCƒ_[‚ÌƒfƒoƒbƒO•`‰æ
+    /// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ‡ãƒãƒƒã‚°æç”»
     /// </summary>
     void DebugDraw() override;
 
     /// <summary>
-    /// ƒ[ƒ‹ƒhÀ•WŒn‚Å‚ÌAABB‚ğæ“¾‚·‚é
+    /// ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ç³»ã§ã®AABBã‚’å–å¾—ã™ã‚‹
     /// </summary>
     void GetWorldAABB(Vector3& outMin, Vector3& outMax) const;
 };

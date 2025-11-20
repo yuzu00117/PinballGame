@@ -135,6 +135,7 @@
     <ClCompile Include="source\BoxCollider.cpp" />
     <ClCompile Include="source\Bumper.cpp" />
     <ClCompile Include="source\camera.cpp" />
+    <ClCompile Include="source\Collider.cpp" />
     <ClCompile Include="source\explosion.cpp" />
     <ClCompile Include="source\field.cpp" />
     <ClCompile Include="source\Flipper.cpp" />
