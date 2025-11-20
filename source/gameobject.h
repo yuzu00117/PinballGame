@@ -1,13 +1,17 @@
-#pragma once  
+#pragma once
+#include "DebugSettings.h"
+#include "CollisionInfo.h"
+#include <memory>
+#include <vector>
+#include <type_traits>
+
+// コンポーネント関連ヘッダ
 #include "Transform.h"
 #include "Collider.h"
 #include "Component.h"
 #include "MeshRenderer.h"
-#include "DebugSettings.h"
-#include <memory>
-#include <vector>
-#include <type_traits>
-    
+
+// 前方宣言
 class Collider;
 
 /// <summary>
@@ -138,6 +142,13 @@ public:
         }
         m_Children.clear();
     }
+
+    /// <summary>
+    /// 衝突イベントコールバック
+    /// </summary>
+    virtual void OnCollisionEnter(const CollisionInfo& info) {}
+    virtual void OnCollisionStay(const CollisionInfo& info) {}
+    virtual void OnCollisionExit(const CollisionInfo& info) {}
 
     // ------------------------------------------------------------------------------
     // 変数定義

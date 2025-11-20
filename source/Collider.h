@@ -3,6 +3,7 @@
 #include "vector3.h"
 #include "Transform.h"
 #include "Component.h"
+#include "CollisionInfo.h"
 #include <memory>
 
 class GameObject; // 前方宣言
@@ -30,7 +31,27 @@ public:
     /// <summary>
     /// 他のコライダーとの衝突処理
     /// </summary>
-    virtual bool OnCollision(Collider& other) = 0;
+    virtual bool CheckCollision(Collider* other,
+                                CollisionInfo& outSelf,
+                                CollisionInfo& outOther) = 0;  
+    
+    /// <summary>
+    /// GameObjectに転送するイベント
+    /// </summary>
+    void InvokeOnCollisionEnter(const CollisionInfo& info)
+    {
+        if (m_Owner) m_Owner->OnCollisionEnter(info);
+    }
+
+    void InvokeOnCollisionStay(const CollisionInfo& info)
+    {
+        if (m_Owner) m_Owner->OnCollisionStay(info);
+    }
+
+    void InvokeOnCollisionExit(const CollisionInfo& info)
+    {
+        if (m_Owner) m_Owner->OnCollisionExit(info);
+    }
 
     /// <summary>
     /// コライダーのデバッグ描画
