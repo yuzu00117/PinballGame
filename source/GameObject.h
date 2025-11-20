@@ -16,7 +16,6 @@ class Collider;
 
 /// <summary>
 /// ゲームオブジェクトの基底クラス
-/// TODO: ビルド時間短縮のために、処理のある関数はgameobject.cppに移動する
 /// </summary>
 class GameObject  
 {
@@ -34,34 +33,8 @@ public:
     /// </summary>
     virtual void Init() {}  
     virtual void Uninit() {}  
-    virtual void Update()
-    {
-        // コンポーネントの更新
-        for (auto& Component : m_Components) Component->Update();
-        // 子オブジェクトの更新
-        for (auto& Child : m_Children) Child->Update();
-    }
-
-    // 描画処理
-    virtual void Draw()
-    {
-        // コンポーネントの描画
-        for (auto& Component : m_Components) Component->Draw();
-        // 子オブジェクトの描画
-        for (auto& Child : m_Children) Child->Draw();
-
-        // デバッグ用コライダー描画
-        if (g_EnableColliderDebugDraw)
-        {
-            for (auto& component : m_Components)
-            {
-                if (auto collider = dynamic_cast<Collider*>(component.get()))
-                {
-                    collider->DebugDraw();
-                }
-            }
-        }
-    }
+    virtual void Update();
+    virtual void Draw();
 
     /// <summary>
     /// 任意のComponentを追加する
@@ -101,16 +74,13 @@ public:
     }
 
     /// <summary>
-    /// 子オブジェクトを追加する
+    /// 子オブジェクトを追加する（基本版）
     /// </summary>
-    GameObject* CreateChild()
-    {
-        auto child = std::make_unique<GameObject>();
-        GameObject* ptr = child.get();
-        AttachChild(std::move(child));
-        return ptr;
-    }
+    GameObject* CreateChild();
 
+    /// <summary>
+    /// 子オブジェクトを追加する（派生クラス対応版）
+    /// </summary>
     template <class T, class... Args>
     T* CreateChild(Args&&... args) {
         static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
@@ -122,27 +92,14 @@ public:
     }
 
     /// <summary>
-    /// 子オブジェクトをアタッチする
+    /// 既存のGameObjectを子オブジェクトとしてアタッチする
     /// </summary>
-    void AttachChild(std::unique_ptr<GameObject> child)
-    {
-        child->m_Parent = this;
-        child->m_Transform.SetParent(&m_Transform);
-        m_Children.push_back(std::move(child));
-    }
+    void AttachChild(std::unique_ptr<GameObject> child);
 
     /// <summary>
-    /// 子オブジェクトをデタッチする
+    /// すべての子オブジェクトをデタッチする
     /// </summary>
-    void DetachAllChildren()
-    {
-        for (auto& Child : m_Children)
-        {
-            Child->m_Transform.ClearParent();
-            Child->m_Parent = nullptr;
-        }
-        m_Children.clear();
-    }
+    void DetachAllChildren();
 
     /// <summary>
     /// 衝突イベントコールバック
@@ -159,7 +116,7 @@ public:
     // ------------------------------------------------------------------------------
     // 変数定義
     // ------------------------------------------------------------------------------
-    Transform m_Transform; // オブジェクトのTransform情報
+    Transform m_Transform;                                  // オブジェクトのTransform情報
 
 protected:
     // -------------------------------------------------------------------------------
