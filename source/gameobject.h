@@ -16,6 +16,7 @@ class Collider;
 
 /// <summary>
 /// ゲームオブジェクトの基底クラス
+/// TODO: ビルド時間短縮のために、処理のある関数はgameobject.cppに移動する
 /// </summary>
 class GameObject  
 {
