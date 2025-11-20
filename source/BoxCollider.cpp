@@ -12,10 +12,10 @@ bool BoxCollider::OnCollision(Collider& other)
     if (auto* b = dynamic_cast<BoxCollider*>(&other))
     {
         // --- Box vs Box ---
-        Vector3 minA = Center - Size * 0.5f;
-        Vector3 maxA = Center + Size * 0.5f;
-        Vector3 minB = b->Center - b->Size * 0.5f;
-        Vector3 maxB = b->Center + b->Size * 0.5f;
+        Vector3 minA, maxA;
+        Vector3 minB, maxB;
+        GetWorldAABB(minA, maxA);
+        b->GetWorldAABB(minB, maxB);
 
         bool hit =
             (minA.x <= maxB.x && maxA.x >= minB.x) &&
@@ -28,10 +28,10 @@ bool BoxCollider::OnCollision(Collider& other)
     // --- Box vs Sphere ---
     if (auto* s = dynamic_cast<SphereCollider*>(&other))
     {
-        Vector3 center = s->GetWorldPosition();
+        Vector3 boxMin, boxMax;
+        GetWorldAABB(boxMin, boxMax);
 
-        Vector3 boxMin = Center - Size * 0.5f;
-        Vector3 boxMax = Center + Size * 0.5f;
+        Vector3 center = s->GetWorldPosition();
 
         float cx = Clamp(center.x, boxMin.x, boxMax.x);
         float cy = Clamp(center.y, boxMin.y, boxMax.y);
@@ -88,4 +88,28 @@ void BoxCollider::DebugDraw()
 
     // 目立つ色（半透明）? 好みで変更可
     DrawWireUnitBox(WorldMatrix, s_DebugColor);
+}
+
+// ワールド座標系でのAABBを取得する
+void BoxCollider::GetWorldAABB(Vector3& outMin, Vector3& outMax) const
+{
+    // ワールド中心
+    Vector3 worldCenter = Center;
+    Vector3 worldSize = Size;
+
+    if (m_Transform)
+    {
+        worldCenter = m_Transform->Position + Center;
+
+        worldSize = 
+        {
+            Size.x * m_Transform->Scale.x,
+            Size.y * m_Transform->Scale.y,
+            Size.z * m_Transform->Scale.z
+        };
+    }
+
+    Vector3 half = worldSize * 0.5f;
+    outMin = worldCenter - half;
+    outMax = worldCenter + half;
 }

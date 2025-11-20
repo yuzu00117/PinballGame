@@ -31,4 +31,9 @@ public:
     /// コライダーのデバッグ描画
     /// </summary>
     void DebugDraw() override;
+
+    /// <summary>
+    /// ワールド座標系でのAABBを取得する
+    /// </summary>
+    void GetWorldAABB(Vector3& outMin, Vector3& outMax) const;
 };

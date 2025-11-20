@@ -39,6 +39,7 @@ void Field::Init()
         // wallMesh->SetTexture(TexturePath);                          // テクスチャの設定
 
         // 当たり判定の設定
+        // CenterとSizeはTransformから自動計算されるので設定不要
         auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
         auto boxCollider = wallColliderGroup->AddCollider<BoxCollider>();
     };
