@@ -215,8 +215,8 @@ void Manager::CheckCollisions()
     {
         if (currentPairs.find(pair) == currentPairs.end())
         {
-            Collider* a = pair.a;
-            Collider* b = pair.b;
+            Collider* a = pair.first;
+            Collider* b = pair.second;
             if (!a || !b) continue;
 
             // 衝突終了イベント

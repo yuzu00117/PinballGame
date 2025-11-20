@@ -12,6 +12,14 @@
 class Manager {
 public:
     // ----------------------------------------------------------------------
+    // 型定義
+    // ----------------------------------------------------------------------
+    /// <summary>
+    /// シーン列挙型のエイリアス
+    /// </summary>
+    using Scene = ::Scene;
+
+    // ----------------------------------------------------------------------
     // 関数定義
     // ----------------------------------------------------------------------
     /// <summary>
@@ -21,11 +29,6 @@ public:
     static void Uninit();
     static void Update();
     static void Draw();
-
-	/// <summary>
-    /// シーン列挙型のエイリアス
-    /// </summary>
-	using Scene = ::Scene;
 
     /// <summary>
     /// シーン変更
@@ -39,6 +42,19 @@ public:
 
 private:
     // ----------------------------------------------------------------------
+    // 構造体定義
+    // ----------------------------------------------------------------------
+    struct ColliderPair {
+        Collider* first;
+        Collider* second;
+
+        // 比較演算子を定義して set で使用可能にする
+        bool operator<(const ColliderPair& other) const {
+            return std::tie(first, second) < std::tie(other.first, other.second);
+        }
+    };
+
+    // ----------------------------------------------------------------------
     // 関数定義
     // ----------------------------------------------------------------------
     /// <summary>
@@ -46,29 +62,18 @@ private:
     /// </summary>
     static void CheckCollisions();
 
+    /// <summary>
+    /// コライダーペアを作成（順序を気にせず一意に識別するため）
+    /// </summary>
+    static ColliderPair MakePair(Collider* first, Collider* second)
+    {
+        return (first < second) ? ColliderPair{ first, second } 
+                                : ColliderPair{ second, first };
+    }
+
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
-    // TODO: [Q]これは関数定義？
-    struct ColliderPair {
-        Collider* a;
-        Collider* b;
-
-        // Set用ソート
-        bool operator<(const ColliderPair& rhs) const
-        {
-            if (a < rhs.a) return true;
-            if (a > rhs.a) return false;
-            return b < rhs.b;
-        }
-    };
-
-    // TODO: [Q]これは関数定義？
-    static ColliderPair MakePair(Collider* a, Collider* b)
-    {
-        return (a < b) ? ColliderPair{ a, b } : ColliderPair{ b, a };
-    }
-
     static Scene m_CurrentScene;                        // 現在のシーン
     static std::vector<GameObject*> m_SceneGameObjects; // 現在のシーンのGameObjectリスト
     static std::set<ColliderPair> m_PreviousPairs;      // 前フレームの衝突ペア情報
