@@ -177,6 +177,7 @@
     <ClInclude Include="source\polygon.h" />
     <ClInclude Include="source\Renderer.h" />
     <ClInclude Include="source\result.h" />
+    <ClInclude Include="source\RigidBody.h" />
     <ClInclude Include="source\scene.h" />
     <ClInclude Include="source\score.h" />
     <ClInclude Include="source\soundManager.h" />

@@ -5,6 +5,7 @@
 #include "DebugSettings.h"
 #include "Collider.h"
 #include "ColliderGroup.h"
+#include "RigidBody.h"
 
 // システム関連
 #include "audio.h"
@@ -193,6 +194,22 @@ void Manager::CheckCollisions()
 
                 // 前フレームに衝突していたか確認
                 bool wasColliding = (m_PreviousPairs.find(pair) != m_PreviousPairs.end());
+
+                // デフォルトの衝突解決処理（RigidBodyがあれば）
+                if (auto* ownerA = colliderA->m_Owner)
+                {
+                    if (auto* rbA = ownerA->GetComponent<RigidBody>())
+                    {
+                        rbA->ResolveCollision(infoA);
+                    }
+                }
+                if (auto* ownerB = colliderB->m_Owner)
+                {
+                    if (auto* rbB = ownerB->GetComponent<RigidBody>())
+                    {
+                        rbB->ResolveCollision(infoB);
+                    }
+                }
 
                 if (wasColliding)
                 {
