@@ -146,6 +146,7 @@
     <ClCompile Include="source\polygon.cpp" />
     <ClCompile Include="source\Renderer.cpp" />
     <ClCompile Include="source\result.cpp" />
+    <ClCompile Include="source\RigidBody.cpp" />
     <ClCompile Include="source\score.cpp" />
     <ClCompile Include="source\soundManager.cpp" />
     <ClCompile Include="source\SphereCollider.cpp" />
