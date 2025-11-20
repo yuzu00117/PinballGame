@@ -3,6 +3,7 @@
 
 #include<math.h>
 
+// TODO: 後ほどゼロベクトル用の定数を追加する
 class Vector3
 {
 public:
@@ -133,6 +134,12 @@ public:
 	float Length() const
 	{
 		return sqrtf(x * x + y * y + z * z);
+	}
+
+	// ベクトルの内積を計算する
+	float Dot(const Vector3& a) const
+	{
+		return x * a.x + y * a.y + z * a.z;
 	}
 
 	/*

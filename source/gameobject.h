@@ -1,17 +1,22 @@
-#pragma once  
+#pragma once
+#include "DebugSettings.h"
+#include "CollisionInfo.h"
+#include <memory>
+#include <vector>
+#include <type_traits>
+
+// コンポーネント関連ヘッダ
 #include "Transform.h"
 #include "Collider.h"
 #include "Component.h"
 #include "MeshRenderer.h"
-#include "DebugSettings.h"
-#include <memory>
-#include <vector>
-#include <type_traits>
-    
+
+// 前方宣言
 class Collider;
 
 /// <summary>
 /// ゲームオブジェクトの基底クラス
+/// TODO: ビルド時間短縮のために、処理のある関数はgameobject.cppに移動する
 /// </summary>
 class GameObject  
 {
@@ -138,6 +143,18 @@ public:
         }
         m_Children.clear();
     }
+
+    /// <summary>
+    /// 衝突イベントコールバック
+    /// </summary>
+    virtual void OnCollisionEnter(const CollisionInfo& info) {}
+    virtual void OnCollisionStay(const CollisionInfo& info) {}
+    virtual void OnCollisionExit(const CollisionInfo& info) {}
+
+    /// <summary>
+    /// 子オブジェクトも含めて全てのコライダーを収集する
+    /// </summary>
+    void CollectCollidersRecursive(std::vector<Collider*>& outColliders);
 
     // ------------------------------------------------------------------------------
     // 変数定義

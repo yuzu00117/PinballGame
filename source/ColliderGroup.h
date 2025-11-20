@@ -4,19 +4,19 @@
 #include <memory>
 
 /// <summary>
-/// ƒRƒ‰ƒCƒ_[ƒOƒ‹[ƒvƒNƒ‰ƒX
-/// •¡”‚ÌƒRƒ‰ƒCƒ_[‚ğ‚Ü‚Æ‚ß‚Äˆµ‚¤‚½‚ß‚ÌƒNƒ‰ƒX
+/// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚°ãƒ«ãƒ¼ãƒ—ã‚¯ãƒ©ã‚¹
+/// è¤‡æ•°ã®ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’ã¾ã¨ã‚ã¦æ‰±ã†ãŸã‚ã®ã‚¯ãƒ©ã‚¹
 /// </summary>
 class ColliderGroup : public Collider
 {
 public:
-    // --- ŠÖ”’è‹` ---
+    // --- é–¢æ•°å®šç¾© ---
     /// <summary>
-    /// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+    /// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«ãƒ¡ã‚½ãƒƒãƒ‰
     /// </summary>
     void Init() override
     {
-        // ©•ª‚ÉOwner / Transform ‚ª•t‚¢‚½‚ ‚Æ‚Å‚àAŠeƒRƒ‰ƒCƒ_[‚ÉŒp³‚³‚¹‚é
+        // è‡ªåˆ†ã«Owner / Transform ãŒä»˜ã„ãŸã‚ã¨ã§ã‚‚ã€å„ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã«ç¶™æ‰¿ã•ã›ã‚‹
         for (auto& c : colliders)
         {
             c->m_Transform = this->m_Transform;
@@ -25,7 +25,7 @@ public:
     }
 
     /// <summary>
-    /// ƒRƒ‰ƒCƒ_[‚ğƒOƒ‹[ƒv‚É’Ç‰Á‚·‚é
+    /// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’ã‚°ãƒ«ãƒ¼ãƒ—ã«è¿½åŠ ã™ã‚‹
     /// </summary>
     template<typename T, typename... Args>
     T* AddCollider(Args&&... args)
@@ -33,7 +33,7 @@ public:
         auto c = std::make_unique<T>(std::forward<Args>(args)...);
         T* ptr = c.get();
 
-        // Transform / Owner ‚ğŒp³
+        // Transform / Owner ã‚’ç¶™æ‰¿
         c->m_Transform = this->m_Transform;
         c->m_Owner = this->m_Owner;
 
@@ -42,24 +42,48 @@ public:
     }
 
     /// <summary>
-    /// Õ“Ëˆ—
+    /// ã‚°ãƒ«ãƒ¼ãƒ—ã¨ã—ã¦ã®å½“ãŸã‚Šåˆ¤å®šå‡¦ç†
     /// </summary>
-    bool OnCollision(Collider& other) override
+    bool CheckCollision(Collider* other,
+                        CollisionInfo& outSelf,
+                        CollisionInfo& outOther) override
     {
         bool hit = false;
+
         for (auto& c : colliders)
-            if (c->OnCollision(other)) hit = true;
+        {
+            CollisionInfo childself;
+            CollisionInfo childother;
+
+            if (c->CheckCollision(other, childself, childother))
+            {
+                if (!hit)
+                {
+                    // æœ€åˆã®è¡çªæ™‚ã« outSelf / outOther ã‚’åˆæœŸåŒ–
+                    outSelf = childself;
+                    outOther = childother;
+                    hit = true;
+                }
+            }
+        }
+        
+        if (hit)
+        {
+            // selfã¯ã€Œã‚°ãƒ«ãƒ¼ãƒ—ã€ã¨ã—ã¦æ‰±ã†ã‚ˆã†ã«æƒ…å ±ã‚’æ›¸ãæ›ãˆ
+            outSelf.self = this;
+        }
+
         return hit;
     }
 
     /// <summary>
-    /// ƒfƒoƒbƒO•`‰æ
+    /// ãƒ‡ãƒãƒƒã‚°æç”»
     /// </summary>
     void DebugDraw() override
     {
-        for (auto& c : colliders) c->DebugDraw(); // ŠeƒRƒ‰ƒCƒ_[‚ÌƒfƒoƒbƒO•`‰æ‚ğŒÄ‚Ño‚·
+        for (auto& c : colliders) c->DebugDraw(); // å„ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ‡ãƒãƒƒã‚°æç”»ã‚’å‘¼ã³å‡ºã™
     }
 
-    // --- •Ï”’è‹` ---
-    std::vector<std::unique_ptr<Collider>> colliders;           // ƒRƒ‰ƒCƒ_[‚ÌƒŠƒXƒg
+    // --- å¤‰æ•°å®šç¾© ---
+    std::vector<std::unique_ptr<Collider>> colliders;           // ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒªã‚¹ãƒˆ
 };

@@ -10,6 +10,7 @@
 #include "ModelRenderer.h"
 #include "ColliderGroup.h"
 #include "SphereCollider.h"
+#include "Rigidbody.h"
 
 // 初期化処理
 void Ball::Init()
@@ -28,7 +29,12 @@ void Ball::Init()
 
     SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
     sphereCollider->m_radius = m_Radius;        // 半径を設定
-    sphereCollider->m_restitution = m_Bounce;   // 反発係数を設定
+
+    // Rigidbodyコンポーネントの追加
+    m_RigidBody = AddComponent<RigidBody>();
+    m_RigidBody->restitution = m_Bounce;    // 反発係数を設定
+    m_RigidBody->useGravity = true;         // 重力を有効化
+    m_RigidBody->isKinematic = false;       // キネマティック無効化 
 }
 
 // 終了処理
@@ -37,25 +43,17 @@ void Ball::Uninit()
     // コンポーネントの解放
     m_ModelRenderer = nullptr;
     m_ColliderGroup = nullptr;
+    m_RigidBody = nullptr;
 }
 
 // 更新処理
 void Ball::Update()
 {
-	const float deltaTime = 1.0f / 60.0f;
-	const Vector3 gravity = { 0.0f, -9.8f, 0.0f };
-
-    // 速度に重力を加算
-    m_Velocity += gravity * deltaTime;
-
-    // 位置更新
-    m_Transform.Position += m_Velocity * deltaTime;
-
 #ifndef NDEBUG
     // SPACEキーで発射
     if (Input::GetKeyTrigger(VK_SPACE))
     {
-        m_Velocity.z += 12.0f;
+        m_RigidBody->velocity.z += 12.0f;
     }
 #endif
 

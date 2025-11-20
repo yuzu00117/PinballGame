@@ -3,9 +3,10 @@
 #include "vector3.h"
 #include "Transform.h"
 #include "Component.h"
+#include "CollisionInfo.h"
 #include <memory>
 
-class GameObject; // 前方宣言
+class GameObject;
 
 /// <summary>
 /// コライダーの基底クラス
@@ -30,8 +31,17 @@ public:
     /// <summary>
     /// 他のコライダーとの衝突処理
     /// </summary>
-    virtual bool OnCollision(Collider& other) = 0;
-
+    virtual bool CheckCollision(Collider* other,
+                                CollisionInfo& outSelf,
+                                CollisionInfo& outOther) = 0;  
+    
+    /// <summary>
+    /// GameObjectに転送するイベント
+    /// </summary>
+    void InvokeOnCollisionEnter(const CollisionInfo& info);
+    void InvokeOnCollisionStay(const CollisionInfo& info);
+    void InvokeOnCollisionExit(const CollisionInfo& info);
+    
     /// <summary>
     /// コライダーのデバッグ描画
     /// </summary>

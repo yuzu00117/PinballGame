@@ -4,8 +4,10 @@
 #include "Vector3.h"
 #include "GameObject.h"
 
+// 前方宣言
 class ModelRenderer;
 class ColliderGroup;
+class RigidBody;
 
 /// <summary>
 /// ピンボールのボールクラス
@@ -42,6 +44,7 @@ private:
     // ------------------------------------------------------------------------------
     ModelRenderer* m_ModelRenderer = nullptr;                               // モデルレンダラー
     ColliderGroup* m_ColliderGroup = nullptr;                               // コリジョングループ
+    RigidBody* m_RigidBody = nullptr;                                       // リジッドボディ
 
     // ボールの属性
     Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };                              // 速度

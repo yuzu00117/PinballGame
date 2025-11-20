@@ -5,6 +5,7 @@
 #include "DebugSettings.h"
 #include "Collider.h"
 #include "ColliderGroup.h"
+#include "RigidBody.h"
 
 // システム関連
 #include "audio.h"
@@ -14,6 +15,7 @@
 // 静的メンバ変数の定義
 Manager::Scene Manager::m_CurrentScene = Manager::Scene::Title; // 初期シーンはタイトル
 std::vector<GameObject*> Manager::m_SceneGameObjects;           // 現在のシーンのGameObjectリスト
+std::set<Manager::ColliderPair> Manager::m_PreviousPairs;       // 前フレームの衝突ペア情報
 
 // デバッグ用コライダー描画フラグ
 bool g_EnableColliderDebugDraw = false; // デフォルトは無効
@@ -148,28 +150,17 @@ void Manager::CheckCollisions()
     std::vector<Collider*> colliders;
     colliders.reserve(m_SceneGameObjects.size());
 
-    // シーン内の全コライダーを収集
+    // シーン直下のGameObjectから、子も含めて全てのコライダーを収集
     for (GameObject* gameObject : m_SceneGameObjects)
     {
         if (!gameObject) continue; // nullptrの場合はスキップ
-
-        // もしColliderGroupを使っている場合は、まずそれを優先
-        if (auto* colliderGroup = gameObject->GetComponent<ColliderGroup>())
-        {
-            colliders.push_back(colliderGroup);
-            continue;
-        }
-
-        // 単体のColliderを持つ場合
-        if (auto* collider = gameObject->GetComponent<Collider>())
-        {
-            colliders.push_back(collider);
-        }
+        gameObject->CollectCollidersRecursive(colliders);
     }
 
     const size_t n = colliders.size();
+    std::set<ColliderPair> currentPairs; // 今フレームの衝突ペア情報
 
-    // 全ペアに対して、OnCollisionを呼び出す
+    // ペアごとの当たり判定処理
     for (size_t i = 0; i < n; ++i)
     {
         Collider* colliderA = colliders[i];
@@ -180,10 +171,71 @@ void Manager::CheckCollisions()
             Collider* colliderB = colliders[j];
             if (!colliderB) continue;
 
-            // a→b と b→a の両方で当たり判定を行う（双方向対応）
-            bool hitA = colliderA->OnCollision(*colliderB);
-            // もし「あたったときのイベント」を処理したい場合は、ここで処理を追加
-            // 例: if (hitA) { /* aがbに当たったときの処理 * / }
+            // 当たり判定を行う
+            CollisionInfo infoA;
+            CollisionInfo infoB;
+            if (colliderA->CheckCollision(colliderB, infoA, infoB))
+            {
+                // 衝突ペアを記録
+                ColliderPair pair = MakePair(colliderA, colliderB);
+                currentPairs.insert(pair);
+
+                // 前フレームに衝突していたか確認
+                bool wasColliding = (m_PreviousPairs.find(pair) != m_PreviousPairs.end());
+
+                // RigidBodyによるデフォルト衝突解決
+                if (auto* ownerA = colliderA->m_Owner)
+                {
+                    if (auto* rbA = ownerA->GetComponent<RigidBody>())
+                    {
+                        rbA->ResolveCollision(infoA);
+                    }
+                }
+                if (auto* ownerB = colliderB->m_Owner)
+                {
+                    if (auto* rbB = ownerB->GetComponent<RigidBody>())
+                    {
+                        rbB->ResolveCollision(infoB);
+                    }
+                }
+
+                if (wasColliding)
+                {
+                    // 衝突継続イベント
+                    colliderA->InvokeOnCollisionStay(infoA);
+                    colliderB->InvokeOnCollisionStay(infoB);
+                }
+                else
+                {
+                    // 衝突開始イベント
+                    colliderA->InvokeOnCollisionEnter(infoA);
+                    colliderB->InvokeOnCollisionEnter(infoB);
+                }
+            }
         }
     }
+
+    // Exit判定
+    for (const auto& pair : m_PreviousPairs)
+    {
+        if (currentPairs.find(pair) == currentPairs.end())
+        {
+            Collider* a = pair.first;
+            Collider* b = pair.second;
+            if (!a || !b) continue;
+
+            // 衝突終了イベント
+            CollisionInfo infoA{};
+            infoA.self = a;
+            infoA.other = b;
+
+            CollisionInfo infoB{};
+            infoB.self = b;
+            infoB.other = a;
+
+            a->InvokeOnCollisionExit(infoA);
+            b->InvokeOnCollisionExit(infoB);
+        }
+    }
+    m_PreviousPairs.swap(currentPairs); // 今フレームの情報を保存 for 次フレーム
 }

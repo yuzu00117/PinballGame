@@ -7,23 +7,22 @@
 class BoxCollider;
 
 /// <summary>
-/// ƒXƒtƒBƒAƒRƒ‰ƒCƒ_[ƒNƒ‰ƒX
+/// ã‚¹ãƒ•ã‚£ã‚¢ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚¯ãƒ©ã‚¹
 /// </summary>
 class SphereCollider : public Collider
 {
 public:
     // ----------------------------------------------------------------------
-    // •Ï”’è‹`
+    // å¤‰æ•°å®šç¾©
     // ----------------------------------------------------------------------
-    Vector3 m_center = { 0.0f, 0.0f, 0.0f };  // ƒXƒtƒBƒA‚Ìƒ[ƒJƒ‹’†SÀ•W
-    float m_radius = 5.0f;                    // ƒXƒtƒBƒA‚Ì”¼Œa
-    float m_restitution = 0.8f;               // ”½”­ŒW”
+    Vector3 m_center = { 0.0f, 0.0f, 0.0f };  // ã‚¹ãƒ•ã‚£ã‚¢ã®ãƒ­ãƒ¼ã‚«ãƒ«ä¸­å¿ƒåº§æ¨™
+    float m_radius = 5.0f;                    // ã‚¹ãƒ•ã‚£ã‚¢ã®åŠå¾„
     
     // ----------------------------------------------------------------------
-    // ŠÖ”’è‹`
+    // é–¢æ•°å®šç¾©
     // ----------------------------------------------------------------------
     /// <summary>
-    /// ƒ[ƒ‹ƒhÀ•W‚ğ•Ô‚·
+    /// ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã‚’è¿”ã™
     /// </summary>
     Vector3 GetWorldPosition() const override
     {
@@ -31,12 +30,14 @@ public:
     }
 
     /// <summary>
-    /// Õ“Ëˆ—
+    /// è¡çªå‡¦ç†
     /// </summary>
-    bool OnCollision(Collider& other) override;
+    bool CheckCollision(Collider* other,
+                        CollisionInfo& outSelf,
+                        CollisionInfo& outOther) override;
 
     /// <summary>
-    /// ƒRƒ‰ƒCƒ_[‚ÌƒfƒoƒbƒO•`‰æ
+    /// ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ãƒ‡ãƒãƒƒã‚°æç”»
     /// </summary>
     void DebugDraw() override;
 };
