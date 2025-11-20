@@ -150,23 +150,11 @@ void Manager::CheckCollisions()
     std::vector<Collider*> colliders;
     colliders.reserve(m_SceneGameObjects.size());
 
-    // シーン内の全コライダーを収集
+    // シーン直下のGameObjectから、子も含めて全てのコライダーを収集
     for (GameObject* gameObject : m_SceneGameObjects)
     {
         if (!gameObject) continue; // nullptrの場合はスキップ
-
-        // もしColliderGroupを使っている場合は、まずそれを優先
-        if (auto* colliderGroup = gameObject->GetComponent<ColliderGroup>())
-        {
-            colliders.push_back(colliderGroup);
-            continue;
-        }
-
-        // 単体のColliderを持つ場合
-        if (auto* collider = gameObject->GetComponent<Collider>())
-        {
-            colliders.push_back(collider);
-        }
+        gameObject->CollectCollidersRecursive(colliders);
     }
 
     const size_t n = colliders.size();
@@ -195,7 +183,7 @@ void Manager::CheckCollisions()
                 // 前フレームに衝突していたか確認
                 bool wasColliding = (m_PreviousPairs.find(pair) != m_PreviousPairs.end());
 
-                // デフォルトの衝突解決処理（RigidBodyがあれば）
+                // RigidBodyによるデフォルト衝突解決
                 if (auto* ownerA = colliderA->m_Owner)
                 {
                     if (auto* rbA = ownerA->GetComponent<RigidBody>())

@@ -13,11 +13,22 @@ void Field::Init()
     // ----------------------------------------------------------------------
     // 床の作成
     // ----------------------------------------------------------------------
+    // 床メッシュの作成
     m_Floor = AddComponent<MeshRenderer>();
     m_Floor->LoadShader(VertexShaderPath, PixelShaderPath);
     m_Floor->SetTexture(TexturePath);
     m_Floor->CreateUnitPlane();
     m_Floor->SetLocalScale(HalfWidth * 2.0f, 1.0f, HalfHeight * 2.0f);
+
+    // 床コライダーの作成
+    m_ColliderGroup = AddComponent<ColliderGroup>();
+    {
+        auto floorCollider = m_ColliderGroup->AddCollider<BoxCollider>();
+
+        // 位置を微調整して床の上面に合わせる
+        floorCollider->Center = { 0.0f, -0.25f, 0.0f };
+        floorCollider->Size = { HalfWidth * 2.0f, 0.5f, HalfHeight * 2.0f };
+    }
 
     // ----------------------------------------------------------------------
     // 壁の作成
@@ -36,7 +47,7 @@ void Field::Init()
         wallMesh->LoadShader(VertexShaderPath, PixelShaderPath);    // シェーダーの設定
         wallMesh->CreateUnitBox();                                  // メッシュの作成
         wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);      // 色の設定
-        // wallMesh->SetTexture(TexturePath);                          // テクスチャの設定
+        // wallMesh->SetTexture(TexturePath);                       // テクスチャの設定
 
         // 当たり判定の設定
         // CenterとSizeはTransformから自動計算されるので設定不要

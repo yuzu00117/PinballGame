@@ -139,6 +139,7 @@
     <ClCompile Include="source\explosion.cpp" />
     <ClCompile Include="source\field.cpp" />
     <ClCompile Include="source\Flipper.cpp" />
+    <ClCompile Include="source\gameobject.cpp" />
     <ClCompile Include="source\input.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\manager.cpp" />

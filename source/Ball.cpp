@@ -33,6 +33,8 @@ void Ball::Init()
     // Rigidbodyコンポーネントの追加
     m_RigidBody = AddComponent<RigidBody>();
     m_RigidBody->restitution = m_Bounce;    // 反発係数を設定
+    m_RigidBody->useGravity = true;         // 重力を有効化
+    m_RigidBody->isKinematic = false;       // キネマティック無効化 
 }
 
 // 終了処理

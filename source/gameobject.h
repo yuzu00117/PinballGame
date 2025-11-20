@@ -150,6 +150,11 @@ public:
     virtual void OnCollisionStay(const CollisionInfo& info) {}
     virtual void OnCollisionExit(const CollisionInfo& info) {}
 
+    /// <summary>
+    /// 子オブジェクトも含めて全てのコライダーを収集する
+    /// </summary>
+    void CollectCollidersRecursive(std::vector<Collider*>& outColliders);
+
     // ------------------------------------------------------------------------------
     // 変数定義
     // ------------------------------------------------------------------------------
