@@ -1,10 +1,13 @@
 #include "main.h"
 #include "MathUtil.h"
 #include "renderer.h"
+#include "GameObject.h"
 
-// コライダー関連
+// コライダー・物理関連
 #include "BoxCollider.h"
 #include "SphereCollider.h"
+#include "ColliderUtility.h"
+#include "RigidBody.h"
 
 // ----------------------------------------------------------------------
 // 衝突処理
@@ -53,12 +56,77 @@ static bool SphereVsSphere(SphereCollider* a, SphereCollider* b,
     return true;
 }
 
-// Sphere vs Boxの衝突判定
+// Sphere vs Boxの衝突判定（CCD対応）
 static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
                         CollisionInfo& outS, CollisionInfo& outB)
 {
     Vector3 boxMin, boxMax;
     b->GetWorldAABB(boxMin, boxMax);
+
+    // --- CCD試行 ---
+    GameObject* owner     = s->m_Owner;
+    RigidBody*  rigidBody = owner ? owner->GetComponent<RigidBody>() : nullptr;
+
+    // CCDを使うかどうかの判定
+    bool useCCD = false;
+    Vector3 p0, p1;
+
+    if (rigidBody && !rigidBody->m_IsKinematic)
+    {
+        // 球の中心の「前フレーム位置」と「今フレーム位置」
+        p0 = rigidBody->m_PreviousPosition + s->m_center;   // 前フレーム中心
+        p1 = owner->m_Transform.Position + s->m_center;     // 今フレーム中心
+
+        Vector3 delta = p1 - p0;
+        float moveLen = delta.Length();
+        float ccdMinMove = s->m_radius * 0.25f; // 半径の1/4以上動いていたらCCDを使う
+
+        // NOTE: CCD は「今フレームの位置p1がBoxに近いとき」にだけ使う。
+        // p0基準にすると接地スライド時のブルブルが増えたため、
+        // 実用上 p1 で判定する実装を採用している。
+        if (moveLen >= ccdMinMove && 
+            IsSphereOverlappingBox(p1, s->m_radius, boxMin, boxMax))
+        {
+            useCCD = true;
+        }
+    }
+
+    if (useCCD)
+    {
+        CcdHit hit;
+        if (IntersectSegmentExpandedAABB(p0, p1, boxMin, boxMax, s->m_radius, &hit))
+        {
+            // 衝突位置まで戻す（少しだけ離す）
+            const float kSlop = s->m_radius * 0.01f;
+            Vector3 hitCenter = hit.point + hit.normal * kSlop;
+
+            // GameObjectのPositionはローカル原点なので、中心オフセットを引く
+            owner->m_Transform.Position = hitCenter - s->m_center;
+
+            // 接触点（ボックス表面）
+            Vector3 contact = hitCenter - hit.normal * s->m_radius;
+
+            // Sphere視点
+            outS.self         = s;
+            outS.other        = b;
+            outS.normal       = hit.normal;
+            outS.penetration  = 0.0f;      // CCDなのでめり込み無し
+            outS.contactPoint = contact;
+            outS.isCCDHit    = true;
+
+            // Box視点
+            outB.self         = b;
+            outB.other        = s;
+            outB.normal       = -hit.normal;
+            outB.penetration  = 0.0f;
+            outB.contactPoint = contact;
+            outB.isCCDHit    = true;
+
+            return true;
+        }
+    }
+
+    // --- CCDで当たらなかった場合は従来の静的判定にフォールバック ---
 
     Vector3 center = s->GetWorldPosition();
 
@@ -69,14 +137,14 @@ static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
     Vector3 closest{ cx, cy, cz };
 
     Vector3 diff = center - closest;
-    float dist = diff.Length();
+    float   dist = diff.Length();
 
     if (dist > s->m_radius)
         return false;
 
-    Vector3 normal = (dist > 0.0001f) ? (diff / dist) : Vector3(0, 1, 0);
-    float penetration = s->m_radius - dist;
-    Vector3 contact = closest;
+    Vector3 normal      = (dist > 0.0001f) ? (diff / dist) : Vector3(0, 1, 0);
+    float   penetration = s->m_radius - dist;
+    Vector3 contact     = closest;
 
     // Sphere視点
     outS.self         = s;
