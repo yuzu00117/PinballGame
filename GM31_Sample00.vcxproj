@@ -134,7 +134,7 @@
     <ClCompile Include="source\Ball.cpp" />
     <ClCompile Include="source\BoxCollider.cpp" />
     <ClCompile Include="source\Bumper.cpp" />
-    <ClCompile Include="source\camera.cpp" />
+    <ClCompile Include="source\Camera.cpp" />
     <ClCompile Include="source\Collider.cpp" />
     <ClCompile Include="source\ColliderUtility.cpp" />
     <ClCompile Include="source\explosion.cpp" />
@@ -160,7 +160,7 @@
     <ClInclude Include="source\Ball.h" />
     <ClInclude Include="source\BoxCollider.h" />
     <ClInclude Include="source\Bumper.h" />
-    <ClInclude Include="source\camera.h" />
+    <ClInclude Include="source\Camera.h" />
     <ClInclude Include="source\Collider.h" />
     <ClInclude Include="source\ColliderGroup.h" />
     <ClInclude Include="source\ColliderUtility.h" />
