@@ -80,7 +80,12 @@ static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
         Vector3 delta = p1 - p0;
         float moveLen = delta.Length();
         float ccdMinMove = s->m_radius * 0.25f; // 半径の1/4以上動いていたらCCDを使う
-        if (moveLen >= ccdMinMove)
+
+        // NOTE: CCD は「今フレームの位置p1がBoxに近いとき」にだけ使う。
+        // p0基準にすると接地スライド時のブルブルが増えたため、
+        // 実用上 p1 で判定する実装を採用している。
+        if (moveLen >= ccdMinMove && 
+            IsSphereOverlappingBox(p1, s->m_radius, boxMin, boxMax))
         {
             useCCD = true;
         }
@@ -107,6 +112,7 @@ static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
             outS.normal       = hit.normal;
             outS.penetration  = 0.0f;      // CCDなのでめり込み無し
             outS.contactPoint = contact;
+            outS.isCCDHit    = true;
 
             // Box視点
             outB.self         = b;
@@ -114,6 +120,7 @@ static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
             outB.normal       = -hit.normal;
             outB.penetration  = 0.0f;
             outB.contactPoint = contact;
+            outB.isCCDHit    = true;
 
             return true;
         }
