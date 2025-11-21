@@ -33,4 +33,5 @@ public:
     float m_Mass = 1.0f;                                // 質量（現在は未使用）
     bool m_UseGravity = true;                           // 重力の影響を受けるかどうか
     bool m_IsKinematic = false;                         // キネマティックフラグ (trueなら物理演算の影響を受けない)
+    bool m_IsFirstUpdate = true;                        // 初回更新フラグ
 };

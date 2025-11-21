@@ -12,8 +12,19 @@ void RigidBody::Update()
     if (!m_Owner || m_IsKinematic) return;
 
     // CCD用に前フレームの位置を保存
-    m_PreviousPosition = m_Owner->m_Transform.Position;
+    if (m_IsFirstUpdate)
+    {
+        // 初回更新時は現在位置を前フレーム位置として保存
+        m_PreviousPosition = m_Owner->m_Transform.Position;
+        m_IsFirstUpdate = false;
+    }
+    else
+    {
+        // 2回目以降は前フレーム位置を更新
+        m_PreviousPosition = m_Owner->m_Transform.Position;
 
+    }
+   
     // 重力の影響を受ける場合、速度に重力加速度を加算
     if (m_UseGravity)
     {
