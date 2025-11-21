@@ -75,20 +75,36 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
     Vector3 boxMin, boxMax;
     b->GetWorldAABB(boxMin, boxMax);
 
+    // --- CCD試行 ---
     GameObject* owner     = s->m_Owner;
     RigidBody*  rigidBody = owner ? owner->GetComponent<RigidBody>() : nullptr;
 
+    // CCDを使うかどうかの判定
+    bool useCCD = false;
+    Vector3 p0, p1;
+
     if (rigidBody && !rigidBody->m_IsKinematic)
     {
-        // --- CCD試行 ---
-        Vector3 p0 = rigidBody->m_PreviousPosition + s->m_center;
-        Vector3 p1 = owner->m_Transform.Position + s->m_center;
+        // 球の中心の「前フレーム位置」と「今フレーム位置」
+        p0 = rigidBody->m_PreviousPosition + s->m_center;
+        p1 = owner->m_Transform.Position + s->m_center;
 
+        Vector3 delta = p1 - p0;
+        float moveLen = delta.Length();
+        float ccdMinMove = s->m_radius * 0.25f; // 半径の1/4以上動いていたらCCDを使う
+        if (moveLen >= ccdMinMove)
+        {
+            useCCD = true;
+        }
+    }
+
+    if (useCCD)
+    {
         CcdHit hit;
         if (IntersectSegmentExpandedAABB(p0, p1, boxMin, boxMax, s->m_radius, &hit))
         {
             // 衝突位置まで戻す（少しだけ離す）
-            const float kSlop = 0.001f;
+            const float kSlop = s->m_radius * 0.01f;
             Vector3 hitCenter = hit.point + hit.normal * kSlop;
 
             // GameObjectのPositionはローカル原点なので、中心オフセットを引く
@@ -110,7 +126,7 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
             outS.normal       = hit.normal;
             outS.penetration  = 0.0f;      // CCDなのでめり込み無し
             outS.contactPoint = contact;
-
+            
             return true;
         }
     }
