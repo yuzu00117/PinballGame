@@ -88,7 +88,7 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
         if (IntersectSegmentExpandedAABB(p0, p1, boxMin, boxMax, s->m_radius, &hit))
         {
             // 衝突位置まで戻す（少しだけ離す）
-            const float kSlop = 0.0f;
+            const float kSlop = 0.001f;
             Vector3 hitCenter = hit.point + hit.normal * kSlop;
 
             // GameObjectのPositionはローカル原点なので、中心オフセットを引く
