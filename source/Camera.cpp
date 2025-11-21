@@ -1,152 +1,82 @@
+#include "Camera.h"
 #include "main.h"
 #include "renderer.h"
-#include "camera.h"
 #include "manager.h"
 #include "Ball.h"
 
+// シーン内のボールを探すヘルパー関数
+namespace
+{
+    Ball* FindBall()
+    {
+        for (auto obj : Manager::GetGameObjects())
+        {
+            if (auto ball = dynamic_cast<Ball*>(obj))
+            {
+                return ball;
+            }
+        }
+        return nullptr;
+    }
+}
+
+// 初期化処理
 void Camera::Init()
 {
-    m_Yaw = XM_PI;   // プレイヤーの背後
-    m_Pitch = 0.7f;
-    m_Distance = 8.0f;
-
-    // マウス初期化
-	// クライアント領域の中心を計算してスクリーン座標に変換
-	m_CenterPos.x = SCREEN_WIDTH / 2.0f;
-	m_CenterPos.y = SCREEN_HEIGHT / 2.0f;
-    ClientToScreen(GetWindow(), &m_CenterPos);
-
-    // カーソルを中心にワープ
-	SetCursorPos(m_CenterPos.x, m_CenterPos.y);
-	m_FirstMouse = true;
-
-    // シーン内にいる Ball を探す
-    Ball* ball = nullptr;
-    for (auto obj : Manager::GetGameObjects())
-    {
-        if ((ball = dynamic_cast<Ball*>(obj)))
-            break;
-    }
+    // シーン内にいる Ball を探して、初期ターゲットを設定
+    Ball* ball = FindBall();
     if (!ball) return;
 
     // Ball の位置を注視点に
     auto p = ball->GetPosition();
     m_Target = XMFLOAT3(p.x, p.y, p.z);
 
-    // 極座標からカメラ位置を計算
-    float x = m_Distance * sinf(m_Pitch) * sinf(m_Yaw);
-    float z = m_Distance * sinf(m_Pitch) * cosf(m_Yaw);
-    float y = m_Distance * cosf(m_Pitch);
+    // 斜め上固定カメラ用の初期位置
+    const XMFLOAT3 offset = m_CameraOffset;
+    m_Transform.Position = {
+        p.x + offset.x,
+        p.y + offset.y,
+        p.z + offset.z
+    };
 
-    m_Position = XMFLOAT3(
-        p.x + x,
-        p.y + y,
-        p.z + z
-    );
+    // Transformから位置を取得してキャッシュ
+    const XMMATRIX world = m_Transform.GetWorldMatrix();
+    XMStoreFloat3(&m_Position, world.r[3]);
 }
 
+// 終了処理
 void Camera::Uninit()
 {
 }
 
-void Camera::RotatePitch(float angle)
-{
-    m_Pitch += angle;
-    
-    // 仰角の制限（カメラが地面に潜り込まないよう制限）
-    const float MAX_PITCH = 1.3f;  // 約75度
-    const float MIN_PITCH = -0.3f; // 約-17度
-    
-    if (m_Pitch > MAX_PITCH) m_Pitch = MAX_PITCH;
-    if (m_Pitch < MIN_PITCH) m_Pitch = MIN_PITCH;
-}
-
-void Camera::SetDistance(float distance)
-{
-    m_Distance = distance;
-    
-    // 距離の制限
-    const float MIN_DISTANCE = 2.0f;
-    const float MAX_DISTANCE = 10.0f;
-    
-    if (m_Distance < MIN_DISTANCE) m_Distance = MIN_DISTANCE;
-    if (m_Distance > MAX_DISTANCE) m_Distance = MAX_DISTANCE;
-}
-
+// 更新処理
 void Camera::Update()
 {
-    Ball* ball = nullptr;
-    for (auto obj : Manager::GetGameObjects()) {
-        ball = dynamic_cast<Ball*>(obj);
-        if (ball) break;
-    }
+    // シーン内にいる Ball を探す
+    Ball* ball = FindBall();
     if (!ball) return;
 
     Vector3 ballPos = ball->GetPosition();
     
-    // カメラのターゲットをプレイヤーに設定
+    // カメラのターゲットをボールの位置に更新
     m_Target = XMFLOAT3(ballPos.x, ballPos.y, ballPos.z);
     
-    // カメラをプレイヤーの周りに配置
-    // キー入力でカメラを回転
-    if (GetAsyncKeyState('Q') & 0x8000) {
-        RotateYaw(-0.02f); // 左回転
-    }
-    if (GetAsyncKeyState('E') & 0x8000) {
-        RotateYaw(+0.02f); // 右回転
-    }
-    if (GetAsyncKeyState('R') & 0x8000) {
-        RotatePitch(0.02f); // 上向き
-    }
-    if (GetAsyncKeyState('F') & 0x8000) {
-        RotatePitch(-0.02f); // 下向き
-    }
-    
-    // ズームイン・アウト
-    if (GetAsyncKeyState('Z') & 0x8000) {
-        SetDistance(m_Distance - 0.1f); // ズームイン
-    }
-    if (GetAsyncKeyState('X') & 0x8000) {
-        SetDistance(m_Distance + 0.1f); // ズームアウト
-    }
+    // カメラの固定オフセット
+    const XMFLOAT3 offset = m_CameraOffset;
 
-	// --- マウスによるカメラ回転 ---
-	ShowCursor(FALSE); // カーソルを非表示にする
-	POINT cur;
-	GetCursorPos(&cur);
-	// 中心とのデルタを計算
-	int dx = cur.x - m_CenterPos.x;
-	int dy = cur.y - m_CenterPos.y;
-	if (dx != 0 || dy != 0) {
-		RotateYaw  (dx * m_MouseSensitivity);
-		RotatePitch(-dy * m_MouseSensitivity);
-		// 処理後カーソルを再度中央に
-		SetCursorPos(m_CenterPos.x, m_CenterPos.y);
-	}
-
-    // --- マウスホイールによるズーム ---  
-    // ※WM_MOUSEWHEEL を WinProc で拾ってグローバル変数に delta を持ってきても OK。
-    // ここでは簡易的に GetAsyncKeyState(VK_XBUTTON1/2) で左右ボタン代用例：
-    if (GetAsyncKeyState(VK_XBUTTON1) & 0x8000) {
-        SetDistance(m_Distance - 0.1f);
-    }
-    if (GetAsyncKeyState(VK_XBUTTON2) & 0x8000) {
-        SetDistance(m_Distance + 0.1f);
-    }
+    // カメラ位置を更新
+    m_Transform.Position = {
+        ballPos.x + offset.x,
+        ballPos.y + offset.y,
+        ballPos.z + offset.z
+    };
     
-    // 極座標からカメラ位置を計算
-    float x = m_Distance * sinf(m_Pitch) * sinf(m_Yaw);
-    float z = m_Distance * sinf(m_Pitch) * cosf(m_Yaw);
-    float y = m_Distance * cosf(m_Pitch);
-    
-    // 斜め後ろからの視点となるようオフセットを調整
-    m_Position = XMFLOAT3(
-        ballPos.x + x,
-        ballPos.y + y,
-        ballPos.z + z
-    );
+    // Transformから位置を取得してキャッシュ
+    const XMMATRIX world = m_Transform.GetWorldMatrix();
+    XMStoreFloat3(&m_Position, world.r[3]);
 }
 
+// 描画処理
 void Camera::Draw()
 {
     // プロジェクションマトリクス
@@ -159,6 +89,10 @@ void Camera::Draw()
 
     Renderer::SetProjectionMatrix(m_Projection);
 
+    // 念の為Transformから位置を再取得
+    const XMMATRIX world = m_Transform.GetWorldMatrix();
+    XMStoreFloat3(&m_Position, world.r[3]);
+
     // ビュー・マトリクス
     XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
     m_View = XMMatrixLookAtLH(
@@ -168,4 +102,30 @@ void Camera::Draw()
     );
 
     Renderer::SetViewMatrix(m_View);
+}
+
+// カメラのピッチ回転を制御
+void Camera::RotatePitch(float angle)
+{
+    m_Pitch += angle;
+    
+    // 仰角の制限（カメラが地面に潜り込まないよう制限）
+    const float MAX_PITCH = 1.3f;  // 約75度
+    const float MIN_PITCH = -0.3f; // 約-17度
+    
+    if (m_Pitch > MAX_PITCH) m_Pitch = MAX_PITCH;
+    if (m_Pitch < MIN_PITCH) m_Pitch = MIN_PITCH;
+}
+
+// カメラの距離を設定
+void Camera::SetDistance(float distance)
+{
+    m_Distance = distance;
+    
+    // 距離の制限
+    const float MIN_DISTANCE = 2.0f;
+    const float MAX_DISTANCE = 10.0f;
+    
+    if (m_Distance < MIN_DISTANCE) m_Distance = MIN_DISTANCE;
+    if (m_Distance > MAX_DISTANCE) m_Distance = MAX_DISTANCE;
 }
