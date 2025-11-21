@@ -136,6 +136,7 @@
     <ClCompile Include="source\Bumper.cpp" />
     <ClCompile Include="source\camera.cpp" />
     <ClCompile Include="source\Collider.cpp" />
+    <ClCompile Include="source\ColliderUtility.cpp" />
     <ClCompile Include="source\explosion.cpp" />
     <ClCompile Include="source\field.cpp" />
     <ClCompile Include="source\Flipper.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="source\camera.h" />
     <ClInclude Include="source\Collider.h" />
     <ClInclude Include="source\ColliderGroup.h" />
+    <ClInclude Include="source\ColliderUtility.h" />
     <ClInclude Include="source\CollisionInfo.h" />
     <ClInclude Include="source\Component.h" />
     <ClInclude Include="source\DebugSettings.h" />

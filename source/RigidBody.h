@@ -27,9 +27,10 @@ public:
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
-    Vector3 velocity = { 0.0f, 0.0f, 0.0f };    // 速度ベクトル
-    float restitution = 0.8f;                   // 反発係数 (1で完全反発、0で非反発)
-    float mass = 1.0f;                          // 質量（現在は未使用）
-    bool useGravity = true;                     // 重力の影響を受けるかどうか
-    bool isKinematic = false;                   // キネマティックフラグ (trueなら物理演算の影響を受けない)
+    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };          // 速度ベクトル
+    Vector3 m_PreviousPosition = { 0.0f, 0.0f, 0.0f };  // 前フレームの位置
+    float m_Restitution = 0.8f;                         // 反発係数 (1で完全反発、0で非反発)
+    float m_Mass = 1.0f;                                // 質量（現在は未使用）
+    bool m_UseGravity = true;                           // 重力の影響を受けるかどうか
+    bool m_IsKinematic = false;                         // キネマティックフラグ (trueなら物理演算の影響を受けない)
 };
