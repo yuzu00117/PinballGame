@@ -63,35 +63,34 @@ static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
     Vector3 boxMin, boxMax;
     b->GetWorldAABB(boxMin, boxMax);
 
-    // CCD用: RigidBodyがついている動く球だけ対象にする
-    // TODO: 球以外のコライダーもCCD対応させる
-    GameObject* owner = s->m_Owner;
-    RigidBody* rigidBody = owner ? owner->GetComponent<RigidBody>() : nullptr;
+    // --- CCD試行 ---
+    GameObject* owner     = s->m_Owner;
+    RigidBody*  rigidBody = owner ? owner->GetComponent<RigidBody>() : nullptr;
 
     if (rigidBody && !rigidBody->m_IsKinematic)
     {
         // 球の中心の「前フレーム位置」と「今フレーム位置」
-        Vector3 p0 = rigidBody->m_PreviousPosition + s->m_center;
-        Vector3 p1 = owner->m_Transform.Position + s->m_center;
+        Vector3 p0 = rigidBody->m_PreviousPosition + s->m_center;     // 前フレーム中心
+        Vector3 p1 = owner->m_Transform.Position + s->m_center;     // 今フレーム中心
 
         CcdHit hit;
         if (IntersectSegmentExpandedAABB(p0, p1, boxMin, boxMax, s->m_radius, &hit))
         {
-            // 衝突位置まで戻す
-            const float kSlop = 0.001f; // 少しだけ余裕を持たせる
+            // 衝突位置まで戻す（少しだけ離す）
+            const float kSlop = 0.0f;
             Vector3 hitCenter = hit.point + hit.normal * kSlop;
 
-            // GameObjectのPositionは「ローカル原点」なので、中心オフセットを引く
+            // GameObjectのPositionはローカル原点なので、中心オフセットを引く
             owner->m_Transform.Position = hitCenter - s->m_center;
 
-            // 接触点を計算
+            // 接触点（ボックス表面）
             Vector3 contact = hitCenter - hit.normal * s->m_radius;
 
             // Sphere視点
             outS.self         = s;
             outS.other        = b;
             outS.normal       = hit.normal;
-            outS.penetration  = 0.0f; // CCDの場合はめり込み無しとする
+            outS.penetration  = 0.0f;      // CCDなのでめり込み無し
             outS.contactPoint = contact;
 
             // Box視点
@@ -105,6 +104,8 @@ static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
         }
     }
 
+    // --- CCDで当たらなかった場合は従来の静的判定にフォールバック ---
+
     Vector3 center = s->GetWorldPosition();
 
     // 最近接点
@@ -114,14 +115,14 @@ static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
     Vector3 closest{ cx, cy, cz };
 
     Vector3 diff = center - closest;
-    float dist = diff.Length();
+    float   dist = diff.Length();
 
     if (dist > s->m_radius)
         return false;
 
-    Vector3 normal = (dist > 0.0001f) ? (diff / dist) : Vector3(0, 1, 0);
-    float penetration = s->m_radius - dist;
-    Vector3 contact = closest;
+    Vector3 normal      = (dist > 0.0001f) ? (diff / dist) : Vector3(0, 1, 0);
+    float   penetration = s->m_radius - dist;
+    Vector3 contact     = closest;
 
     // Sphere視点
     outS.self         = s;

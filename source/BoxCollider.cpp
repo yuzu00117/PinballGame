@@ -1,10 +1,13 @@
 #include "main.h"
 #include "renderer.h"
 #include "MathUtil.h"
+#include "GameObject.h"
 
 // コライダー関連
 #include "BoxCollider.h"
 #include "SphereCollider.h"
+#include "ColliderUtility.h"
+#include "RigidBody.h"
 
 // ----------------------------------------------------------------------
 // 衝突処理
@@ -71,6 +74,46 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
 {
     Vector3 boxMin, boxMax;
     b->GetWorldAABB(boxMin, boxMax);
+
+    GameObject* owner     = s->m_Owner;
+    RigidBody*  rigidBody = owner ? owner->GetComponent<RigidBody>() : nullptr;
+
+    if (rigidBody && !rigidBody->m_IsKinematic)
+    {
+        // --- CCD試行 ---
+        Vector3 p0 = rigidBody->m_PreviousPosition + s->m_center;
+        Vector3 p1 = owner->m_Transform.Position + s->m_center;
+
+        CcdHit hit;
+        if (IntersectSegmentExpandedAABB(p0, p1, boxMin, boxMax, s->m_radius, &hit))
+        {
+            // 衝突位置まで戻す（少しだけ離す）
+            const float kSlop = 0.0f;
+            Vector3 hitCenter = hit.point + hit.normal * kSlop;
+
+            // GameObjectのPositionはローカル原点なので、中心オフセットを引く
+            owner->m_Transform.Position = hitCenter - s->m_center;
+
+            // 接触点（ボックス表面）
+            Vector3 contact = hitCenter - hit.normal * s->m_radius;
+
+            // Box視点
+            outB.self         = b;
+            outB.other        = s;
+            outB.normal       = -hit.normal;
+            outB.penetration  = 0.0f;
+            outB.contactPoint = contact;
+
+            // Sphere視点
+            outS.self         = s;
+            outS.other        = b;
+            outS.normal       = hit.normal;
+            outS.penetration  = 0.0f;      // CCDなのでめり込み無し
+            outS.contactPoint = contact;
+
+            return true;
+        }
+    }
 
     Vector3 center = s->GetWorldPosition();
 
