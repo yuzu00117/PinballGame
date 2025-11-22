@@ -50,10 +50,15 @@ void Ball::Uninit()
 void Ball::Update()
 {
 #ifndef NDEBUG
-    // SPACEキーで発射
+    // SPACEキーで上方向に力を加える（デバッグ用）
     if (Input::GetKeyTrigger(VK_SPACE))
     {
         m_RigidBody->m_Velocity.z += 12.0f;
+    }
+    // Aキーで左方向に力を加える（デバッグ用）
+    if (Input::GetKeyTrigger('A'))
+    {
+        m_RigidBody->m_Velocity.x -= 12.0f;
     }
 #endif
 

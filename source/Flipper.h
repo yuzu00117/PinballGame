@@ -40,11 +40,17 @@ public:
     void Draw() override;
     void Uninit() override;
 
+    /// <summary>
+    /// 衝突コールバック
+    /// フリッパーでボールを弾くための簡易実装
+    /// </summary>
+    void OnCollisionStay(const CollisionInfo& info) override;
+
 private:
     // ----------------------------------------------------------------------
     // 定数定義
     // ----------------------------------------------------------------------
-    static constexpr float kDefaultArmLength = 4.0f;        // デフォルトアーム長さ
+    static constexpr float kDefaultArmLength = 6.0f;        // デフォルトアーム長さ
     static constexpr float kDefaultArmThickness = 0.6f;     // デフォルトアーム厚さ
     static constexpr float kDefaultArmHeight = 0.5f;        // デフォルトアーム高さ
     

@@ -5,14 +5,7 @@
 #include "BoxCollider.h"
 #include "ColliderGroup.h"
 #include "MeshRenderer.h"
-
-namespace
-{
-    inline float DegToRad(float deg)
-    {
-        return deg * 3.14159265f / 180.0f;
-    }
-}
+#include "RigidBody.h"
 
 Flipper::Flipper(Side side)
     : m_Side(side)
@@ -25,17 +18,17 @@ void Flipper::Init()
     // 左右で基準角度を決める
     if (m_Side == Side::Left)
     {
-        m_DefaultAngle = -30.0f;
-        m_ActiveAngle  = +30.0f;
+        m_DefaultAngle = +30.0f;
+        m_ActiveAngle  =   0.0f;
     }
     else // Right
     {
-        m_DefaultAngle = +30.0f;
-        m_ActiveAngle =  -30.0f;
+        m_DefaultAngle = -30.0f;
+        m_ActiveAngle =    0.0f;
     }
 
     // 親オブジェクトは回転軸のみ
-    m_Transform.Rotation.y = DegToRad(m_DefaultAngle);
+    m_Transform.Rotation.y = m_DefaultAngle;
 
     // ----------------------------------------------------------------------
     // アーム用子オブジェクトの生成
@@ -54,13 +47,17 @@ void Flipper::Init()
     }   
     m_ArmObject->m_Transform.Scale = { m_ArmLength, m_ArmHeight, m_ArmThickness };
 
+    // ----------------------------------------------------------------------
     // メッシュレンダラー追加
+    // ----------------------------------------------------------------------
     auto meshRenderer = m_ArmObject->AddComponent<MeshRenderer>();
     meshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);    // シェーダーの設定
     meshRenderer->CreateUnitBox();
     meshRenderer->m_Color = XMFLOAT4(0.9f, 0.9f, 0.95f, 1.0f);
 
+    // ----------------------------------------------------------------------
     // ボックスコライダー追加
+    // ----------------------------------------------------------------------
     auto colliderGroup = m_ArmObject->AddComponent<ColliderGroup>();
     auto boxCollider = colliderGroup->AddCollider<BoxCollider>();
     (void)boxCollider; // 現在は特に設定なし
@@ -76,7 +73,7 @@ void Flipper::Update()
     float targetDeg = isPress ? m_ActiveAngle : m_DefaultAngle;
 
     // 今回は一気に切り替え（必要なら補間処理を追加）
-    m_Transform.Rotation.y = DegToRad(targetDeg);
+    m_Transform.Rotation.y = targetDeg;
 
     GameObject::Update();
 }
@@ -101,4 +98,33 @@ BYTE Flipper::GetActiveKey() const
     {
         return VK_OEM_2; // TODO: 後ほどバーチャルキーコードを定義する
     }
+}
+
+void Flipper::OnCollisionStay(const CollisionInfo& info)
+{
+    // 自分または相手の情報がない場合は処理しない
+    if (!info.self || !info.other) return;
+    if (!info.self->m_Owner || !info.other->m_Owner) return;
+
+    // フリッパー本体ではなく、「アーム」についているコライダーとの衝突のみ処理
+    // （Fieldなど他コライダーなどで誤動作しないようにするため）
+    if (info.self->m_Owner != m_ArmObject) return;
+
+    // 衝突相手のRigidBodyを取得
+    RigidBody* otherRigidBody = info.other->m_Owner->GetComponent<RigidBody>();
+    if (!otherRigidBody) return;
+
+    // フリッパーが動いていないときは「普通の壁」として振る舞う
+    const BYTE key     = GetActiveKey();
+    const bool isPress = Input::GetKeyPress(key);
+    if (!isPress) return;
+
+    // TODO: 将来的にはエンジン側で「回転しているコライダーの相対速度」や
+    //       角速度を考慮した接触解決を実装し、ここではその結果だけを受け取るようにする
+
+    // 当面の簡易実装
+    // 衝突法線方向に一定の速度を上乗せして「弾いている感じ」を出す
+    const float kAddSpeed = 30.0f; // 上乗せ速度
+
+    otherRigidBody->m_Velocity += info.normal * kAddSpeed;
 }
