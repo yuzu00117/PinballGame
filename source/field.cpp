@@ -7,6 +7,9 @@
 #include "ColliderGroup.h"
 #include "BoxCollider.h"
 
+// フィールドのオブジェクト
+#include "Flipper.h"
+
 // 初期化処理
 void Field::Init()
 {
@@ -64,6 +67,26 @@ void Field::Init()
              { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 左
     MakeWall({ HalfWidth + WallThick * 0.5f, yCenter, 0.0f }, 
              { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 右
+
+    // ----------------------------------------------------------------------
+    // フリッパーの作成
+    // ----------------------------------------------------------------------
+    const float flipperZ = -HalfHeight + 3.0f;  // 奥行き位置
+    const float flipperY = 0.5f;                // 高さ位置
+    const float flipperX = HalfWidth - 2.5f;    // 左右位置
+
+    // 左フリッパー
+    {
+        auto leftFlipper = CreateChild<Flipper>(Flipper::Side::Left);
+        leftFlipper->m_Transform.Position = { -flipperX, flipperY, flipperZ };
+        leftFlipper->Init();
+    }
+    // 右フリッパー
+    {
+        auto rightFlipper = CreateChild<Flipper>(Flipper::Side::Right);
+        rightFlipper->m_Transform.Position = { flipperX, flipperY, flipperZ };
+        rightFlipper->Init();
+    }    
 }
 
 void Field::Uninit()

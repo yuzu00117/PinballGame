@@ -23,6 +23,7 @@ enum class MeshShape
 /// <summary>
 /// MeshRenderer メッシュの描画を担当するコンポーネント
 /// Transformのスケール x ローカルスケール を掛け合わせた値で描画される
+/// TODO: シェーダーが設定されていない場合のデフォルトシェーダー処理を追加
 /// </summary>
 class MeshRenderer : public Component
 {	

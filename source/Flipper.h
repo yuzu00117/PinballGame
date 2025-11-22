@@ -1,67 +1,78 @@
-#ifndef _FLIPPER_H
-#define _FLIPPER_H
+#pragma once
 
-#include "vector3.h"
-#include "gameobject.h"
-#include <algorithm>
-#include <cmath>
-#include <windows.h>
+#include "GameObject.h"
+#include "Vector3.h"
+
+class CollliderGroup;
+class MeshRenderer;
 
 /// <summary>
-/// ƒsƒ“ƒ{[ƒ‹‚ÌƒtƒŠƒbƒp[ƒIƒuƒWƒFƒNƒg
-/// ADƒL[‚Å‰ñ“]‘€ì‰Â”\
+/// ãƒ”ãƒ³ãƒœãƒ¼ãƒ«ã®ãƒ•ãƒªãƒƒãƒ‘ã‚¯ãƒ©ã‚¹
+/// è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯å›è»¢è»¸ã€å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«ã‚¢ãƒ¼ãƒ ãƒ¡ãƒƒã‚·ãƒ¥ã‚’æŒã¤
+/// å®Ÿéš›ã®é…ç½®ã¯Fieldã‚¯ãƒ©ã‚¹ã§è¡Œã£ã¦ã„ã¾ã™
 /// </summary>
-struct FlipperDesc {
-    Vector3 pivot = { 0.0f, 0.5f, 0.0f }; // ƒsƒ{ƒbƒgiy ‚Í‚‚³j
-    float   length = 1.2f;                // XZ•½–Ê‚Ì’·‚³iƒ[ƒ‹ƒh’PˆÊj
-    float   thickness = 0.18f;            // •i“–‚½‚è”»’è‚Ì”¼Œa‚Í thickness*0.5j
-    float   restAngle = 0.0f;             // ‹x~Šp“x[rad]i+X •ûŒüŠî€A”½Œv‰ñ‚è+j
-    float   maxAngle  = 0.9f;             // ‰Ÿ‚µã‚°Šp[rad]
-    float   upSpeed   = 18.0f;            // ã‚°Šp‘¬“x[rad/s]
-    float   downSpeed = 10.0f;            // –ß‚èŠp‘¬“x[rad/s]
-    float   restitution = 0.35f;          // ”½”­ŒW”
-    float   hitBoost    = 1.2f;           // æ’[‘¬“x‚ğ‚Ç‚ê‚¾‚¯æ‚¹‚é‚©
-    bool    invert = false;               // ‰EƒtƒŠƒbƒp[—pi‰ñ“]Œü‚«‚ğ”½“]j
-    BYTE    key = VK_LEFT;                // “ü—ÍƒL[i¶/‰E‚Åİ’èj
-};
-
 class Flipper : public GameObject
 {
 public:
-    // --- ŠÖ”éŒ¾ ---
+    // ----------------------------------------------------------------------
+    // æ§‹é€ ä½“å®šç¾©
+    // ----------------------------------------------------------------------
+    enum class Side
+    {
+        Left,
+        Right
+    };
+
+    // ----------------------------------------------------------------------
+    // é–¢æ•°å®šç¾©
+    // ----------------------------------------------------------------------
+
+    /// <summary>
+    /// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+    /// </summary>
+    Flipper(Side side); 
+
+    /// <summary>
+    /// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«ãƒ¡ã‚½ãƒƒãƒ‰
+    /// </summary>
     void Init() override;
-    void Uninit() override;
     void Update() override;
     void Draw() override;
+    void Uninit() override;
 
     /// <summary>
-    /// ƒ{[ƒ‹‚Æ‚ÌÕ“Ë
+    /// è¡çªã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯
+    /// ãƒ•ãƒªãƒƒãƒ‘ãƒ¼ã§ãƒœãƒ¼ãƒ«ã‚’å¼¾ããŸã‚ã®ç°¡æ˜“å®Ÿè£…
     /// </summary>
-    void Resolve(Vector3& ballPosition, Vector3& ballVelocity, float ballRadius, float DeltaTime);
-
-    void Reset(const FlipperDesc& desc) { m_Desc = desc; m_CurrentAngle = desc.restAngle; }
-    const FlipperDesc& GetDesc() const { return m_Desc; }
+    void OnCollisionStay(const CollisionInfo& info) override;
 
 private:
-    // --- ŠÖ”’è‹` ---
-    /// <summary>
-    /// ƒtƒŠƒbƒp[‚Ìæ’[‚ÆªŒ³‚ÌˆÊ’u‚ğæ“¾
-    /// </summary>
-    void GetSegment(Vector3& outA, Vector3& outB) const;
+    // ----------------------------------------------------------------------
+    // å®šæ•°å®šç¾©
+    // ----------------------------------------------------------------------
+    static constexpr float kDefaultArmLength = 6.0f;        // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚¢ãƒ¼ãƒ é•·ã•
+    static constexpr float kDefaultArmThickness = 0.6f;     // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚¢ãƒ¼ãƒ åšã•
+    static constexpr float kDefaultArmHeight = 0.5f;        // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚¢ãƒ¼ãƒ é«˜ã•
+    
+    // ----------------------------------------------------------------------
+    // å¤‰æ•°å®šç¾©
+    // ----------------------------------------------------------------------
+    // è§’åº¦é–¢é€£
+    float m_DefaultAngle = 0.0f;                            // ä¼‘ã¿ä½ç½®
+    float m_ActiveAngle  = 0.0f;                            // å‹•ä½œä½ç½®
 
-	// --- ’è”’è‹` ---
+    Side m_Side;                                            // å·¦å³ã®åŒºåˆ¥ç”¨æ§‹é€ ä½“å¤‰æ•°
 
-    // --- •Ï”’è‹` ---
-    ID3D11Buffer*               m_VertexBuffer  = nullptr;
-    ID3D11InputLayout*          m_VertexLayout  = nullptr;
-    ID3D11VertexShader*         m_VertexShader  = nullptr;
-    ID3D11PixelShader*          m_PixelShader   = nullptr;
-    ID3D11ShaderResourceView*   m_Texture       = nullptr;
-    class ModelRenderer*        m_ModelRenderer = nullptr;
+    // ã‚¢ãƒ¼ãƒ ç”¨å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    GameObject* m_ArmObject = nullptr;                      // ã‚¢ãƒ¼ãƒ ç”¨å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒã‚¤ãƒ³ã‚¿
 
-    FlipperDesc m_Desc;
-    float m_CurrentAngle = 0.0f; // Œ»İ‚ÌŠp“x
-    float m_PrevAngle    = 0.0f; // 1ƒtƒŒ[ƒ€‘O‚ÌŠp“x
-};
-
-#endif // _FLIPPER_H
+    // ã‚¢ãƒ¼ãƒ å½¢çŠ¶
+    float m_ArmLength = kDefaultArmLength;                  // ã‚¢ãƒ¼ãƒ é•·ã•
+    float m_ArmThickness = kDefaultArmThickness;            // ã‚¢ãƒ¼ãƒ åšã•
+    float m_ArmHeight = kDefaultArmHeight;                  // ã‚¢ãƒ¼ãƒ é«˜ã•
+    
+    static constexpr const char* VertexShaderPath = "shader\\bin\\unlitTextureVS.cso";   // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ‘ã‚¹
+    static constexpr const char* PixelShaderPath  = "shader\\bin\\unlitTexturePS.cso";   // ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ‘ã‚¹
+    
+    BYTE GetActiveKey() const;                              // å‹•ä½œã‚­ãƒ¼å–å¾—
+};  

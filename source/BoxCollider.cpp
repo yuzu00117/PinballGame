@@ -138,43 +138,201 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
         }
     }
 
-    Vector3 center = s->GetWorldPosition();
-
-    // 最近接点
-    float cx = Clamp(center.x, boxMin.x, boxMax.x);
-    float cy = Clamp(center.y, boxMin.y, boxMax.y);
-    float cz = Clamp(center.z, boxMin.z, boxMax.z);
-    Vector3 closest{ cx, cy, cz };
-
-    Vector3 diff = center - closest;
-    float dist = diff.Length();
+    // --- 通常の衝突判定 ---
+    // 球の中心（ワールド）
+    Vector3 centerW = s->GetWorldPosition();
     float radius = s->m_radius;
 
-    if (dist > radius)
-        return false;
+    // Box の OBB ワールド行列を分解（スケール／回転／平行移動）
+    XMMATRIX obbWorld = b->GetWorldMatrix();
 
-    // 衝突情報の設定
-    Vector3 normal = (dist > 0.0001f) ? (diff / dist) : Vector3(0, 1, 0);
+    XMVECTOR scaleV, rotQ, transV;
+    XMMatrixDecompose(&scaleV, &rotQ, &transV, obbWorld);
+
+    // 半径（ワールド単位）
+    XMFLOAT3 scaleF;
+    XMStoreFloat3(&scaleF, scaleV);
+
+    // OBB の中心（ワールド）
+    XMFLOAT3 centerF;
+    XMStoreFloat3(&centerF, transV);
+    Vector3 boxCenterW{centerF.x, centerF.y, centerF.z};
+
+    // OBB の半径（各軸方向の半サイズ：ワールド単位）
+    Vector3 half{
+        0.5f * scaleF.x,
+        0.5f * scaleF.y,
+        0.5f * scaleF.z};
+
+    // 回転行列（スケール抜き）
+    XMMATRIX rotM = XMMatrixRotationQuaternion(rotQ);
+    XMMATRIX invRotM = XMMatrixTranspose(rotM); // 回転行列の逆は転置
+
+    // 球の中心を OBB ローカル空間へ変換
+    XMVECTOR cW = XMVectorSet(centerW.x, centerW.y, centerW.z, 1.0f);
+    XMVECTOR cRelW = XMVectorSubtract(cW, transV);         // 中心基準
+    XMVECTOR cL = XMVector3TransformCoord(cRelW, invRotM); // ローカルへ
+
+    XMFLOAT3 cf;
+    XMStoreFloat3(&cf, cL);
+    Vector3 centerL{cf.x, cf.y, cf.z};
+
+    // ローカル空間で最近接点を求める
+    Vector3 closestL;
+    closestL.x = Clamp(centerL.x, -half.x, half.x);
+    closestL.y = Clamp(centerL.y, -half.y, half.y);
+    closestL.z = Clamp(centerL.z, -half.z, half.z);
+
+    // 差分ベクトル（ローカル）
+    Vector3 diffL = centerL - closestL;
+    float dist = diffL.Length();
+
+    // 離れていれば非衝突
+    if (dist > radius)
+    {
+        return false;
+    }
+
+    // 法線（ローカル）
+    Vector3 normalL;
+    if (dist > 1e-6f)
+    {
+        normalL = diffL / dist;
+    }
+    else
+    {
+        // ほぼ中心にめり込んだら適当な法線
+        normalL = {1.0f, 0.0f, 0.0f};
+    }
+
     float penetration = radius - dist;
-    Vector3 contact = closest;
+
+    // ローカル法線をワールド空間に変換
+    XMVECTOR nL = XMVectorSet(normalL.x, normalL.y, normalL.z, 0.0f);
+    XMVECTOR nW = XMVector3TransformNormal(nL, rotM);
+    nW = XMVector3Normalize(nW);
+
+    XMFLOAT3 nWf;
+    XMStoreFloat3(&nWf, nW);
+    Vector3 normalW{nWf.x, nWf.y, nWf.z};
+
+    // 接触点（ローカル → ワールド）
+    XMVECTOR closestLVec = XMVectorSet(closestL.x, closestL.y, closestL.z, 1.0f);
+    XMVECTOR contactRelW = XMVector3TransformCoord(closestLVec, rotM);
+    XMVECTOR contactWVec = XMVectorAdd(contactRelW, transV);
+
+    XMFLOAT3 cWf;
+    XMStoreFloat3(&cWf, contactWVec);
+    Vector3 contactW{cWf.x, cWf.y, cWf.z};
 
     // Box視点
-    outB.self         = b;
-    outB.other        = s;
-    outB.normal       = -normal;
-    outB.penetration  = penetration;
-    outB.contactPoint = contact;
+    outB.self = b;
+    outB.other = s;
+    outB.normal = -normalW; // Box は内向き（元実装と同じ向き）
+    outB.penetration = penetration;
+    outB.contactPoint = contactW;
+    outB.isCCDHit = false;
 
     // Sphere視点
-    outS.self         = s;
-    outS.other        = b;
-    outS.normal       = normal;
-    outS.penetration  = penetration;
-    outS.contactPoint = contact;
+    outS.self = s;
+    outS.other = b;
+    outS.normal = normalW; // 球側は外向き
+    outS.penetration = penetration;
+    outS.contactPoint = contactW;
+    outS.isCCDHit = false;
 
     return true;
 }
 
+// ----------------------------------------------------------------------
+// ワールド行列取得
+// ----------------------------------------------------------------------
+XMMATRIX BoxCollider::GetWorldMatrix() const
+{
+    // ローカル空間では[-0.5, +0.5]のユニットボックス
+    // → Sizeでスケーリング、Centerで平行移動
+    const XMMATRIX scale     = XMMatrixScaling(Size.x, Size.y, Size.z);
+    const XMMATRIX translate = XMMatrixTranslation(Center.x, Center.y, Center.z);
+    
+    if (m_Transform)
+    {
+        // Transformのワールド行列
+        const XMMATRIX world = m_Transform->GetWorldMatrix();
+        return scale * translate * world;
+    }
+    else
+    {
+        return scale * translate;
+    }
+}
+
+// ----------------------------------------------------------------------
+// 当たり判定関連
+// ----------------------------------------------------------------------
+// 衝突処理
+bool BoxCollider::CheckCollision(Collider* other,
+                                 CollisionInfo& outSelf,
+                                 CollisionInfo& outOther)
+{
+    // --- Box vs Box ---
+    if (auto* box = dynamic_cast<BoxCollider*>(other))
+    {
+        return BoxVsBox(this, box, outSelf, outOther);
+    }
+
+    // --- Box vs Sphere ---
+    if (auto* sphere = dynamic_cast<SphereCollider*>(other))
+    {
+        return BoxVsSphere(this, sphere, outSelf, outOther);
+    }
+    return false;
+}
+
+// ワールド座標系でのAABBを取得する
+void BoxCollider::GetWorldAABB(Vector3& outMin, Vector3& outMax) const
+{
+    // まずOBBのワールド行列を取得
+    const XMMATRIX worldMatrix = GetWorldMatrix();
+
+    // ローカル空間での8頂点を計算
+    static const XMFLOAT3 kLocalCorners[8] = 
+    {
+        {-0.5f,-0.5f,-0.5f},{+0.5f,-0.5f,-0.5f},
+        {+0.5f,+0.5f,-0.5f},{-0.5f,+0.5f,-0.5f},
+        {-0.5f,-0.5f,+0.5f},{+0.5f,-0.5f,+0.5f},
+        {+0.5f,+0.5f,+0.5f},{-0.5f,+0.5f,+0.5f}
+    };
+
+    // 0番目で初期化
+    XMVECTOR v = XMVector3Transform(XMLoadFloat3(&kLocalCorners[0]), worldMatrix);
+    XMFLOAT3 f;
+    XMStoreFloat3(&f, v);
+    Vector3 minV(f.x, f.y, f.z);
+    Vector3 maxV(f.x, f.y, f.z);
+
+    // 残り7頂点を処理
+    for (int i = 1; i < 8; ++i)
+    {
+        v = XMVector3Transform(XMLoadFloat3(&kLocalCorners[i]), worldMatrix);
+        XMStoreFloat3(&f, v);
+
+        if (f.x < minV.x) minV.x = f.x;
+        if (f.y < minV.y) minV.y = f.y;
+        if (f.z < minV.z) minV.z = f.z;
+
+        if (f.x > maxV.x) maxV.x = f.x;
+        if (f.y > maxV.y) maxV.y = f.y;
+        if (f.z > maxV.z) maxV.z = f.z;
+    }
+
+    outMin = minV;
+    outMax = maxV;
+}
+
+// ----------------------------------------------------------------------
+// コライダーのデバッグ描画関連
+// ----------------------------------------------------------------------
+// ボックスのワイヤーフレーム描画
 static void DrawWireUnitBox(const XMMATRIX& worldMatrix, const XMFLOAT4& color)
 {
     // ボックスの頂点を定義
@@ -207,53 +365,9 @@ static void DrawWireUnitBox(const XMMATRIX& worldMatrix, const XMFLOAT4& color)
 // コライダーのデバッグ描画
 void BoxCollider::DebugDraw()
 {
-    // ワールド行列を作成
-    const XMMATRIX ScaleMatrix = XMMatrixScaling(Size.x, Size.y, Size.z);
-    const XMMATRIX TransformMatrix = XMMatrixTranslation(Center.x, Center.y, Center.z);
-    const XMMATRIX WorldMatrix = (m_Transform ? (ScaleMatrix * TransformMatrix * m_Transform->GetWorldMatrix()) : (ScaleMatrix * TransformMatrix));
+    // ワールド行列を取得
+    const XMMATRIX WorldMatrix = GetWorldMatrix();
 
     // 目立つ色（半透明）? 好みで変更可
     DrawWireUnitBox(WorldMatrix, s_DebugColor);
-}
-
-// ワールド座標系でのAABBを取得する
-void BoxCollider::GetWorldAABB(Vector3& outMin, Vector3& outMax) const
-{
-    // ワールド中心
-    Vector3 worldCenter = Center;
-    Vector3 worldSize = Size;
-
-    if (m_Transform)
-    {
-        worldCenter = m_Transform->Position + Center;
-
-        worldSize = 
-        {
-            Size.x * m_Transform->Scale.x,
-            Size.y * m_Transform->Scale.y,
-            Size.z * m_Transform->Scale.z
-        };
-    }
-
-    Vector3 half = worldSize * 0.5f;
-    outMin = worldCenter - half;
-    outMax = worldCenter + half;
-}
-
-bool BoxCollider::CheckCollision(Collider* other,
-                                 CollisionInfo& outSelf,
-                                 CollisionInfo& outOther)
-{
-    // --- Box vs Box ---
-    if (auto* box = dynamic_cast<BoxCollider*>(other))
-    {
-        return BoxVsBox(this, box, outSelf, outOther);
-    }
-
-    // --- Box vs Sphere ---
-    if (auto* sphere = dynamic_cast<SphereCollider*>(other))
-    {
-        return BoxVsSphere(this, sphere, outSelf, outOther);
-    }
-    return false;
 }

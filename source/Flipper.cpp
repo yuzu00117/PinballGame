@@ -1,166 +1,130 @@
-#include "main.h"
-#include "renderer.h"
-#include "flipper.h"
-#include "modelRenderer.h"
-#include "input.h"
+#include "Flipper.h"
+#include "Input.h"
 
-static inline float Clamp(float v, float a, float b){ return std::max(a, std::min(b, v)); }
-static inline float DotXZ(const Vector3& a, const Vector3& b){ return a.x*b.x + a.z*b.z; }
-static inline float LenXZ(const Vector3& v){ return std::sqrt(std::max(0.0f, DotXZ(v,v))); }
-static inline Vector3 NormalizeXZ(const Vector3& v){
-    float l = LenXZ(v);
-    return (l>1e-6f) ? Vector3{v.x/l, 0.0f, v.z/l} : Vector3{0,0,0};
-}
-// 2D( XZ )‚Ì 90‹‰ñ“]ƒxƒNƒgƒ‹
-static inline Vector3 PerpXZ(const Vector3& v){ return Vector3{-v.z, 0.0f, v.x}; }
-// +X ‚ğŠî€‚ÉŠp“x‰ñ“]‚µ‚½’PˆÊƒxƒNƒgƒ‹iXZj
-static inline Vector3 DirFromAngle(float rad){
-    float c = std::cos(rad), s = std::sin(rad);
-    return Vector3{ c, 0.0f, s };
+// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+#include "BoxCollider.h"
+#include "ColliderGroup.h"
+#include "MeshRenderer.h"
+#include "RigidBody.h"
+
+Flipper::Flipper(Side side)
+    : m_Side(side)
+{
 }
 
-// ‰Šú‰»ˆ—
+// åˆæœŸåŒ–å‡¦ç†
 void Flipper::Init()
 {
-    // ƒVƒF[ƒ_‚â’¸“_ƒoƒbƒtƒ@‚Í•K—v‚É‚È‚Á‚½‚É—pˆÓ‚µ‚Ä‚­‚¾‚³‚¢B
-    // ‚±‚±‚Å‚ÍÅ¬ŒÀF•`‰æ‚Í ModelRenderer ‚ª‘¶İ‚·‚é‚Ì‚İs‚¢‚Ü‚·B
-    m_PrevAngle = m_CurrentAngle;
+    // å·¦å³ã§åŸºæº–è§’åº¦ã‚’æ±ºã‚ã‚‹
+    if (m_Side == Side::Left)
+    {
+        m_DefaultAngle = +30.0f;
+        m_ActiveAngle  =   0.0f;
+    }
+    else // Right
+    {
+        m_DefaultAngle = -30.0f;
+        m_ActiveAngle =    0.0f;
+    }
 
-    // ƒ‚ƒfƒ‹“Ç‚İ‚İ
-    m_ModelRenderer = new ModelRenderer();
-    m_ModelRenderer->Load("asset\\model\\FlipperTest.obj");
+    // è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯å›è»¢è»¸ã®ã¿
+    m_Transform.Rotation.y = m_DefaultAngle;
 
-    // ƒVƒF[ƒ_[ì¬
-    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\unlitTextureVS.cso");
-    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\unlitTexturePS.cso");
+    // ----------------------------------------------------------------------
+    // ã‚¢ãƒ¼ãƒ ç”¨å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
+    // ----------------------------------------------------------------------
+    m_ArmObject = CreateChild();
+    // å·¦å³ã§ã‚¢ãƒ¼ãƒ ã®å‘ãã‚’å¤‰ãˆã‚‹
+    if (m_Side == Side::Left)
+    {
+        // å·¦ãƒ•ãƒªãƒƒãƒ‘ãƒ¼ã¯+Xæ–¹å‘
+        m_ArmObject->m_Transform.Position = { m_ArmLength * 0.5f, 0.0f, 0.0f }; // å›è»¢è»¸ã‹ã‚‰ã‚¢ãƒ¼ãƒ ä¸­å¤®ã¾ã§ç§»å‹•
+    }
+    else
+    {
+        // å³ãƒ•ãƒªãƒƒãƒ‘ãƒ¼ã¯-Xæ–¹å‘
+        m_ArmObject->m_Transform.Position = { -m_ArmLength * 0.5f, 0.0f, 0.0f }; // å›è»¢è»¸ã‹ã‚‰ã‚¢ãƒ¼ãƒ ä¸­å¤®ã¾ã§ç§»å‹•
+    }   
+    m_ArmObject->m_Transform.Scale = { m_ArmLength, m_ArmHeight, m_ArmThickness };
+
+    // ----------------------------------------------------------------------
+    // ãƒ¡ãƒƒã‚·ãƒ¥ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼è¿½åŠ 
+    // ----------------------------------------------------------------------
+    auto meshRenderer = m_ArmObject->AddComponent<MeshRenderer>();
+    meshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);    // ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®è¨­å®š
+    meshRenderer->CreateUnitBox();
+    meshRenderer->m_Color = XMFLOAT4(0.9f, 0.9f, 0.95f, 1.0f);
+
+    // ----------------------------------------------------------------------
+    // ãƒœãƒƒã‚¯ã‚¹ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼è¿½åŠ 
+    // ----------------------------------------------------------------------
+    auto colliderGroup = m_ArmObject->AddComponent<ColliderGroup>();
+    auto boxCollider = colliderGroup->AddCollider<BoxCollider>();
+    (void)boxCollider; // ç¾åœ¨ã¯ç‰¹ã«è¨­å®šãªã—
 }
 
-// I—¹ˆ—
-void Flipper::Uninit()
-{
-    // ƒ‚ƒfƒ‹ƒŒƒ“ƒ_ƒ‰[‚Ì‰ğ•ú
-    delete m_ModelRenderer;
-    m_ModelRenderer = nullptr;
-
-    // ƒVƒF[ƒ_[‚Ì‰ğ•ú
-    m_VertexLayout->Release();
-    m_VertexShader->Release();
-    m_PixelShader->Release();
-}
-
-// XVˆ—
 void Flipper::Update()
 {
-    const float dt = 1.0f/60.0f; // ŒÅ’èXV‚Ì‘z’èi‰Â•Ï‚È‚ç·‚µ‘Ö‚¦j
+    // ã‚­ãƒ¼å…¥åŠ›å–å¾—
+    const BYTE key     = GetActiveKey();
+    const bool isPress = Input::GetKeyPress(key);
 
-    m_PrevAngle = m_CurrentAngle;
+    // ç›®æ¨™è§’åº¦ï¼ˆåº¦æ•°ï¼‰
+    float targetDeg = isPress ? m_ActiveAngle : m_DefaultAngle;
 
-    const bool pressed = Input::GetKeyPress(m_Desc.key);
-    const float target = pressed ? m_Desc.maxAngle : m_Desc.restAngle;
-    const float speed  = pressed ? m_Desc.upSpeed   : m_Desc.downSpeed;
+    // ä»Šå›ã¯ä¸€æ°—ã«åˆ‡ã‚Šæ›¿ãˆï¼ˆå¿…è¦ãªã‚‰è£œé–“å‡¦ç†ã‚’è¿½åŠ ï¼‰
+    m_Transform.Rotation.y = targetDeg;
 
-    const float delta = target - m_CurrentAngle;
-    const float step  = Clamp(delta, -speed*dt, speed*dt);
-    m_CurrentAngle += step;
+    GameObject::Update();
 }
 
-// •`‰æˆ—
 void Flipper::Draw()
 {
-    // “ü—ÍƒŒƒCƒAƒEƒgİ’è
-    Renderer::GetDeviceContext()->IASetInputLayout(m_VertexLayout);
-
-    // ƒVƒF[ƒ_[İ’è
-    Renderer::GetDeviceContext()->VSSetShader(m_VertexShader, nullptr, 0);
-    Renderer::GetDeviceContext()->PSSetShader(m_PixelShader, nullptr, 0);
-
-    Vector3 A, B; GetSegment(A, B);
-    Vector3 mid = (A + B) * 0.5f;
-    Vector3 dir = Vector3{ B.x - A.x, 0.0f, B.z - A.z };
-    const float len = LenXZ(dir);
-    const float yaw = std::atan2(dir.z, dir.x);
-
-    // ƒ‚ƒfƒ‹‚Íu’·‚³1‚Ì–_v‚ğ‘z’è‚µ‚ÄƒXƒP[ƒŠƒ“ƒOi”CˆÓj
-    XMMATRIX S = XMMatrixScaling(len, m_Desc.thickness, m_Desc.thickness);
-    XMMATRIX R = XMMatrixRotationRollPitchYaw(0.0f, yaw, 0.0f);
-    XMMATRIX T = XMMatrixTranslation(mid.x, m_Desc.pivot.y, mid.z);
-    XMMATRIX W = S * R * T;
-
-    Renderer::SetWorldMatrix(W);
-    m_ModelRenderer->Draw();
+    GameObject::Draw();
 }
 
-// ƒtƒŠƒbƒp[‚Ìæ’[‚ÆªŒ³‚ÌˆÊ’u‚ğæ“¾
-void Flipper::GetSegment(Vector3& outA, Vector3& outB) const
+void Flipper::Uninit()
 {
-    outA = m_Desc.pivot;
-    const float sign = (m_Desc.invert ? -1.0f : 1.0f);
-    const Vector3 dir = DirFromAngle(m_CurrentAngle * sign);
-    outB = outA + dir * m_Desc.length;
+    m_ArmObject = nullptr;
 }
 
-// ƒ{[ƒ‹‚Æ‚ÌÕ“Ë
-void Flipper::Resolve(Vector3& ballPosition, Vector3& ballVelocity, float ballRadius, float DeltaTime)
+BYTE Flipper::GetActiveKey() const
 {
-    // ƒtƒŠƒbƒp[‚Í XZ ‚Ìü•ª{ƒJƒvƒZƒ‹”¼ŒaAƒ{[ƒ‹‚Í‹…‚¾‚ª XZ ‚Å‚Í‰~ˆµ‚¢
-    Vector3 A, B; GetSegment(A, B);
-    const float rCaps = m_Desc.thickness * 0.5f;
-    const float R = rCaps + ballRadius;
-
-    // ‚‚³‘Ñ‚ª‘å‚«‚­ƒYƒŒ‚Ä‚¢‚é‚È‚çÕ“Ë‚µ‚È‚¢
-    if (std::fabs(ballPosition.y - m_Desc.pivot.y) > (ballRadius + rCaps + 0.2f))
-        return;
-
-    const Vector3 AB = B - A;
-    const float ab2  = std::max(1e-6f, DotXZ(AB, AB));
-    const Vector3 AP = ballPosition - A;
-    const float t    = Clamp(DotXZ(AP, AB) / ab2, 0.0f, 1.0f);
-    const Vector3 closest = A + AB * t;
-
-    Vector3 diff{ ballPosition.x - closest.x, 0.0f, ballPosition.z - closest.z };
-    const float dist = LenXZ(diff);
-
-    if (dist < R)
+    if (m_Side == Side::Left)
     {
-        const float pen = R - dist;
-        Vector3 n = (dist > 1e-6f) ? NormalizeXZ(diff) : NormalizeXZ(PerpXZ(AB));
-
-        // 1) ˆÊ’u•â³iXZ •½–Ê‚Ì‚İj
-        ballPosition.x += n.x * pen;
-        ballPosition.z += n.z * pen;
-
-        // 2) ‘¬“x”½Ë{æ’[‘¬“xƒu[ƒXƒg
-        float sign   = (m_Desc.invert ? -1.0f : 1.0f);
-        float angVel = (m_CurrentAngle - m_PrevAngle) / std::max(1e-6f, DeltaTime);
-        angVel *= sign;
-
-        // ƒsƒ{ƒbƒgŠî€‚ÌÅ‹ß“_ƒxƒNƒgƒ‹ r
-        Vector3 r{ closest.x - m_Desc.pivot.x, 0.0f, closest.z - m_Desc.pivot.z };
-        // v_flip = ƒÖ ~ ri2DŠ·Z‚Å r ‚ğ 90‹‰ñ“]‚³‚¹‚Ä ƒÖ ‚ğŠ|‚¯‚éj
-        Vector3 vFlip = PerpXZ(r);
-        vFlip.x *= angVel; vFlip.z *= angVel;
-
-        Vector3 vBallXZ{ ballVelocity.x, 0.0f, ballVelocity.z };
-        Vector3 vRel{ vBallXZ.x - vFlip.x, 0.0f, vBallXZ.z - vFlip.z };
-
-        const float vn = vRel.x*n.x + vRel.z*n.z; // –@ü•ûŒü‚Ì‘Š‘Î‘¬“x
-        if (vn < 0.0f)
-        {
-            const float e = m_Desc.restitution;
-
-            // —LŒø¿—ÊFƒtƒŠƒbƒp[‚ÍŒÅ’è‚Æ‚İ‚È‚µƒ{[ƒ‹‚Ì‚İi=1j
-            const float invMass = 1.0f;
-
-            // –@üƒCƒ“ƒpƒ‹ƒX
-            const float j = -(1.0f + e) * vn / invMass;
-
-            // ƒtƒŠƒbƒp[æ’[‘¬“x‚Ì–@ü¬•ª‚ğƒu[ƒXƒg
-            const float vFlipN = std::max(0.0f, vFlip.x*n.x + vFlip.z*n.z);
-            const float impulse = j + (m_Desc.hitBoost * vFlipN);
-
-            ballVelocity.x += n.x * impulse * invMass;
-            ballVelocity.z += n.z * impulse * invMass;
-            // y ‚Í°‚âd—Í‚ÌŠù‘¶ƒƒWƒbƒN‚É”C‚¹‚é
-        }
+        return VK_LSHIFT;
     }
+    else // Right
+    {
+        return VK_OEM_2; // TODO: å¾Œã»ã©ãƒãƒ¼ãƒãƒ£ãƒ«ã‚­ãƒ¼ã‚³ãƒ¼ãƒ‰ã‚’å®šç¾©ã™ã‚‹
+    }
+}
+
+void Flipper::OnCollisionStay(const CollisionInfo& info)
+{
+    // è‡ªåˆ†ã¾ãŸã¯ç›¸æ‰‹ã®æƒ…å ±ãŒãªã„å ´åˆã¯å‡¦ç†ã—ãªã„
+    if (!info.self || !info.other) return;
+    if (!info.self->m_Owner || !info.other->m_Owner) return;
+
+    // ãƒ•ãƒªãƒƒãƒ‘ãƒ¼æœ¬ä½“ã§ã¯ãªãã€ã€Œã‚¢ãƒ¼ãƒ ã€ã«ã¤ã„ã¦ã„ã‚‹ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã¨ã®è¡çªã®ã¿å‡¦ç†
+    // ï¼ˆFieldãªã©ä»–ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ãªã©ã§èª¤å‹•ä½œã—ãªã„ã‚ˆã†ã«ã™ã‚‹ãŸã‚ï¼‰
+    if (info.self->m_Owner != m_ArmObject) return;
+
+    // è¡çªç›¸æ‰‹ã®RigidBodyã‚’å–å¾—
+    RigidBody* otherRigidBody = info.other->m_Owner->GetComponent<RigidBody>();
+    if (!otherRigidBody) return;
+
+    // ãƒ•ãƒªãƒƒãƒ‘ãƒ¼ãŒå‹•ã„ã¦ã„ãªã„ã¨ãã¯ã€Œæ™®é€šã®å£ã€ã¨ã—ã¦æŒ¯ã‚‹èˆã†
+    const BYTE key     = GetActiveKey();
+    const bool isPress = Input::GetKeyPress(key);
+    if (!isPress) return;
+
+    // TODO: å°†æ¥çš„ã«ã¯ã‚¨ãƒ³ã‚¸ãƒ³å´ã§ã€Œå›è»¢ã—ã¦ã„ã‚‹ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã®ç›¸å¯¾é€Ÿåº¦ã€ã‚„
+    //       è§’é€Ÿåº¦ã‚’è€ƒæ…®ã—ãŸæ¥è§¦è§£æ±ºã‚’å®Ÿè£…ã—ã€ã“ã“ã§ã¯ãã®çµæœã ã‘ã‚’å—ã‘å–ã‚‹ã‚ˆã†ã«ã™ã‚‹
+
+    // å½“é¢ã®ç°¡æ˜“å®Ÿè£…
+    // è¡çªæ³•ç·šæ–¹å‘ã«ä¸€å®šã®é€Ÿåº¦ã‚’ä¸Šä¹—ã›ã—ã¦ã€Œå¼¾ã„ã¦ã„ã‚‹æ„Ÿã˜ã€ã‚’å‡ºã™
+    const float kAddSpeed = 30.0f; // ä¸Šä¹—ã›é€Ÿåº¦
+
+    otherRigidBody->m_Velocity += info.normal * kAddSpeed;
 }
