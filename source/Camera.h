@@ -95,4 +95,8 @@ private:
 	bool    m_FirstMouse = true;                                            // 初回マウス操作フラグ
 	POINT   m_CenterPos;                                                    // マウスの中心位置
 	float   m_MouseSensitivity = 0.002f;                                    // マウス感度
+
+    // デバッグカメラ用
+    bool m_DebugCameraMode = false;                                         // デバッグカメラモードフラグ
+    float m_DebugCameraSpeed = 0.5f;                                        // デバッグカメラの移動速度
 };
