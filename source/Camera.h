@@ -98,5 +98,5 @@ private:
 
     // デバッグカメラ用
     bool m_DebugCameraMode = false;                                         // デバッグカメラモードフラグ
-    float m_DebugCameraSpeed = 0.5f;                                        // デバッグカメラの移動速度
+    float m_DebugCameraSpeed = 0.15f;                                        // デバッグカメラの移動速度
 };

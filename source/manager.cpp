@@ -75,13 +75,15 @@ void Manager::Update()
     // コライダー同士の当たり判定処理
     CheckCollisions();
 
-    // デバッグ用コライダー描画
+#if defined(_DEBUG)
+    // デバッグ用コライダー描画フラグ切り替え
     static bool prevDebugDraw = false;
     bool currDebugDraw = Input::GetKeyPress(VK_F1); // F1キーで切り替え
     if (currDebugDraw && !prevDebugDraw) {
         g_EnableColliderDebugDraw = !g_EnableColliderDebugDraw;
     }
     prevDebugDraw = currDebugDraw;
+#endif // NDEBUG
         
     // Enter キー（VK_RETURN）が押されていたら、現在のシーンに応じて次のシーンへ
 	// 押下チェック
