@@ -79,13 +79,14 @@ void Field::Init()
     {
         auto leftFlipper = CreateChild<Flipper>(Flipper::Side::Left);
         leftFlipper->m_Transform.Position = { -flipperX, flipperY, flipperZ };
+        leftFlipper->Init();
     }
     // 右フリッパー
     {
         auto rightFlipper = CreateChild<Flipper>(Flipper::Side::Right);
         rightFlipper->m_Transform.Position = { flipperX, flipperY, flipperZ };
-    }
-    
+        rightFlipper->Init();
+    }    
 }
 
 void Field::Uninit()

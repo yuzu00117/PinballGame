@@ -7,15 +7,15 @@ class CollliderGroup;
 class MeshRenderer;
 
 /// <summary>
-/// ƒsƒ“ƒ{[ƒ‹‚ÌƒtƒŠƒbƒpƒNƒ‰ƒX
-/// eƒIƒuƒWƒFƒNƒg: ‰ñ“]²
-/// qƒIƒuƒWƒFƒNƒg: ÀÛ‚ÌƒA[ƒ€
+/// ãƒ”ãƒ³ãƒœãƒ¼ãƒ«ã®ãƒ•ãƒªãƒƒãƒ‘ã‚¯ãƒ©ã‚¹
+/// è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ: å›è»¢è»¸
+/// å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ: å®Ÿéš›ã®ã‚¢ãƒ¼ãƒ 
 /// </summary>
 class Flipper : public GameObject
 {
 public:
     // ----------------------------------------------------------------------
-    // \‘¢‘Ì’è‹`
+    // æ§‹é€ ä½“å®šç¾©
     // ----------------------------------------------------------------------
     enum class Side
     {
@@ -24,16 +24,16 @@ public:
     };
 
     // ----------------------------------------------------------------------
-    // ŠÖ”’è‹`
+    // é–¢æ•°å®šç¾©
     // ----------------------------------------------------------------------
 
     /// <summary>
-    /// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+    /// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
     /// </summary>
     Flipper(Side side); 
 
     /// <summary>
-    /// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+    /// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«ãƒ¡ã‚½ãƒƒãƒ‰
     /// </summary>
     void Init() override;
     void Update() override;
@@ -42,28 +42,31 @@ public:
 
 private:
     // ----------------------------------------------------------------------
-    // ’è”’è‹`
+    // å®šæ•°å®šç¾©
     // ----------------------------------------------------------------------
-    static constexpr float kDefaultArmLength = 4.0f;        // ƒfƒtƒHƒ‹ƒgƒA[ƒ€’·‚³
-    static constexpr float kDefaultArmThickness = 0.6f;     // ƒfƒtƒHƒ‹ƒgƒA[ƒ€Œú‚³
-    static constexpr float kDefaultArmHeight = 0.5f;        // ƒfƒtƒHƒ‹ƒgƒA[ƒ€‚‚³
+    static constexpr float kDefaultArmLength = 4.0f;        // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚¢ãƒ¼ãƒ é•·ã•
+    static constexpr float kDefaultArmThickness = 0.6f;     // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚¢ãƒ¼ãƒ åšã•
+    static constexpr float kDefaultArmHeight = 0.5f;        // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚¢ãƒ¼ãƒ é«˜ã•
     
     // ----------------------------------------------------------------------
-    // •Ï”’è‹`
+    // å¤‰æ•°å®šç¾©
     // ----------------------------------------------------------------------
-    // Šp“xŠÖ˜A
-    float m_DefaultAngle = 0.0f;                            // ‹x‚İˆÊ’u
-    float m_ActiveAngle  = 0.0f;                            // “®ìˆÊ’u
+    // è§’åº¦é–¢é€£
+    float m_DefaultAngle = 0.0f;                            // ä¼‘ã¿ä½ç½®
+    float m_ActiveAngle  = 0.0f;                            // å‹•ä½œä½ç½®
 
-    Side m_Side;                                            // ¶‰E‚Ì‹æ•Ê—p\‘¢‘Ì•Ï”
+    Side m_Side;                                            // å·¦å³ã®åŒºåˆ¥ç”¨æ§‹é€ ä½“å¤‰æ•°
 
-    // ƒA[ƒ€—pqƒIƒuƒWƒFƒNƒg
-    GameObject* m_ArmObject = nullptr;                      // ƒA[ƒ€—pqƒIƒuƒWƒFƒNƒgƒ|ƒCƒ“ƒ^
+    // ã‚¢ãƒ¼ãƒ ç”¨å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+    GameObject* m_ArmObject = nullptr;                      // ã‚¢ãƒ¼ãƒ ç”¨å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒã‚¤ãƒ³ã‚¿
 
-    // ƒA[ƒ€Œ`ó
-    float m_ArmLength = kDefaultArmLength;                  // ƒA[ƒ€’·‚³
-    float m_ArmThickness = kDefaultArmThickness;            // ƒA[ƒ€Œú‚³
-    float m_ArmHeight = kDefaultArmHeight;                  // ƒA[ƒ€‚‚³
+    // ã‚¢ãƒ¼ãƒ å½¢çŠ¶
+    float m_ArmLength = kDefaultArmLength;                  // ã‚¢ãƒ¼ãƒ é•·ã•
+    float m_ArmThickness = kDefaultArmThickness;            // ã‚¢ãƒ¼ãƒ åšã•
+    float m_ArmHeight = kDefaultArmHeight;                  // ã‚¢ãƒ¼ãƒ é«˜ã•
     
-    BYTE GetActiveKey() const;                              // “®ìƒL[æ“¾
+    static constexpr const char* VertexShaderPath = "shader\\bin\\unlitTextureVS.cso";   // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ‘ã‚¹
+    static constexpr const char* PixelShaderPath  = "shader\\bin\\unlitTexturePS.cso";   // ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ‘ã‚¹
+    
+    BYTE GetActiveKey() const;                              // å‹•ä½œã‚­ãƒ¼å–å¾—
 };  

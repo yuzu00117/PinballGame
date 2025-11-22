@@ -1,7 +1,7 @@
 #include "Flipper.h"
 #include "Input.h"
 
-// ƒRƒ“ƒ|[ƒlƒ“ƒg
+// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 #include "BoxCollider.h"
 #include "ColliderGroup.h"
 #include "MeshRenderer.h"
@@ -19,10 +19,10 @@ Flipper::Flipper(Side side)
 {
 }
 
-// ‰Šú‰»ˆ—
+// åˆæœŸåŒ–å‡¦ç†
 void Flipper::Init()
 {
-    // ¶‰E‚ÅŠî€Šp“x‚ğŒˆ‚ß‚é
+    // å·¦å³ã§åŸºæº–è§’åº¦ã‚’æ±ºã‚ã‚‹
     if (m_Side == Side::Left)
     {
         m_DefaultAngle = -30.0f;
@@ -34,37 +34,48 @@ void Flipper::Init()
         m_ActiveAngle =  -30.0f;
     }
 
-    // eƒIƒuƒWƒFƒNƒg‚Í‰ñ“]²‚Ì‚İ
+    // è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¯å›è»¢è»¸ã®ã¿
     m_Transform.Rotation.y = DegToRad(m_DefaultAngle);
 
     // ----------------------------------------------------------------------
-    // ƒA[ƒ€—pqƒIƒuƒWƒFƒNƒg‚Ì¶¬
+    // ã‚¢ãƒ¼ãƒ ç”¨å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
     // ----------------------------------------------------------------------
     m_ArmObject = CreateChild();
-    m_ArmObject->m_Transform.Position = { m_ArmLength * 0.5f, 0.0f, 0.0f }; // ‰ñ“]²‚©‚çƒA[ƒ€’†‰›‚Ü‚ÅˆÚ“®
+    // å·¦å³ã§ã‚¢ãƒ¼ãƒ ã®å‘ãã‚’å¤‰ãˆã‚‹
+    if (m_Side == Side::Left)
+    {
+        // å·¦ãƒ•ãƒªãƒƒãƒ‘ãƒ¼ã¯+Xæ–¹å‘
+        m_ArmObject->m_Transform.Position = { m_ArmLength * 0.5f, 0.0f, 0.0f }; // å›è»¢è»¸ã‹ã‚‰ã‚¢ãƒ¼ãƒ ä¸­å¤®ã¾ã§ç§»å‹•
+    }
+    else
+    {
+        // å³ãƒ•ãƒªãƒƒãƒ‘ãƒ¼ã¯-Xæ–¹å‘
+        m_ArmObject->m_Transform.Position = { -m_ArmLength * 0.5f, 0.0f, 0.0f }; // å›è»¢è»¸ã‹ã‚‰ã‚¢ãƒ¼ãƒ ä¸­å¤®ã¾ã§ç§»å‹•
+    }   
     m_ArmObject->m_Transform.Scale = { m_ArmLength, m_ArmHeight, m_ArmThickness };
 
-    // ƒƒbƒVƒ…ƒŒƒ“ƒ_ƒ‰[’Ç‰Á
+    // ãƒ¡ãƒƒã‚·ãƒ¥ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼è¿½åŠ 
     auto meshRenderer = m_ArmObject->AddComponent<MeshRenderer>();
+    meshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);    // ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®è¨­å®š
     meshRenderer->CreateUnitBox();
     meshRenderer->m_Color = XMFLOAT4(0.9f, 0.9f, 0.95f, 1.0f);
 
-    // ƒ{ƒbƒNƒXƒRƒ‰ƒCƒ_[’Ç‰Á
+    // ãƒœãƒƒã‚¯ã‚¹ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼è¿½åŠ 
     auto colliderGroup = m_ArmObject->AddComponent<ColliderGroup>();
     auto boxCollider = colliderGroup->AddCollider<BoxCollider>();
-    (void)boxCollider; // Œ»İ‚Í“Á‚Éİ’è‚È‚µ
+    (void)boxCollider; // ç¾åœ¨ã¯ç‰¹ã«è¨­å®šãªã—
 }
 
 void Flipper::Update()
 {
-    // ƒL[“ü—Íæ“¾
+    // ã‚­ãƒ¼å…¥åŠ›å–å¾—
     const BYTE key     = GetActiveKey();
     const bool isPress = Input::GetKeyPress(key);
 
-    // –Ú•WŠp“xi“x”j
+    // ç›®æ¨™è§’åº¦ï¼ˆåº¦æ•°ï¼‰
     float targetDeg = isPress ? m_ActiveAngle : m_DefaultAngle;
 
-    // ¡‰ñ‚Íˆê‹C‚ÉØ‚è‘Ö‚¦i•K—v‚È‚ç•âŠÔˆ—‚ğ’Ç‰Áj
+    // ä»Šå›ã¯ä¸€æ°—ã«åˆ‡ã‚Šæ›¿ãˆï¼ˆå¿…è¦ãªã‚‰è£œé–“å‡¦ç†ã‚’è¿½åŠ ï¼‰
     m_Transform.Rotation.y = DegToRad(targetDeg);
 
     GameObject::Update();
@@ -88,6 +99,6 @@ BYTE Flipper::GetActiveKey() const
     }
     else // Right
     {
-        return VK_OEM_2; // TODO: Œã‚Ù‚Çƒo[ƒ`ƒƒƒ‹ƒL[ƒR[ƒh‚ğ’è‹`‚·‚é
+        return VK_OEM_2; // TODO: å¾Œã»ã©ãƒãƒ¼ãƒãƒ£ãƒ«ã‚­ãƒ¼ã‚³ãƒ¼ãƒ‰ã‚’å®šç¾©ã™ã‚‹
     }
 }
