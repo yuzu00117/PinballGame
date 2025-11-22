@@ -49,7 +49,7 @@ void Ball::Uninit()
 // 更新処理
 void Ball::Update()
 {
-#ifndef NDEBUG
+#if defined(_DEBUG)
     // SPACEキーで上方向に力を加える（デバッグ用）
     if (Input::GetKeyTrigger(VK_SPACE))
     {
