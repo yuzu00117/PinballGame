@@ -22,6 +22,11 @@ public:
     }
 
     /// <summary>
+    /// ワールド行列を返す
+    /// </summary>
+    DirectX::XMMATRIX GetWorldMatrix() const;
+
+    /// <summary>
     /// 衝突処理
     /// </summary>
     bool CheckCollision(Collider* other,
@@ -29,12 +34,12 @@ public:
                         CollisionInfo& outOther) override;
 
     /// <summary>
-    /// コライダーのデバッグ描画
-    /// </summary>
-    void DebugDraw() override;
-
-    /// <summary>
     /// ワールド座標系でのAABBを取得する
     /// </summary>
     void GetWorldAABB(Vector3& outMin, Vector3& outMax) const;
+
+    /// <summary>
+    /// コライダーのデバッグ描画
+    /// </summary>
+    void DebugDraw() override;
 };
