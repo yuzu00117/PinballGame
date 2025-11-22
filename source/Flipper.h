@@ -1,67 +1,69 @@
-#ifndef _FLIPPER_H
-#define _FLIPPER_H
+#pragma once
 
-#include "vector3.h"
-#include "gameobject.h"
-#include <algorithm>
-#include <cmath>
-#include <windows.h>
+#include "GameObject.h"
+#include "Vector3.h"
+
+class CollliderGroup;
+class MeshRenderer;
 
 /// <summary>
-/// ピンボールのフリッパーオブジェクト
-/// ADキーで回転操作可能
+/// ピンボールのフリッパクラス
+/// 親オブジェクト: 回転軸
+/// 子オブジェクト: 実際のアーム
 /// </summary>
-struct FlipperDesc {
-    Vector3 pivot = { 0.0f, 0.5f, 0.0f }; // ピボット（y は高さ）
-    float   length = 1.2f;                // XZ平面の長さ（ワールド単位）
-    float   thickness = 0.18f;            // 幅（当たり判定の半径は thickness*0.5）
-    float   restAngle = 0.0f;             // 休止角度[rad]（+X 方向基準、反時計回り+）
-    float   maxAngle  = 0.9f;             // 押し上げ角[rad]
-    float   upSpeed   = 18.0f;            // 上げ角速度[rad/s]
-    float   downSpeed = 10.0f;            // 戻り角速度[rad/s]
-    float   restitution = 0.35f;          // 反発係数
-    float   hitBoost    = 1.2f;           // 先端速度をどれだけ乗せるか
-    bool    invert = false;               // 右フリッパー用（回転向きを反転）
-    BYTE    key = VK_LEFT;                // 入力キー（左/右で設定）
-};
-
 class Flipper : public GameObject
 {
 public:
-    // --- 関数宣言 ---
+    // ----------------------------------------------------------------------
+    // 構造体定義
+    // ----------------------------------------------------------------------
+    enum class Side
+    {
+        Left,
+        Right
+    };
+
+    // ----------------------------------------------------------------------
+    // 関数定義
+    // ----------------------------------------------------------------------
+
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    Flipper(Side side); 
+
+    /// <summary>
+    /// ライフサイクルメソッド
+    /// </summary>
     void Init() override;
-    void Uninit() override;
     void Update() override;
     void Draw() override;
-
-    /// <summary>
-    /// ボールとの衝突
-    /// </summary>
-    void Resolve(Vector3& ballPosition, Vector3& ballVelocity, float ballRadius, float DeltaTime);
-
-    void Reset(const FlipperDesc& desc) { m_Desc = desc; m_CurrentAngle = desc.restAngle; }
-    const FlipperDesc& GetDesc() const { return m_Desc; }
+    void Uninit() override;
 
 private:
-    // --- 関数定義 ---
-    /// <summary>
-    /// フリッパーの先端と根元の位置を取得
-    /// </summary>
-    void GetSegment(Vector3& outA, Vector3& outB) const;
+    // ----------------------------------------------------------------------
+    // 定数定義
+    // ----------------------------------------------------------------------
+    static constexpr float kDefaultArmLength = 4.0f;        // デフォルトアーム長さ
+    static constexpr float kDefaultArmThickness = 0.6f;     // デフォルトアーム厚さ
+    static constexpr float kDefaultArmHeight = 0.5f;        // デフォルトアーム高さ
+    
+    // ----------------------------------------------------------------------
+    // 変数定義
+    // ----------------------------------------------------------------------
+    // 角度関連
+    float m_DefaultAngle = 0.0f;                            // 休み位置
+    float m_ActiveAngle  = 0.0f;                            // 動作位置
 
-	// --- 定数定義 ---
+    Side m_Side;                                            // 左右の区別用構造体変数
 
-    // --- 変数定義 ---
-    ID3D11Buffer*               m_VertexBuffer  = nullptr;
-    ID3D11InputLayout*          m_VertexLayout  = nullptr;
-    ID3D11VertexShader*         m_VertexShader  = nullptr;
-    ID3D11PixelShader*          m_PixelShader   = nullptr;
-    ID3D11ShaderResourceView*   m_Texture       = nullptr;
-    class ModelRenderer*        m_ModelRenderer = nullptr;
+    // アーム用子オブジェクト
+    GameObject* m_ArmObject = nullptr;                      // アーム用子オブジェクトポインタ
 
-    FlipperDesc m_Desc;
-    float m_CurrentAngle = 0.0f; // 現在の角度
-    float m_PrevAngle    = 0.0f; // 1フレーム前の角度
-};
-
-#endif // _FLIPPER_H
+    // アーム形状
+    float m_ArmLength = kDefaultArmLength;                  // アーム長さ
+    float m_ArmThickness = kDefaultArmThickness;            // アーム厚さ
+    float m_ArmHeight = kDefaultArmHeight;                  // アーム高さ
+    
+    int GetActiveKey() const;                               // 動作キー取得
+};  
