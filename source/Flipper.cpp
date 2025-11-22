@@ -58,8 +58,8 @@ void Flipper::Init()
 void Flipper::Update()
 {
     // キー入力取得
-    const int key = GetActiveKey();
-    bool isPress = Input::GetKey(key);
+    const BYTE key     = GetActiveKey();
+    const bool isPress = Input::GetKeyPress(key);
 
     // 目標角度（度数）
     float targetDeg = isPress ? m_ActiveAngle : m_DefaultAngle;
@@ -70,14 +70,24 @@ void Flipper::Update()
     GameObject::Update();
 }
 
-int Flipper::GetActiveKey() const
+void Flipper::Draw()
+{
+    GameObject::Draw();
+}
+
+void Flipper::Uninit()
+{
+    m_ArmObject = nullptr;
+}
+
+BYTE Flipper::GetActiveKey() const
 {
     if (m_Side == Side::Left)
     {
-        return KEY_Z;
+        return VK_LSHIFT;
     }
     else // Right
     {
-        return KEY_SLASH;
+        return VK_OEM_2; // TODO: 後ほどバーチャルキーコードを定義する
     }
 }

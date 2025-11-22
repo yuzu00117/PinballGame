@@ -65,5 +65,5 @@ private:
     float m_ArmThickness = kDefaultArmThickness;            // アーム厚さ
     float m_ArmHeight = kDefaultArmHeight;                  // アーム高さ
     
-    int GetActiveKey() const;                               // 動作キー取得
+    BYTE GetActiveKey() const;                              // 動作キー取得
 };  
