@@ -8,8 +8,8 @@ class MeshRenderer;
 
 /// <summary>
 /// ピンボールのフリッパクラス
-/// 親オブジェクト: 回転軸
-/// 子オブジェクト: 実際のアーム
+/// 親オブジェクトは回転軸、子オブジェクトにアームメッシュを持つ
+/// 実際の配置はFieldクラスで行っています
 /// </summary>
 class Flipper : public GameObject
 {

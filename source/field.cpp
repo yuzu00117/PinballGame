@@ -73,7 +73,7 @@ void Field::Init()
     // ----------------------------------------------------------------------
     const float flipperZ = -HalfHeight + 3.0f;  // 奥行き位置
     const float flipperY = 0.5f;                // 高さ位置
-    const float flipperX = 2.5f;                // 左右位置
+    const float flipperX = 6.0f;                // 左右位置
 
     // 左フリッパー
     {
