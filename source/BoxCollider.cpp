@@ -175,10 +175,8 @@ static bool IntersectSegmentSphereVsOBB(const Vector3& p0W, const Vector3& p1W,
         return false;
     }
 
-    float tHit = tMin;
-
     // ヒット時の球中心（ローカル）
-    Vector3 centerL = p0L + dL * tHit;
+    Vector3 centerL = p0L + dL * tMin;
 
     // 元の OBB（膨らませる前）の最近接点
     Vector3 half(obb.half[0], obb.half[1], obb.half[2]);

@@ -23,7 +23,6 @@ void RigidBody::Update()
     {
         // 2回目以降は前フレーム位置を更新
         m_PreviousPosition = m_Owner->m_Transform.Position;
-
     }
    
     // 重力の影響を受ける場合、速度に重力加速度を加算

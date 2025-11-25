@@ -4,6 +4,7 @@
 
 /// <summary>
 /// ボックスコライダークラス
+/// HACK: マジックナンバー多用してるので要修正
 /// </summary>
 class BoxCollider : public Collider
 {
