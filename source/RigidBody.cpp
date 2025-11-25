@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 #include "GameObject.h"
+#include "SphereCollider.h"
 
 namespace
 {
@@ -39,8 +40,25 @@ void RigidBody::ResolveCollision(const CollisionInfo& info)
 {
     if (!m_Owner || m_IsKinematic) return;
 
+    Vector3& pos = m_Owner->m_Transform.Position;
+
+    // --- 1. CCDヒット: 位置もここで直してから速度反射 ---
     if (info.isCCDHit)
     {
+        // SphereColliderのCCDだけ対応
+        if (auto* sphere = dynamic_cast<SphereCollider*>(info.self))
+        {
+            float radius = sphere->m_radius;
+            const float kSlop = 0.001f; // めり込み許容値
+
+            // 球中心 = 接触点 + 法線方向に半径分（+少し押し出し）
+            Vector3 newCenter = info.contactPoint + info.normal * (radius + kSlop);
+
+            // Transform.Positionはローカル原点なので、centerオフセットを引く
+            pos = newCenter - sphere->m_center;
+        }
+
+        // 速度反射
         float vn = m_Velocity.Dot(info.normal);
         if (vn < 0.0f)
         {
@@ -61,28 +79,24 @@ void RigidBody::ResolveCollision(const CollisionInfo& info)
         return;
     }
 
-    // 静的めり込みの解決
-    // 1. めり込みを解消するために位置を修正
+    // --- 2. 通常衝突: penetration分だけ押し戻し→速度反射 ---
     if (info.penetration > 0.0f)
     {
-        m_Owner->m_Transform.Position += info.normal * info.penetration;
+        // 位置修正
+        pos += info.normal * info.penetration;
     }
 
-    // 2. 速度の反射or停止
     float vn = m_Velocity.Dot(info.normal);
     if (vn < 0.0f)
     {
-        // 反発後の法線速度
         float newVn = -vn * m_Restitution;
 
-        // 小さい反発はカット
         const float kRestThreshold = 0.2f;
         if (newVn < kRestThreshold)
         {
             newVn = 0.0f;
         }
 
-        // v_nをnewVnに置き換える
         float delta = newVn - vn;
         m_Velocity += info.normal * delta;
     }
