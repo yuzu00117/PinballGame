@@ -10,190 +10,446 @@
 #include "RigidBody.h"
 
 // ----------------------------------------------------------------------
-// 衝突処理
+// OBBヘルパー
 // ----------------------------------------------------------------------
-// Box vs Boxの衝突判定
-static bool BoxVsBox(BoxCollider* a, BoxCollider* b,
-                      CollisionInfo& outA, CollisionInfo& outB)
+struct OBBData
 {
-    Vector3 minA, maxA;
-    Vector3 minB, maxB;
-    a->GetWorldAABB(minA, maxA);
-    b->GetWorldAABB(minB, maxB);
+    Vector3 center;     // 中心座標（ワールド）
+    Vector3 axis[3];    // 各軸（ワールド、正規化済み）
+    float   half[3];    // 各軸方向の半サイズ
+};
 
-    float overLapX = std::min(maxA.x, maxB.x) - std::max(minA.x, minB.x);
-    float overLapY = std::min(maxA.y, maxB.y) - std::max(minA.y, minB.y);
-    float overLapZ = std::min(maxA.z, maxB.z) - std::max(minA.z, minB.z);
-
-    if (overLapX <= 0.0f || overLapY <= 0.0f || overLapZ <= 0.0f)
-        return false;
-
-    // 一番浅いめり込みの軸を選ぶ
-    float penetration = overLapX;
-    Vector3 normal{ 1.0f, 0.0f, 0.0f };
-
-    Vector3 centerA = (minA + maxA) * 0.5f;
-    Vector3 centerB = (minB + maxB) * 0.5f;
-    Vector3 diff = centerB - centerA;
-
-    if (overLapY < penetration)
-    {
-        penetration = overLapY;
-        normal = { 0, diff.y >= 0.0f ? 1.0f : -1.0f, 0 };
-    }
-    if (overLapZ < penetration)
-    {
-        penetration = overLapZ;
-        normal = { 0, 0, diff.z >= 0.0f ? 1.0f : -1.0f };
-    }
-    if (penetration == overLapX)    
-    {
-        normal.x = diff.x >= 0.0f ? 1.0f : -1.0f;
-    }
-
-    Vector3 contact = (centerA + centerB) * 0.5f;
-
-    outA.self         = a;
-    outA.other        = b;
-    outA.normal       = normal;
-    outA.penetration  = penetration;
-    outA.contactPoint = contact;
-
-    outB.self         = b;
-    outB.other        = a;
-    outB.normal       = -normal;
-    outB.penetration  = penetration;
-    outB.contactPoint = contact;
-
-    return true;
-}        
-
-// Box vs Sphereの衝突判定
-static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
-                        CollisionInfo& outB, CollisionInfo& outS)
+// 3Dベクトルの内積
+static float Dot3(const Vector3& a, const Vector3& b)
 {
-    Vector3 boxMin, boxMax;
-    b->GetWorldAABB(boxMin, boxMax);
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
 
-    // --- CCD試行 ---
-    GameObject* owner     = s->m_Owner;
-    RigidBody*  rigidBody = owner ? owner->GetComponent<RigidBody>() : nullptr;
+// 3Dベクトルの外積
+static Vector3 Cross3(const Vector3& a, const Vector3& b)
+{
+    return Vector3{
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+    };
+}
 
-    // CCDを使うかどうかの判定
-    bool useCCD = false;
-    Vector3 p0, p1;
+// ベクトルの正規化（ゼロベクトル対策版）
+static Vector3 NormalizeSafe(const Vector3& v)
+{
+    float lenSq = v.LengthSq();
+    if (lenSq < 1e-12f) return { 1.0f, 0.0f, 0.0f };
 
-    if (rigidBody && !rigidBody->m_IsKinematic)
-    {
-        // 球の中心の「前フレーム位置」と「今フレーム位置」
-        p0 = rigidBody->m_PreviousPosition + s->m_center;
-        p1 = owner->m_Transform.Position + s->m_center;
+    float invLen = 1.0f / sqrtf(lenSq);
+    return v * invLen;
+}
 
-        Vector3 delta = p1 - p0;
-        float moveLen = delta.Length();
-        float ccdMinMove = s->m_radius * 0.25f; // 半径の1/4以上動いていたらCCDを使う
-
-        // NOTE: CCD は「今フレームの位置p1がBoxに近いとき」にだけ使う。
-        // p0基準にすると接地スライド時のブルブルが増えたため、
-        // 実用上 p1 で判定する実装を採用している。
-        if (moveLen >= ccdMinMove && 
-            IsSphereOverlappingBox(p1, s->m_radius, boxMin, boxMax))
-        {
-            useCCD = true;
-        }
-    }
-
-    if (useCCD)
-    {
-        CcdHit hit;
-        if (IntersectSegmentExpandedAABB(p0, p1, boxMin, boxMax, s->m_radius, &hit))
-        {
-            // 衝突位置まで戻す（少しだけ離す）
-            const float kSlop = s->m_radius * 0.01f;
-            Vector3 hitCenter = hit.point + hit.normal * kSlop;
-
-            // GameObjectのPositionはローカル原点なので、中心オフセットを引く
-            owner->m_Transform.Position = hitCenter - s->m_center;
-
-            // 接触点（ボックス表面）
-            Vector3 contact = hitCenter - hit.normal * s->m_radius;
-
-            // Box視点
-            outB.self         = b;
-            outB.other        = s;
-            outB.normal       = -hit.normal;
-            outB.penetration  = 0.0f;
-            outB.contactPoint = contact;
-            outB.isCCDHit    = true;
-
-            // Sphere視点
-            outS.self         = s;
-            outS.other        = b;
-            outS.normal       = hit.normal;
-            outS.penetration  = 0.0f;      // CCDなのでめり込み無し
-            outS.contactPoint = contact;
-            outS.isCCDHit    = true;
-
-            return true;
-        }
-    }
-
-    // --- 通常の衝突判定 ---
-    // 球の中心（ワールド）
-    Vector3 centerW = s->GetWorldPosition();
-    float radius = s->m_radius;
-
-    // Box の OBB ワールド行列を分解（スケール／回転／平行移動）
-    XMMATRIX obbWorld = b->GetWorldMatrix();
+// Box から OBB データを取得する
+static void BuildOBBFromBox(const BoxCollider* box, OBBData& out)
+{
+    XMMATRIX world = box->GetWorldMatrix();
 
     XMVECTOR scaleV, rotQ, transV;
-    XMMatrixDecompose(&scaleV, &rotQ, &transV, obbWorld);
+    XMMatrixDecompose(&scaleV, &rotQ, &transV, world);
 
-    // 半径（ワールド単位）
-    XMFLOAT3 scaleF;
+    XMFLOAT3 scaleF, transF;
     XMStoreFloat3(&scaleF, scaleV);
+    XMStoreFloat3(&transF, transV);
 
-    // OBB の中心（ワールド）
-    XMFLOAT3 centerF;
-    XMStoreFloat3(&centerF, transV);
-    Vector3 boxCenterW{centerF.x, centerF.y, centerF.z};
+    out.center = { transF.x, transF.y, transF.z };
+    out.half[0] = 0.5f * fabsf(scaleF.x);
+    out.half[1] = 0.5f * fabsf(scaleF.y);
+    out.half[2] = 0.5f * fabsf(scaleF.z);
 
-    // OBB の半径（各軸方向の半サイズ：ワールド単位）
-    Vector3 half{
-        0.5f * scaleF.x,
-        0.5f * scaleF.y,
-        0.5f * scaleF.z};
-
-    // 回転行列（スケール抜き）
     XMMATRIX rotM = XMMatrixRotationQuaternion(rotQ);
-    XMMATRIX invRotM = XMMatrixTranspose(rotM); // 回転行列の逆は転置
 
-    // 球の中心を OBB ローカル空間へ変換
-    XMVECTOR cW = XMVectorSet(centerW.x, centerW.y, centerW.z, 1.0f);
-    XMVECTOR cRelW = XMVectorSubtract(cW, transV);         // 中心基準
-    XMVECTOR cL = XMVector3TransformCoord(cRelW, invRotM); // ローカルへ
+    XMFLOAT4X4 rotF;
+    XMStoreFloat4x4(&rotF, rotM);
 
-    XMFLOAT3 cf;
-    XMStoreFloat3(&cf, cL);
-    Vector3 centerL{cf.x, cf.y, cf.z};
+    // DirectX は行ベクトルなので、行 0,1,2 を各軸として使う
+    out.axis[0] = NormalizeSafe(Vector3{ rotF._11, rotF._12, rotF._13 }); // X軸
+    out.axis[1] = NormalizeSafe(Vector3{ rotF._21, rotF._22, rotF._23 }); // Y軸
+    out.axis[2] = NormalizeSafe(Vector3{ rotF._31, rotF._32, rotF._33 }); // Z軸
+}
 
-    // ローカル空間で最近接点を求める
+// ワールド→OBB ローカル変換
+static Vector3 ToLocalPoint(const OBBData& obb, const Vector3& pW)
+{
+    Vector3 d = pW - obb.center;
+    return Vector3{
+        Dot3(d, obb.axis[0]),
+        Dot3(d, obb.axis[1]),
+        Dot3(d, obb.axis[2])
+    };
+}
+
+// OBB ローカル→ワールド変換
+static Vector3 ToWorldPoint(const OBBData& obb, const Vector3& pL)
+{
+    return obb.center +
+           obb.axis[0] * pL.x +
+           obb.axis[1] * pL.y +
+           obb.axis[2] * pL.z;
+}
+
+// 球 vs OBB のオーバーラップ（静的判定）
+static bool IsSphereOverlappingOBB(const Vector3& centerW, float radius, const OBBData& obb)
+{
+    Vector3 centerL = ToLocalPoint(obb, centerW);
+    Vector3 half(obb.half[0], obb.half[1], obb.half[2]);
+
     Vector3 closestL;
     closestL.x = Clamp(centerL.x, -half.x, half.x);
     closestL.y = Clamp(centerL.y, -half.y, half.y);
     closestL.z = Clamp(centerL.z, -half.z, half.z);
 
-    // 差分ベクトル（ローカル）
-    Vector3 diffL = centerL - closestL;
-    float dist = diffL.Length();
+    Vector3 diff = centerL - closestL;
+    float distSq = diff.LengthSq();
 
-    // 離れていれば非衝突
-    if (dist > radius)
+    return distSq <= (radius * radius);
+}
+
+// 線分 (p0W→p1W) 上を動く Sphere 中心と OBB の CCD 判定
+static bool IntersectSegmentSphereVsOBB(const Vector3& p0W, const Vector3& p1W,
+                                        const OBBData& obb, float radius,
+                                        CcdHit* outHit)
+{
+    const float EPS = 1e-6f;
+
+    // 線分を OBB ローカル空間に変換
+    Vector3 p0L = ToLocalPoint(obb, p0W);
+    Vector3 p1L = ToLocalPoint(obb, p1W);
+    Vector3 dL  = p1L - p0L;
+
+    // 半径 r で膨らませた AABB（ローカル）
+    Vector3 minE(-obb.half[0] - radius,
+                 -obb.half[1] - radius,
+                 -obb.half[2] - radius);
+    Vector3 maxE(+obb.half[0] + radius,
+                 +obb.half[1] + radius,
+                 +obb.half[2] + radius);
+
+    float tMin = 0.0f;
+    float tMax = 1.0f;
+
+    // 3軸のスラブとの交差を求める
+    for (int i = 0; i < 3; ++i)
+    {
+        float origin = (i == 0) ? p0L.x : (i == 1 ? p0L.y : p0L.z);
+        float dir    = (i == 0) ? dL.x  : (i == 1 ? dL.y  : dL.z);
+        float minV   = (i == 0) ? minE.x : (i == 1 ? minE.y : minE.z);
+        float maxV   = (i == 0) ? maxE.x : (i == 1 ? maxE.y : maxE.z);
+
+        if (fabsf(dir) < EPS)
+        {
+            // 線分が軸にほぼ平行
+            if (origin < minV || origin > maxV)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            float invD = 1.0f / dir;
+            float t1 = (minV - origin) * invD;
+            float t2 = (maxV - origin) * invD;
+
+            if (t1 > t2)
+            {
+                float tmp = t1; t1 = t2; t2 = tmp;
+            }
+
+            if (t1 > tMin) tMin = t1;
+            if (t2 < tMax) tMax = t2;
+
+            if (tMin > tMax)
+            {
+                return false;
+            }
+        }
+    }
+
+    if (tMin < 0.0f || tMin > 1.0f)
     {
         return false;
     }
 
-    // 法線（ローカル）
+    // ヒット時の球中心（ローカル）
+    Vector3 centerL = p0L + dL * tMin;
+
+    // 元の OBB（膨らませる前）の最近接点
+    Vector3 half(obb.half[0], obb.half[1], obb.half[2]);
+    Vector3 closestL;
+    closestL.x = Clamp(centerL.x, -half.x, half.x);
+    closestL.y = Clamp(centerL.y, -half.y, half.y);
+    closestL.z = Clamp(centerL.z, -half.z, half.z);
+
+    Vector3 diffL = centerL - closestL;
+    float distSq = diffL.LengthSq();
+
+    Vector3 normalL;
+    if (distSq > EPS)
+    {
+        normalL = diffL / sqrtf(distSq); // Box → Sphere
+    }
+    else
+    {
+        normalL = Vector3{ 1.0f, 0.0f, 0.0f }; // 適当
+    }
+
+    // ローカル → ワールド
+    Vector3 contactBoxW = ToWorldPoint(obb, closestL);
+    Vector3 normalW =
+          obb.axis[0] * normalL.x
+        + obb.axis[1] * normalL.y
+        + obb.axis[2] * normalL.z;
+    normalW.Normalize();
+
+    if (outHit)
+    {
+        outHit->point  = contactBoxW; // Box 表面の接触点
+        outHit->normal = normalW;     // Box → Sphere
+    }
+
+    return true;
+}
+
+// ----------------------------------------------------------------------
+// 衝突処理
+// ----------------------------------------------------------------------
+// Box vs Boxの衝突判定
+static bool BoxVsBox(BoxCollider* a, BoxCollider* b,
+                     CollisionInfo& outA, CollisionInfo& outB)
+{
+    const float EPS = 1e-6f;
+
+    OBBData A, B;
+    BuildOBBFromBox(a, A);
+    BuildOBBFromBox(b, B);
+
+    // B中心を Aローカル軸で見る
+    Vector3 t = B.center - A.center;
+
+    // t を A の各軸方向へ投影
+    float tA[3] = {
+        Dot3(t, A.axis[0]),
+        Dot3(t, A.axis[1]),
+        Dot3(t, A.axis[2])
+    };
+
+    // R[i][j] = Dot(A.axis[i], B.axis[j])
+    float R[3][3];
+    float AbsR[3][3];
+
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            R[i][j] = Dot3(A.axis[i], B.axis[j]);
+            AbsR[i][j] = fabsf(R[i][j]) + EPS; // ゼロ除算防止の微小値
+        }
+    }
+
+    float minOverlap = 1e30f;
+    Vector3 bestNormal = { 1.0f, 0.0f, 0.0f };
+
+    auto updateAxis = [&](const Vector3& axis, float dist, float ra, float rb)
+    {
+        float overlap = (ra + rb) - dist;
+        if (overlap < 0.0f)
+        {
+            return false; // 分離軸が見つかった → 非衝突
+        }
+
+        if (overlap < minOverlap)
+        {
+            // t と axis の向きから法線方向を決定（ほぼ A→B）
+            float sign = Dot3(axis, t) < 0.0f ? -1.0f : 1.0f;
+            bestNormal = NormalizeSafe(axis * sign);
+            minOverlap = overlap;
+        }
+        return true;
+    };
+
+    // --- 1. A の各軸 ---
+    for (int i = 0; i < 3; ++i)
+    {
+        float ra = A.half[i];
+        float rb = B.half[0] * AbsR[i][0] +
+                   B.half[1] * AbsR[i][1] +
+                   B.half[2] * AbsR[i][2];
+        float dist = fabsf(tA[i]);
+        if (!updateAxis(A.axis[i], dist, ra, rb))
+        {
+            return false;
+        }
+    }
+
+    // --- 2. B の各軸 ---
+    for (int j = 0; j < 3; ++j)
+    {
+        float ra = A.half[0] * AbsR[0][j] +
+                   A.half[1] * AbsR[1][j] +
+                   A.half[2] * AbsR[2][j];
+        float rb = B.half[j];
+
+        float dist = fabsf(Dot3(t, B.axis[j]));
+        if (!updateAxis(B.axis[j], dist, ra, rb))
+        {
+            return false;
+        }
+    }
+
+    // --- 3. 交差軸 Ai x Bj ---
+    for (int i = 0; i < 3; ++i)
+    {
+        int i1 = (i + 1) % 3;
+        int i2 = (i + 2) % 3;
+
+        for (int j = 0; j < 3; ++j)
+        {
+            int j1 = (j + 1) % 3;
+            int j2 = (j + 2) % 3;
+
+            Vector3 axis = Cross3(A.axis[i], B.axis[j]);
+            float axisLenSq = Dot3(axis, axis);
+            if (axisLenSq < 1e-6f)
+            {
+                continue; // ほぼ平行
+            }
+
+            float ra =
+                A.half[i1] * AbsR[i2][j] +
+                A.half[i2] * AbsR[i1][j];
+            float rb =
+                B.half[j1] * AbsR[i][j2] +
+                B.half[j2] * AbsR[i][j1];
+
+            float dist = fabsf(tA[i2] * R[i1][j] - tA[i1] * R[i2][j]);
+
+            if (!updateAxis(axis, dist, ra, rb))
+            {
+                return false;
+            }
+        }
+    }
+
+    // ここまで来たら全軸でオーバーラップ → 衝突あり
+    Vector3 contact = (A.center + B.center) * 0.5f;
+
+    // A視点（self = A）
+    outA.self         = a;
+    outA.other        = b;
+    outA.normal       = -bestNormal;   // A を押し出す方向
+    outA.penetration  = minOverlap;
+    outA.contactPoint = contact;
+    outA.isCCDHit     = false;
+
+    // B視点（self = B）
+    outB.self         = b;
+    outB.other        = a;
+    outB.normal       =  bestNormal;   // B を押し出す方向
+    outB.penetration  = minOverlap;
+    outB.contactPoint = contact;
+    outB.isCCDHit     = false;
+
+    return true;
+}   
+
+// Box vs Sphere の衝突判定（OBBベース + CCD）
+static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
+                        CollisionInfo& outB, CollisionInfo& outS)
+{
+    GameObject* owner = s->m_Owner;
+    if (!owner) return false;
+
+    // Box の OBB 情報
+    OBBData obb;
+    BuildOBBFromBox(b, obb);
+
+    const float radius = s->m_radius;
+
+    // --- 1. CCD 試行（動いている Sphere にだけ適用） ---
+    RigidBody* rigidBody = owner->GetComponent<RigidBody>();
+    bool usedCCD = false;
+
+    if (rigidBody && !rigidBody->m_IsKinematic)
+    {
+        // 球中心の前フレーム位置＆今フレーム位置
+        Vector3 p0 = rigidBody->m_PreviousPosition + s->m_center;
+        Vector3 p1 = owner->m_Transform.Position + s->m_center;
+
+        Vector3 delta   = p1 - p0;
+        float   moveLen = delta.Length();
+        float   ccdMinMove = radius * 0.25f; // 半径の1/4以上動いていたら CCD を考慮
+
+        // 前フレーム位置が OBB 外部にあった場合のみ CCD を試行
+        float judgeRadius = radius * 1.05f; // 少し余裕を持たせる
+        bool wasOutside = !IsSphereOverlappingOBB(p0, judgeRadius, obb);
+
+        if (moveLen >= ccdMinMove && wasOutside)
+        {
+            CcdHit hit;
+            if (IntersectSegmentSphereVsOBB(p0, p1, obb, radius, &hit))
+            {
+                // contactPoint: Box 表面の接触点
+                Vector3 contactW = hit.point;
+                Vector3 normalW = hit.normal; // Box → Sphere
+
+                // Box視点（self=Box）：CCD扱いだが位置は直さない
+                outB.self = b;
+                outB.other = s;
+                outB.normal = -normalW; // Box から見て自分を押し出す
+                outB.penetration = 0.0f;
+                outB.contactPoint = contactW;
+                outB.isCCDHit = false; // Box 側では通常解決扱い
+
+                // Sphere視点（self=Sphere）：CCDヒット
+                outS.self = s;
+                outS.other = b;
+                outS.normal = normalW;   // Sphere を押し出す方向
+                outS.penetration = 0.0f; // 位置は RigidBody で決める
+                outS.contactPoint = contactW;
+                outS.isCCDHit = true;
+
+                usedCCD = true;
+            }
+        }
+    }
+
+    if (usedCCD)
+    {
+        return true;
+    }
+
+    // --- 2. 通常の静的衝突判定（球 vs OBB） ---
+    // Sphere の中心（ワールド）
+    Vector3 centerW = owner->m_Transform.Position + s->m_center;
+
+    // ローカル空間へ変換
+    Vector3 centerL = ToLocalPoint(obb, centerW);
+    Vector3 half(obb.half[0], obb.half[1], obb.half[2]);
+
+    // 最近接点（ローカル）
+    Vector3 closestL;
+    closestL.x = Clamp(centerL.x, -half.x, half.x);
+    closestL.y = Clamp(centerL.y, -half.y, half.y);
+    closestL.z = Clamp(centerL.z, -half.z, half.z);
+
+    // 差分ベクトル
+    Vector3 diffL = centerL - closestL;
+    float distSq = diffL.LengthSq();
+    float rSq    = radius * radius;
+
+    if (distSq > rSq)
+    {
+        return false;
+    }
+
+    float dist = sqrtf(std::max(distSq, 1e-12f));
+
+    // ローカル法線（Box → Sphere）
     Vector3 normalL;
     if (dist > 1e-6f)
     {
@@ -201,45 +457,36 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
     }
     else
     {
-        // ほぼ中心にめり込んだら適当な法線
-        normalL = {1.0f, 0.0f, 0.0f};
+        normalL = Vector3{ 0.0f, 1.0f, 0.0f };
     }
 
     float penetration = radius - dist;
 
-    // ローカル法線をワールド空間に変換
-    XMVECTOR nL = XMVectorSet(normalL.x, normalL.y, normalL.z, 0.0f);
-    XMVECTOR nW = XMVector3TransformNormal(nL, rotM);
-    nW = XMVector3Normalize(nW);
+    // ワールド法線
+    Vector3 normalW =
+          obb.axis[0] * normalL.x
+        + obb.axis[1] * normalL.y
+        + obb.axis[2] * normalL.z;
+    normalW.Normalize();
 
-    XMFLOAT3 nWf;
-    XMStoreFloat3(&nWf, nW);
-    Vector3 normalW{nWf.x, nWf.y, nWf.z};
-
-    // 接触点（ローカル → ワールド）
-    XMVECTOR closestLVec = XMVectorSet(closestL.x, closestL.y, closestL.z, 1.0f);
-    XMVECTOR contactRelW = XMVector3TransformCoord(closestLVec, rotM);
-    XMVECTOR contactWVec = XMVectorAdd(contactRelW, transV);
-
-    XMFLOAT3 cWf;
-    XMStoreFloat3(&cWf, contactWVec);
-    Vector3 contactW{cWf.x, cWf.y, cWf.z};
+    // 接触点（Box 表面）
+    Vector3 contactW = ToWorldPoint(obb, closestL);
 
     // Box視点
-    outB.self = b;
-    outB.other = s;
-    outB.normal = -normalW; // Box は内向き（元実装と同じ向き）
-    outB.penetration = penetration;
+    outB.self         = b;
+    outB.other        = s;
+    outB.normal       = -normalW;      // Box から見て自分を押し出す方向
+    outB.penetration  = penetration;
     outB.contactPoint = contactW;
-    outB.isCCDHit = false;
+    outB.isCCDHit     = false;
 
     // Sphere視点
-    outS.self = s;
-    outS.other = b;
-    outS.normal = normalW; // 球側は外向き
-    outS.penetration = penetration;
+    outS.self         = s;
+    outS.other        = b;
+    outS.normal       =  normalW;      // Sphere を押し出す方向
+    outS.penetration  = penetration;
     outS.contactPoint = contactW;
-    outS.isCCDHit = false;
+    outS.isCCDHit     = false;
 
     return true;
 }
