@@ -49,7 +49,7 @@ void RigidBody::ResolveCollision(const CollisionInfo& info)
         if (auto* sphere = dynamic_cast<SphereCollider*>(info.self))
         {
             float radius = sphere->m_radius;
-            const float kSlop = 0.001f; // めり込み許容値
+            const float kSlop = radius * 0.01f; // めり込み許容値
 
             // 球中心 = 接触点 + 法線方向に半径分（+少し押し出し）
             Vector3 newCenter = info.contactPoint + info.normal * (radius + kSlop);

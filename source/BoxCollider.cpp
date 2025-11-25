@@ -386,7 +386,11 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
         float   moveLen = delta.Length();
         float   ccdMinMove = radius * 0.25f; // 半径の1/4以上動いていたら CCD を考慮
 
-        if (moveLen >= ccdMinMove)
+        // 前フレーム位置が OBB 外部にあった場合のみ CCD を試行
+        float judgeRadius = radius * 1.05f; // 少し余裕を持たせる
+        bool wasOutside = !IsSphereOverlappingOBB(p0, judgeRadius, obb);
+
+        if (moveLen >= ccdMinMove && wasOutside)
         {
             CcdHit hit;
             if (IntersectSegmentSphereVsOBB(p0, p1, obb, radius, &hit))
