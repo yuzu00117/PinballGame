@@ -388,36 +388,30 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
 
         if (moveLen >= ccdMinMove)
         {
-            bool wasOutside = !IsSphereOverlappingOBB(p0, radius, obb);
-            bool isInside   =  IsSphereOverlappingOBB(p1, radius, obb);
-
-            if (wasOutside && isInside)
+            CcdHit hit;
+            if (IntersectSegmentSphereVsOBB(p0, p1, obb, radius, &hit))
             {
-                CcdHit hit;
-                if (IntersectSegmentSphereVsOBB(p0, p1, obb, radius, &hit))
-                {
-                    // contactPoint: Box 表面の接触点
-                    Vector3 contactW = hit.point;
-                    Vector3 normalW  = hit.normal; // Box → Sphere
+                // contactPoint: Box 表面の接触点
+                Vector3 contactW = hit.point;
+                Vector3 normalW = hit.normal; // Box → Sphere
 
-                    // Box視点（self=Box）：CCD扱いだが位置は直さない
-                    outB.self         = b;
-                    outB.other        = s;
-                    outB.normal       = -normalW; // Box から見て自分を押し出す
-                    outB.penetration  = 0.0f;
-                    outB.contactPoint = contactW;
-                    outB.isCCDHit     = false;   // Box 側では通常解決扱い
+                // Box視点（self=Box）：CCD扱いだが位置は直さない
+                outB.self = b;
+                outB.other = s;
+                outB.normal = -normalW; // Box から見て自分を押し出す
+                outB.penetration = 0.0f;
+                outB.contactPoint = contactW;
+                outB.isCCDHit = false; // Box 側では通常解決扱い
 
-                    // Sphere視点（self=Sphere）：CCDヒット
-                    outS.self         = s;
-                    outS.other        = b;
-                    outS.normal       =  normalW; // Sphere を押し出す方向
-                    outS.penetration  = 0.0f;     // 位置は RigidBody で決める
-                    outS.contactPoint = contactW;
-                    outS.isCCDHit     = true;
+                // Sphere視点（self=Sphere）：CCDヒット
+                outS.self = s;
+                outS.other = b;
+                outS.normal = normalW;   // Sphere を押し出す方向
+                outS.penetration = 0.0f; // 位置は RigidBody で決める
+                outS.contactPoint = contactW;
+                outS.isCCDHit = true;
 
-                    usedCCD = true;
-                }
+                usedCCD = true;
             }
         }
     }
