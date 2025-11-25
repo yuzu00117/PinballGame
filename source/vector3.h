@@ -136,6 +136,12 @@ public:
 		return sqrtf(x * x + y * y + z * z);
 	}
 
+	// ベクトルの長さの二乗を返す
+	float LengthSq() const
+	{
+		return x * x + y * y + z * z;
+	}
+
 	// ベクトルの内積を計算する
 	float Dot(const Vector3& a) const
 	{
