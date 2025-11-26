@@ -63,6 +63,7 @@ void Flipper::Init()
     (void)boxCollider; // 現在は特に設定なし
 }
 
+// 更新処理
 void Flipper::Update()
 {
     // キー入力取得
@@ -102,16 +103,19 @@ void Flipper::Update()
     GameObject::Update();
 }
 
+// 描画処理
 void Flipper::Draw()
 {
     GameObject::Draw();
 }
 
+// 終了処理
 void Flipper::Uninit()
 {
     m_ArmObject = nullptr;
 }
 
+// 動作キー取得
 BYTE Flipper::GetActiveKey() const
 {
     if (m_Side == Side::Left)
@@ -124,35 +128,118 @@ BYTE Flipper::GetActiveKey() const
     }
 }
 
+void Flipper::OnCollisionEnter(const CollisionInfo& info)
+{
+    // フリッパーのアームと当たったときだけ
+    if (!info.self || !info.other) return;
+    if (info.self->m_Owner != m_ArmObject) return;
+
+    RigidBody* rb = info.other->m_Owner->GetComponent<RigidBody>();
+    if (!rb) return;
+
+    // フリッパーが動いてないなら何もしない
+    const BYTE key = GetActiveKey();
+    if (!Input::GetKeyPress(key)) return;
+
+    // 反射方向（Flipper → Ball）
+    Vector3 n = -info.normal;
+    // n = Normalize(n); // 必要なら正規化
+
+    // --------------------------
+    // 1) ボール位置を確実に外に押し出す
+    // --------------------------
+    const float separate = 0.3f;
+    info.other->m_Owner->m_Transform.Position += n * separate;
+
+    // --------------------------
+    // 2) ボール速度を強制的に反射させる
+    // --------------------------
+
+    // v' = v - 2*(v·n)*n の完全鏡面反射
+    float vn = rb->m_Velocity.Dot(n);
+    Vector3 reflected = rb->m_Velocity - n * (2.0f * vn);
+
+    // --------------------------
+    // 3) 最低速度を与えてパンチ力UP
+    // --------------------------
+    const float minSpeed = 350.0f;  // 好みで調整（200〜300でもOK）
+    float speed = reflected.Length();
+
+    if (speed < minSpeed)
+    {
+        reflected = reflected.NormalizeSafe() * minSpeed;
+    }
+
+    rb->m_Velocity = reflected;
+}
+
+// 衝突コールバック
 void Flipper::OnCollisionStay(const CollisionInfo& info)
 {
-    // 自分または相手の情報がない場合は処理しない
+    // 情報チェック
     if (!info.self || !info.other) return;
     if (!info.self->m_Owner || !info.other->m_Owner) return;
 
-    // フリッパー本体ではなく、「アーム」についているコライダーとの衝突のみ処理
-    // （Fieldなど他コライダーなどで誤動作しないようにするため）
+    // 「アーム」についているコライダーとの衝突のみ処理
     if (info.self->m_Owner != m_ArmObject) return;
 
-    // 衝突相手のRigidBodyを取得
-    RigidBody* otherRigidBody = info.other->m_Owner->GetComponent<RigidBody>();
-    if (!otherRigidBody) return;
+    // 相手のRigidBody取得（ボール想定）
+    RigidBody* rb = info.other->m_Owner->GetComponent<RigidBody>();
+    if (!rb) return;
 
-    // フリッパーが動いていないときは「普通の壁」として振る舞う
+    // フリッパーを動かしているときだけ「弾く」
     const BYTE key     = GetActiveKey();
     const bool isPress = Input::GetKeyPress(key);
     if (!isPress) return;
 
-    // TODO: 将来的にはエンジン側で「回転しているコライダーの相対速度」や
-    //       角速度を考慮した接触解決を実装し、ここではその結果だけを受け取るようにする
+    // ------------------------------------------------------------------
+    // 1) 位置の押し戻し
+    // ------------------------------------------------------------------
 
-    // info.normalは「Boxを押し出す向き」なので、
-    // ボールを弾きたい場合は逆向きにする（flipper→ballの向き）
+    // info.normalは「Box(フリッパー)を押し出す向き」なので、
+    // ボールを押し出したいときは逆向き（Flipper -> Ball）
     Vector3 n = -info.normal;
 
-    // 当面の簡易実装
-    // 衝突法線方向に一定の速度を上乗せして「弾いている感じ」を出す
-    const float kAddSpeed = 30.0f; // 上乗せ速度
+    // 正規化できるなら正規化（Vector3のNormalizeメソッド/関数に合わせて書き換えてください）
+    // n.Normalize();
+    // or
+    // n = Normalize(n);
 
-    otherRigidBody->m_Velocity += n * kAddSpeed;
+    // 少しだけ確実に外側に出す
+    const float kSeparateDist = 0.2f;   // テーブルスケールに合わせて調整
+    info.other->m_Owner->m_Transform.Position += n * kSeparateDist;
+
+    // ------------------------------------------------------------------
+    // 2) 速度の設定（「最低限これだけは出す」）
+    // ------------------------------------------------------------------
+
+    // テーブルのスケールに合わせて調整する値
+    const float kBaseSpeed = 180.0f;     // 最低限、このくらいの速さで飛ばす
+    const float kExtraBoostMax = 120.0f; // もともと速度があったときの上乗せ上限
+
+    // 法線方向と接線方向に分解
+    float vN = rb->m_Velocity.Dot(n);    // 法線成分の大きさ
+    Vector3 vNVec = n * vN;              // 法線成分ベクトル
+    Vector3 vT = rb->m_Velocity - vNVec; // 接線成分
+
+    // 接線成分は少しだけ残す（0.0〜1.0）
+    const float kTangentialKeepRate = 0.4f; // 0に近いほど「フリッパー方向にガッツリ」
+
+    vT *= kTangentialKeepRate;
+
+    // 常に「外向き」に十分な速度を持たせる
+    float newVN = kBaseSpeed;
+
+    if (vN > 0.0f)
+    {
+        // すでに外向き成分を持っていたら、そこに少し上乗せ
+        newVN = vN + kExtraBoostMax;
+        if (newVN < kBaseSpeed)
+        {
+            newVN = kBaseSpeed;
+        }
+    }
+
+    // 最終速度：接線は少しだけ残しつつ、法線成分を強制設定
+    rb->m_Velocity = vT + n * newVN;
 }

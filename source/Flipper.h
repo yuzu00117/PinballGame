@@ -45,6 +45,7 @@ public:
     /// フリッパーでボールを弾くための簡易実装
     /// </summary>
     void OnCollisionStay(const CollisionInfo& info) override;
+    void OnCollisionEnter(const CollisionInfo& info) override;
 
 private:
     // ----------------------------------------------------------------------
