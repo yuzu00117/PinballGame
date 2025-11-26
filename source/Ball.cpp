@@ -15,26 +15,37 @@
 // 初期化処理
 void Ball::Init()
 {
+    // ----------------------------------------------------------------------
     // Transformの初期設定
-    m_Transform.Position = { 0.0f, 3.0f, 0.0f };
+    // ----------------------------------------------------------------------
+    m_Transform.Position = { 0.0f, 0.0f, 0.0f };
     m_Transform.Rotation = { 0.0f, 0.0f, 0.0f };
     m_Transform.Scale = kDefaultBallScale;
 
+    // ----------------------------------------------------------------------
     // ModelRendererコンポーネントの追加
+    // ----------------------------------------------------------------------
     m_ModelRenderer = AddComponent<ModelRenderer>();
     m_ModelRenderer->Load("asset//model//ball.obj");
 
+    // ----------------------------------------------------------------------
     // ColliderGroupコンポーネントの追加
+    // ----------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
 
     SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
     sphereCollider->m_radius = m_Radius;        // 半径を設定
 
+    // ----------------------------------------------------------------------
     // Rigidbodyコンポーネントの追加
+    // ----------------------------------------------------------------------
     m_RigidBody = AddComponent<RigidBody>();
     m_RigidBody->m_Restitution = m_Bounce;    // 反発係数を設定
     m_RigidBody->m_UseGravity = true;         // 重力を有効化
     m_RigidBody->m_IsKinematic = false;       // キネマティック無効化 
+
+    // Y位置を固定し、XY平面内でのみ移動させる
+    m_RigidBody->SetFreezeFlags(FreezeFlags::PosY);
 }
 
 // 終了処理

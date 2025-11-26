@@ -12,27 +12,75 @@ void RigidBody::Update()
 {
     if (!m_Owner || m_IsKinematic) return;
 
+    // Tranformへの参照
+    Transform& transform = m_Owner->m_Transform;
+
+    // フリーズ前の位置・回転を保存
+    const Vector3 originalPos = transform.Position;
+    const Vector3 originalRot = transform.Rotation;
+
     // CCD用に前フレームの位置を保存
     if (m_IsFirstUpdate)
     {
         // 初回更新時は現在位置を前フレーム位置として保存
-        m_PreviousPosition = m_Owner->m_Transform.Position;
+        m_PreviousPosition = transform.Position;
         m_IsFirstUpdate = false;
     }
     else
     {
         // 2回目以降は前フレーム位置を更新
-        m_PreviousPosition = m_Owner->m_Transform.Position;
+        m_PreviousPosition = transform.Position;
     }
    
     // 重力の影響を受ける場合、速度に重力加速度を加算
+    // Y軸がフリーズされているなら影響を受けない
     if (m_UseGravity)
     {
-        m_Velocity += kGravity * kDeltaTime;
+        if (!HasFlag(m_FreezeFlags, FreezeFlags::PosY))
+        {
+            m_Velocity += kGravity * kDeltaTime;
+        }
     }
 
     // 位置を速度分だけ更新
-    m_Owner->m_Transform.Position += m_Velocity * kDeltaTime;
+    transform.Position += m_Velocity * kDeltaTime;
+
+    // ----------------------------------------------------------------------
+    // 軸フリーズ適用
+    //  ・位置は更新前の値に戻す
+    //  ・該当軸の速度を0にする
+    // ----------------------------------------------------------------------
+    if (HasFlag(m_FreezeFlags, FreezeFlags::PosX))
+    {
+        transform.Position.x = originalPos.x;
+        m_Velocity.x = 0.0f;
+    }
+    if (HasFlag(m_FreezeFlags, FreezeFlags::PosY))
+    {
+        transform.Position.y = originalPos.y;
+        m_Velocity.y = 0.0f;
+    }
+    if (HasFlag(m_FreezeFlags, FreezeFlags::PosZ))
+    {
+        transform.Position.z = originalPos.z;
+        m_Velocity.z = 0.0f;
+    }
+
+    // 現状では角速度を持っていないので、回転フリーズは
+    // 「他の処理で回転を変化させた場合に元に戻す」だけ実装
+    if (HasFlag(m_FreezeFlags, FreezeFlags::RotX))
+    {
+        transform.Rotation.x = originalRot.x;
+        // TODO: 将来角速度を実装したらここで0にする
+    }
+    if (HasFlag(m_FreezeFlags, FreezeFlags::RotY))
+    {
+        transform.Rotation.y = originalRot.y;
+    }
+    if (HasFlag(m_FreezeFlags, FreezeFlags::RotZ))
+    {
+        transform.Rotation.z = originalRot.z;
+    }
 }
 
 void RigidBody::ResolveCollision(const CollisionInfo& info)
