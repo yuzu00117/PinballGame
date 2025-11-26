@@ -130,6 +130,20 @@ public:
 		}
 	}
 
+	/// <summary>
+	/// 安全な正規化（ゼロベクトル対策）
+	/// </summary>
+	Vector3 NormalizeSafe() const
+	{
+		float lenSq = x * x + y * y + z * z;
+		if (lenSq < 1e-12f)
+		{
+			return Vector3(1.0f, 0.0f, 0.0f);
+		}
+		float inv = 1.0f / sqrtf(lenSq);
+		return Vector3(x * inv, y * inv, z * inv);
+	}
+
 	// ベクトルの長さを返す
 	float Length() const
 	{
@@ -148,15 +162,17 @@ public:
 		return x * a.x + y * a.y + z * a.z;
 	}
 
-	/*
-//ベクトルの内積
-	//標準乗算記号をこれにオーバーロードする
-
-	float operator *(const Vector3& a)const
+	/// <summary>
+	/// ベクトルの外積を計算する
+	/// </summary>
+	Vector3 Cross(const Vector3& a) const
 	{
-		return x * a.x + y * a.y + z * a.z;
+		return Vector3(
+			y * a.z - z * a.y,
+			z * a.x - x * a.z,
+			x * a.y - y * a.x
+		);
 	}
-	*/
 
 };
 
