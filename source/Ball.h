@@ -30,6 +30,8 @@ public:
     // 半径の取得
     float GetRadius() const { return m_Radius; }
 
+    void OnCollisionEnter(const CollisionInfo& info) override;
+
 private:
     // ------------------------------------------------------------------------------
 	// 定数定義

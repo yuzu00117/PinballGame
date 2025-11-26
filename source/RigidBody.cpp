@@ -5,7 +5,6 @@
 namespace
 {
     constexpr float kDeltaTime = 1.0f / 60.0f;      // 仮の固定フレームレート
-    const Vector3 kGravity = { 0.0f, -9.8f, 0.0f }; // 重力加速度
 }
 
 void RigidBody::Update()
@@ -31,15 +30,21 @@ void RigidBody::Update()
         // 2回目以降は前フレーム位置を更新
         m_PreviousPosition = transform.Position;
     }
-   
-    // 重力の影響を受ける場合、速度に重力加速度を加算
-    // Y軸がフリーズされているなら影響を受けない
+
+    // ----------------------------------------------------------------------
+    // 重力適用
+    //  ・m_Gravityは任意方向
+    //  ・フリーズされている軸成分は、0にしてから加算
+    // ---------------------------------------------------------------------- 
     if (m_UseGravity)
     {
-        if (!HasFlag(m_FreezeFlags, FreezeFlags::PosY))
-        {
-            m_Velocity += kGravity * kDeltaTime;
-        }
+        Vector3 gravity = m_Gravity;
+
+        if (HasFlag(m_FreezeFlags, FreezeFlags::PosX) ) gravity.x = 0.0f;
+        if (HasFlag(m_FreezeFlags, FreezeFlags::PosY) ) gravity.y = 0.0f;
+        if (HasFlag(m_FreezeFlags, FreezeFlags::PosZ) ) gravity.z = 0.0f;
+
+        m_Velocity += gravity * kDeltaTime;
     }
 
     // 位置を速度分だけ更新
