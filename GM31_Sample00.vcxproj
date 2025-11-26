@@ -142,7 +142,7 @@
     <ClCompile Include="source\Collider.cpp" />
     <ClCompile Include="source\ColliderUtility.cpp" />
     <ClCompile Include="source\explosion.cpp" />
-    <ClCompile Include="source\field.cpp" />
+    <ClCompile Include="source\Field.cpp" />
     <ClCompile Include="source\Flipper.cpp" />
     <ClCompile Include="source\GameObject.cpp" />
     <ClCompile Include="source\Input.cpp" />
@@ -173,7 +173,7 @@
     <ClInclude Include="source\DebugSettings.h" />
     <ClInclude Include="source\DirectXTex.h" />
     <ClInclude Include="source\explosion.h" />
-    <ClInclude Include="source\field.h" />
+    <ClInclude Include="source\Field.h" />
     <ClInclude Include="source\Flipper.h" />
     <ClInclude Include="source\GameObject.h" />
     <ClInclude Include="source\Input.h" />
