@@ -5,7 +5,6 @@
 #include "manager.h"
 #include "input.h"
 #include <Windows.h>
-#include "Flipper.h"
 
 // コンポーネント
 #include "ModelRenderer.h"
@@ -128,45 +127,4 @@ void Ball::Draw()
 {
     // コンポーネントの描画
     GameObject::Draw();
-}
-
-void Ball::OnCollisionEnter(const CollisionInfo& info)
-{
-    if (!info.self || !info.other) return;
-    if (!m_RigidBody) return;
-
-    GameObject* selfOwner  = info.self->m_Owner;
-    GameObject* otherOwner = info.other->m_Owner;
-
-    // ボールのコライダー以外なら無視
-    if (selfOwner != this && otherOwner != this) return;
-
-    // Ball視点の法線（SphereVsBox では「Box→Sphere」方向）
-    Vector3 n = info.normal;
-    n = n.NormalizeSafe();
-
-    // 現在の速度
-    Vector3 v = m_RigidBody->m_Velocity;
-
-    // 法線方向速度
-    float vn = v.Dot(n);
-
-    // 進行方向が法線に向いているときだけ反射
-    if (vn < 0.0f)
-    {
-        // 鏡面反射 v' = v - 2*(v·n)*n
-        Vector3 reflected = v - n * (2.0f * vn);
-
-        // フリッパーっぽいパンチ力を付与する最低速度
-        const float minSpeed = 250.0f;
-        float speed = reflected.Length();
-
-        if (speed < minSpeed)
-        {
-            reflected = reflected.NormalizeSafe() * minSpeed;
-        }
-
-        // 速度を上書き
-        m_RigidBody->m_Velocity = reflected;
-    }
 }
