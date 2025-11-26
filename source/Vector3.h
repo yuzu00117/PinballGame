@@ -3,24 +3,24 @@
 
 #include<math.h>
 
-// TODO: Œã‚Ù‚Çƒ[ƒƒxƒNƒgƒ‹—p‚Ì’è”‚ğ’Ç‰Á‚·‚é
+// TODO: å¾Œã»ã©ã‚¼ãƒ­ãƒ™ã‚¯ãƒˆãƒ«ç”¨ã®å®šæ•°ã‚’è¿½åŠ ã™ã‚‹
 class Vector3
 {
 public:
-//ƒpƒuƒŠƒbƒN‚È•\Œ»
+//ãƒ‘ãƒ–ãƒªãƒƒã‚¯ãªè¡¨ç¾
 	float x, y, z;
 
-//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	Vector3(){}
 
-//ƒRƒsƒRƒ“
+//ã‚³ãƒ”ã‚³ãƒ³
 	Vector3(const Vector3& a) :x(a.x), y(a.y), z(a.z) {}
 
-//3‚Â‚Ì’l‚Åì¬
+//3ã¤ã®å€¤ã§ä½œæˆ
 	Vector3(float nx,float ny,float nz):x(nx), y(ny), z(nz){}
 
-//•W€“I‚ÈƒIƒuƒWƒFƒNƒg‚Ì•Ûç
-	//‘ã“ü
+//æ¨™æº–çš„ãªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä¿å®ˆ
+	//ä»£å…¥
 	Vector3& operator = (const Vector3& a)
 	{
 		x = a.x;
@@ -29,26 +29,26 @@ public:
 		return *this;
 	}
 
-	//“™‚µ‚³‚Ìƒ`ƒFƒbƒN
+	//ç­‰ã—ã•ã®ãƒã‚§ãƒƒã‚¯
 	bool operator == (const Vector3& a)const
 	{
 		return x == a.x && y == a.y && z == a.z;
 	}
 
-//ƒxƒNƒgƒ‹‘€ì
-	//ƒxƒNƒgƒ‹‚ğ0‚Éİ’è‚·‚é
+//ãƒ™ã‚¯ãƒˆãƒ«æ“ä½œ
+	//ãƒ™ã‚¯ãƒˆãƒ«ã‚’0ã«è¨­å®šã™ã‚‹
 	void zero()
 	{
 		x = y = z = 0;
 	}
 
-	//’P€®‚Ìƒ}ƒCƒiƒX‚Í”½“]‚µ‚½ƒxƒNƒgƒ‹‚ğ•Ô‚·
+	//å˜é …å¼ã®ãƒã‚¤ãƒŠã‚¹ã¯åè»¢ã—ãŸãƒ™ã‚¯ãƒˆãƒ«ã‚’è¿”ã™
 	Vector3 operator -() const
 	{
 		return Vector3(-x, -y, -z);
 	}
 
-	//“ñŒö®‚Ì+‚Æ-‚ÍƒxƒNƒgƒ‹‚ğ‰ÁZ‚µAŒ¸Z‚·‚é
+	//äºŒå…¬å¼ã®+ã¨-ã¯ãƒ™ã‚¯ãƒˆãƒ«ã‚’åŠ ç®—ã—ã€æ¸›ç®—ã™ã‚‹
 
 	Vector3 operator +(const Vector3& a)const
 	{
@@ -60,7 +60,7 @@ public:
 		return Vector3(x - a.x, y - a.y, z - a.z);
 	}
 
-	//ƒXƒJƒ‰[‚É‚æ‚éæZ‚ÆœZ
+	//ã‚¹ã‚«ãƒ©ãƒ¼ã«ã‚ˆã‚‹ä¹—ç®—ã¨é™¤ç®—
 
 	Vector3 operator *(float a)const
 	{
@@ -78,7 +78,7 @@ public:
 		return Vector3(x * oneOverA, y * oneOverA, z * oneOverA);
 	}
 
-	//C‚Ì•\‹L–@‚É€‹’‚·‚é‚½‚ß‚Ì‘g‚İ‡‚í‚¹‘ã“ü‰‰Z
+	//Cã®è¡¨è¨˜æ³•ã«æº–æ‹ ã™ã‚‹ãŸã‚ã®çµ„ã¿åˆã‚ã›ä»£å…¥æ¼”ç®—
 	Vector3& operator +=(const Vector3& a)
 	{
 		x += a.x;
@@ -117,7 +117,7 @@ public:
 		return *this;
 	}
 
-//ƒxƒNƒgƒ‹‚ğ³‹K‰»‚·‚é
+//ãƒ™ã‚¯ãƒˆãƒ«ã‚’æ­£è¦åŒ–ã™ã‚‹
 	void Normalize()
 	{
 		float magSq = x * x + y * y + z * z;
@@ -131,7 +131,7 @@ public:
 	}
 
 	/// <summary>
-	/// ˆÀ‘S‚È³‹K‰»iƒ[ƒƒxƒNƒgƒ‹‘Îôj
+	/// å®‰å…¨ãªæ­£è¦åŒ–ï¼ˆã‚¼ãƒ­ãƒ™ã‚¯ãƒˆãƒ«å¯¾ç­–ï¼‰
 	/// </summary>
 	Vector3 NormalizeSafe() const
 	{
@@ -144,26 +144,26 @@ public:
 		return Vector3(x * inv, y * inv, z * inv);
 	}
 
-	// ƒxƒNƒgƒ‹‚Ì’·‚³‚ğ•Ô‚·
+	// ãƒ™ã‚¯ãƒˆãƒ«ã®é•·ã•ã‚’è¿”ã™
 	float Length() const
 	{
 		return sqrtf(x * x + y * y + z * z);
 	}
 
-	// ƒxƒNƒgƒ‹‚Ì’·‚³‚Ì“ñæ‚ğ•Ô‚·
+	// ãƒ™ã‚¯ãƒˆãƒ«ã®é•·ã•ã®äºŒä¹—ã‚’è¿”ã™
 	float LengthSq() const
 	{
 		return x * x + y * y + z * z;
 	}
 
-	// ƒxƒNƒgƒ‹‚Ì“àÏ‚ğŒvZ‚·‚é
+	// ãƒ™ã‚¯ãƒˆãƒ«ã®å†…ç©ã‚’è¨ˆç®—ã™ã‚‹
 	float Dot(const Vector3& a) const
 	{
 		return x * a.x + y * a.y + z * a.z;
 	}
 
 	/// <summary>
-	/// ƒxƒNƒgƒ‹‚ÌŠOÏ‚ğŒvZ‚·‚é
+	/// ãƒ™ã‚¯ãƒˆãƒ«ã®å¤–ç©ã‚’è¨ˆç®—ã™ã‚‹
 	/// </summary>
 	Vector3 Cross(const Vector3& a) const
 	{
@@ -179,17 +179,17 @@ public:
 /*
 ////////////////////////////////////////////////////////////
 //
-//	”ñƒƒ“ƒoŠÖ”
+//	éãƒ¡ãƒ³ãƒé–¢æ•°
 // 
 ////////////////////////////////////////////////////////////
 
-//ƒxƒNƒgƒ‹‚Ì‘å‚«‚³‚ğŒvZ‚·‚é
+//ãƒ™ã‚¯ãƒˆãƒ«ã®å¤§ãã•ã‚’è¨ˆç®—ã™ã‚‹
 inline float VectorMag(const Vector3& a)
 {
 	return sqrtf((a.x * a.x) + (a.y * a.y) + (a.z * a.z));
 }
 
-//2‚Â‚ÌƒxƒNƒgƒ‹‚Ì‘å‚«‚³‚ğŒvZ‚·‚é
+//2ã¤ã®ãƒ™ã‚¯ãƒˆãƒ«ã®å¤§ãã•ã‚’è¨ˆç®—ã™ã‚‹
 inline Vector3 CrossProduct(const Vector3& a, const Vector3& b)
 {
 	return Vector3
@@ -200,13 +200,13 @@ inline Vector3 CrossProduct(const Vector3& a, const Vector3& b)
 	);
 }
 
-//‘ÎÌ«‚Ì‚½‚ßA¶‚©‚çƒXƒJƒ‰[‚ğæZ‚·‚é
+//å¯¾ç§°æ€§ã®ãŸã‚ã€å·¦ã‹ã‚‰ã‚¹ã‚«ãƒ©ãƒ¼ã‚’ä¹—ç®—ã™ã‚‹
 inline Vector3 operator *(float k, const Vector3& v)
 {
 	return Vector3(k * v.x, k * v.y, k * v.z);
 }
 
-//2‚Â‚Ì“_‹——£‚ğŒvZ‚·‚é
+//2ã¤ã®ç‚¹è·é›¢ã‚’è¨ˆç®—ã™ã‚‹
 inline float Distance(const Vector3& a, const Vector3& b)
 {
 	float dx = a.x - b.x;
@@ -218,11 +218,11 @@ inline float Distance(const Vector3& a, const Vector3& b)
 
 /////////////////////////////////////////////////////////////
 // 
-//	ƒOƒ[ƒoƒ‹•Ï”
+//	ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°
 // 
 /////////////////////////////////////////////////////////////
 
-//ƒOƒ[ƒoƒ‹‚Èƒ[ƒƒxƒNƒgƒ‹’è”‚ğ’ñ‹Ÿ‚·‚é
+//ã‚°ãƒ­ãƒ¼ãƒãƒ«ãªã‚¼ãƒ­ãƒ™ã‚¯ãƒˆãƒ«å®šæ•°ã‚’æä¾›ã™ã‚‹
 
 extern const Vector3 kZeroVector;
 

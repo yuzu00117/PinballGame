@@ -69,6 +69,43 @@ void Field::Init()
              { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 右
 
     // ----------------------------------------------------------------------
+    // 斜めガイド（左右インレーンガイド）
+    // TODO: 将来は、左右下の空いている部分をなくすために、三角形の壁を追加したい
+    // ----------------------------------------------------------------------
+    // 斜めガイド（左右インレーンガイド）
+    auto MakeGuide = [&](const Vector3 &position, float rotY)
+    {
+        GameObject *guideObj = CreateChild();
+
+        // 内側に傾ける
+        guideObj->m_Transform.Rotation.y = rotY;
+
+        // 少し長めにして、横の壁にめり込ませてスキマを消す
+        guideObj->m_Transform.Scale = {3.5f, WallHeight, WallThick};
+
+        guideObj->m_Transform.Position = position;
+
+        auto mesh = guideObj->AddComponent<MeshRenderer>();
+        mesh->LoadShader(VertexShaderPath, PixelShaderPath);
+        mesh->CreateUnitBox();
+        mesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);
+
+        auto colGroup = guideObj->AddComponent<ColliderGroup>();
+        colGroup->AddCollider<BoxCollider>();
+    };
+
+    // ガイドの配置位置（フリッパーのすぐ上）
+    const float guideZ = (-HalfHeight + 3.0f) + 0.95f; // フリッパーより 1.0 上
+    const float guideY = WallHeight * 0.5f;
+
+    // ここを外側に寄せる（壁に少しめり込むくらい）
+    const float guideX = HalfWidth - 1.4f; // ← -1.4f から変更
+
+    // 左右ガイド（内側に少しだけ傾ける）
+    MakeGuide({-guideX, guideY, guideZ}, +30.0f);
+    MakeGuide({+guideX, guideY, guideZ}, -30.0f);
+
+    // ----------------------------------------------------------------------
     // フリッパーの作成
     // ----------------------------------------------------------------------
     const float flipperZ = -HalfHeight + 3.0f;  // 奥行き位置
