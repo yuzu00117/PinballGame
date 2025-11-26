@@ -72,9 +72,33 @@ void Flipper::Update()
     // 目標角度（度数）
     float targetDeg = isPress ? m_ActiveAngle : m_DefaultAngle;
 
-    // 今回は一気に切り替え（必要なら補間処理を追加）
-    m_Transform.Rotation.y = targetDeg;
+    // 現在角度（度数）
+    float currentDeg = m_Transform.Rotation.y;
 
+    // 1フレームで回せる最大角度（度）
+    const float maxStep = kFlipperRotateSpeedDegPerSec * kDeltaTime;
+
+    // 目標との差
+    float diff = targetDeg - currentDeg;
+
+    // approach: 1フレームに動かせる量をmaxstepに制限
+    if (diff > maxStep)
+    {
+        currentDeg += maxStep;
+    }
+    else if (diff < -maxStep)
+    {
+        currentDeg -= maxStep;
+    }
+    else
+    {
+        currentDeg = targetDeg;
+    }
+
+    // 今回は一気に切り替え（必要なら補間処理を追加）
+    m_Transform.Rotation.y = currentDeg;
+
+    // 親のUpdateを呼ぶ
     GameObject::Update();
 }
 
@@ -122,9 +146,13 @@ void Flipper::OnCollisionStay(const CollisionInfo& info)
     // TODO: 将来的にはエンジン側で「回転しているコライダーの相対速度」や
     //       角速度を考慮した接触解決を実装し、ここではその結果だけを受け取るようにする
 
+    // info.normalは「Boxを押し出す向き」なので、
+    // ボールを弾きたい場合は逆向きにする（flipper→ballの向き）
+    Vector3 n = -info.normal;
+
     // 当面の簡易実装
     // 衝突法線方向に一定の速度を上乗せして「弾いている感じ」を出す
     const float kAddSpeed = 30.0f; // 上乗せ速度
 
-    otherRigidBody->m_Velocity += info.normal * kAddSpeed;
+    otherRigidBody->m_Velocity += n * kAddSpeed;
 }

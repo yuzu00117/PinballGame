@@ -50,29 +50,34 @@ private:
     // ----------------------------------------------------------------------
     // 定数定義
     // ----------------------------------------------------------------------
-    static constexpr float kDefaultArmLength = 6.0f;        // デフォルトアーム長さ
-    static constexpr float kDefaultArmThickness = 0.6f;     // デフォルトアーム厚さ
-    static constexpr float kDefaultArmHeight = 0.5f;        // デフォルトアーム高さ
+    static constexpr float kDefaultArmLength = 6.0f;                // デフォルトアーム長さ
+    static constexpr float kDefaultArmThickness = 0.6f;             // デフォルトアーム厚さ
+    static constexpr float kDefaultArmHeight = 0.5f;                // デフォルトアーム高さ
+    static constexpr float kFlipperRotateSpeedDegPerSec = 720.0f;   // フリッパー回転速度（度/秒）
+    // HACK: フレームレートをどこかで設定するようにしたい
+    static constexpr float kDeltaTime = 1.0f / 60.0f;               // フレーム想定時間（60FPS固定想定）
     
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
     // 角度関連
-    float m_DefaultAngle = 0.0f;                            // 休み位置
-    float m_ActiveAngle  = 0.0f;                            // 動作位置
+    float m_DefaultAngle = 0.0f;                                    // 休み位置
+    float m_ActiveAngle  = 0.0f;                                    // 動作位置
 
-    Side m_Side;                                            // 左右の区別用構造体変数
+    Side m_Side;                                                    // 左右の区別用構造体変数
 
     // アーム用子オブジェクト
-    GameObject* m_ArmObject = nullptr;                      // アーム用子オブジェクトポインタ
+    GameObject* m_ArmObject = nullptr;                              // アーム用子オブジェクトポインタ
 
     // アーム形状
-    float m_ArmLength = kDefaultArmLength;                  // アーム長さ
-    float m_ArmThickness = kDefaultArmThickness;            // アーム厚さ
-    float m_ArmHeight = kDefaultArmHeight;                  // アーム高さ
+    float m_ArmLength = kDefaultArmLength;                          // アーム長さ
+    float m_ArmThickness = kDefaultArmThickness;                    // アーム厚さ
+    float m_ArmHeight = kDefaultArmHeight;                          // アーム高さ
     
-    static constexpr const char* VertexShaderPath = "shader\\bin\\unlitTextureVS.cso";   // 頂点シェーダのパス
-    static constexpr const char* PixelShaderPath  = "shader\\bin\\unlitTexturePS.cso";   // ピクセルシェーダのパス
+    static constexpr const char* VertexShaderPath =                 // 頂点シェーダのパス
+        "shader\\bin\\unlitTextureVS.cso";   
+    static constexpr const char* PixelShaderPath  =                 // ピクセルシェーダのパス
+        "shader\\bin\\unlitTexturePS.cso";   
     
-    BYTE GetActiveKey() const;                              // 動作キー取得
+    BYTE GetActiveKey() const;                                      // 動作キー取得
 };  
