@@ -70,40 +70,39 @@ void Field::Init()
 
     // ----------------------------------------------------------------------
     // 斜めガイド（左右インレーンガイド）
-    // TODO: 将来は、左右下の空いている部分をなくすために、三角形の壁を追加したい
+    // TODO: 将来は、左右下の空いている部分をなくすために、三角形のモデルを描画し、
+    //       当たり判定はBoxでやるよう
     // ----------------------------------------------------------------------
-    // 斜めガイド（左右インレーンガイド）
-    auto MakeGuide = [&](const Vector3 &position, float rotY)
+    auto MakeGuide = [&](const Vector3& position, float rotY)
     {
-        GameObject *guideObj = CreateChild();
-
-        // 内側に傾ける
+        GameObject* guideObj = CreateChild();
+        guideObj->m_Transform.Position = position;
+        guideObj->m_Transform.Scale = { 1.0f, WallHeight, 4.0f };   // 細長いガイド
         guideObj->m_Transform.Rotation.y = rotY;
 
-        // 少し長めにして、横の壁にめり込ませてスキマを消す
-        guideObj->m_Transform.Scale = {3.5f, WallHeight, WallThick};
-
-        guideObj->m_Transform.Position = position;
-
+        // 見た目
         auto mesh = guideObj->AddComponent<MeshRenderer>();
         mesh->LoadShader(VertexShaderPath, PixelShaderPath);
         mesh->CreateUnitBox();
-        mesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);
+        mesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);  // 壁より少し明るめ
 
+        // 当たり判定
         auto colGroup = guideObj->AddComponent<ColliderGroup>();
-        colGroup->AddCollider<BoxCollider>();
+        colGroup->AddCollider<BoxCollider>();  // Transform から自動反映
     };
 
-    // ガイドの配置位置（フリッパーのすぐ上）
-    const float guideZ = (-HalfHeight + 3.0f) + 0.95f; // フリッパーより 1.0 上
+    // ガイドの位置（フリッパーより少し上）
+    // flipperZ = -HalfHeight + 3.0f なので、その少し前に配置
+    const float guideZ = -HalfHeight + 3.75f;
     const float guideY = WallHeight * 0.5f;
+    const float guideX = HalfWidth - 1.5f;     // 外壁との隙間をなくすため少し内側
 
-    // ここを外側に寄せる（壁に少しめり込むくらい）
-    const float guideX = HalfWidth - 1.4f; // ← -1.4f から変更
+    // 左ガイド（内側へ  +30°）
+    MakeGuide({ -guideX, guideY, guideZ }, 120.0f);
 
-    // 左右ガイド（内側に少しだけ傾ける）
-    MakeGuide({-guideX, guideY, guideZ}, +30.0f);
-    MakeGuide({+guideX, guideY, guideZ}, -30.0f);
+    // 右ガイド（内側へ  -30°）
+    MakeGuide({ +guideX, guideY, guideZ }, -120.0f);
+
 
     // ----------------------------------------------------------------------
     // フリッパーの作成
