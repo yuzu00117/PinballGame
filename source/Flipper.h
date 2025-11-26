@@ -51,9 +51,9 @@ private:
     // 定数定義
     // ----------------------------------------------------------------------
     static constexpr float kDefaultArmLength = 6.0f;                // デフォルトアーム長さ
-    static constexpr float kDefaultArmThickness = 0.6f;             // デフォルトアーム厚さ
-    static constexpr float kDefaultArmHeight = 0.5f;                // デフォルトアーム高さ
-    static constexpr float kFlipperRotateSpeedDegPerSec = 720.0f;   // フリッパー回転速度（度/秒）
+    static constexpr float kDefaultArmThickness = 1.5f;             // デフォルトアーム厚さ
+    static constexpr float kDefaultArmHeight = 2.0f;                // デフォルトアーム高さ
+    static constexpr float kFlipperRotateSpeedDegPerSec = 360.0f;   // フリッパー回転速度（度/秒）
     // HACK: フレームレートをどこかで設定するようにしたい
     static constexpr float kDeltaTime = 1.0f / 60.0f;               // フレーム想定時間（60FPS固定想定）
     
