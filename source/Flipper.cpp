@@ -59,10 +59,13 @@ void Flipper::Init()
     // ボックスコライダー追加
     // ----------------------------------------------------------------------
     auto colliderGroup = m_ArmObject->AddComponent<ColliderGroup>();
+    colliderGroup->m_Owner = this;
+    colliderGroup->m_Transform = &m_ArmObject->m_Transform;
     auto boxCollider = colliderGroup->AddCollider<BoxCollider>();
     (void)boxCollider; // 現在は特に設定なし
 }
 
+// 更新処理
 void Flipper::Update()
 {
     // キー入力取得
@@ -95,23 +98,26 @@ void Flipper::Update()
         currentDeg = targetDeg;
     }
 
-    // 今回は一気に切り替え（必要なら補間処理を追加）
+    // 回転適用
     m_Transform.Rotation.y = currentDeg;
 
     // 親のUpdateを呼ぶ
     GameObject::Update();
 }
 
+// 描画処理
 void Flipper::Draw()
 {
     GameObject::Draw();
 }
 
+// 終了処理
 void Flipper::Uninit()
 {
     m_ArmObject = nullptr;
 }
 
+// 動作キー取得
 BYTE Flipper::GetActiveKey() const
 {
     if (m_Side == Side::Left)
@@ -124,35 +130,51 @@ BYTE Flipper::GetActiveKey() const
     }
 }
 
+// 衝突コールバック
 void Flipper::OnCollisionStay(const CollisionInfo& info)
 {
-    // 自分または相手の情報がない場合は処理しない
+    // 自分自身のコライダー以外は無視 
+    if (info.self->m_Owner != this) return;
+
+    // 情報チェック
     if (!info.self || !info.other) return;
     if (!info.self->m_Owner || !info.other->m_Owner) return;
 
-    // フリッパー本体ではなく、「アーム」についているコライダーとの衝突のみ処理
-    // （Fieldなど他コライダーなどで誤動作しないようにするため）
-    if (info.self->m_Owner != m_ArmObject) return;
+    // 相手のRigidBody取得（ボール想定）
+    RigidBody* rb = info.other->m_Owner->GetComponent<RigidBody>();
+    if (!rb) return;
 
-    // 衝突相手のRigidBodyを取得
-    RigidBody* otherRigidBody = info.other->m_Owner->GetComponent<RigidBody>();
-    if (!otherRigidBody) return;
-
-    // フリッパーが動いていないときは「普通の壁」として振る舞う
+    // フリッパーを動かしているときだけ「弾く」
     const BYTE key     = GetActiveKey();
     const bool isPress = Input::GetKeyPress(key);
     if (!isPress) return;
 
-    // TODO: 将来的にはエンジン側で「回転しているコライダーの相対速度」や
-    //       角速度を考慮した接触解決を実装し、ここではその結果だけを受け取るようにする
+    // --------------------------------------------------
+    // 1) まずはめり込み解消（少しだけ押し戻す）
+    // --------------------------------------------------
 
-    // info.normalは「Boxを押し出す向き」なので、
-    // ボールを弾きたい場合は逆向きにする（flipper→ballの向き）
+    // info.normal は「Box(フリッパー)を押し出す向き」＝球から見て「Sphere→Box」
+    // ボールを外側に出したいので逆向き（Flipper→Ball）
     Vector3 n = -info.normal;
 
-    // 当面の簡易実装
-    // 衝突法線方向に一定の速度を上乗せして「弾いている感じ」を出す
-    const float kAddSpeed = 30.0f; // 上乗せ速度
+    // ここで「上方向成分」は捨てて、水平方向(XZ)だけを使う
+    n.y = 0.0f;
 
-    otherRigidBody->m_Velocity += n * kAddSpeed;
+    // 万が一、ほぼゼロになったら適当な横方向にする
+    if (n.LengthSq() < 1e-6f)
+    {
+        n = Vector3(1.0f, 0.0f, 0.0f);
+    }
+    n = n.NormalizeSafe(); // 自前の安全Normalize
+
+    const float kSeparateDist = 0.3f;
+    info.other->m_Owner->m_Transform.Position += n * kSeparateDist;
+
+    // --------------------------------------------------
+    // 2) 速度を「水平メイン＋ちょい上」に強制セット
+    // -------------------------------------------------
+    Vector3 newVel = n * kFlipperHorizontalSpeed;
+    newVel.y = kFlipperUpSpeed;
+
+    rb->m_Velocity = newVel;
 }

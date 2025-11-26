@@ -10,6 +10,8 @@ class MeshRenderer;
 /// ピンボールのフリッパクラス
 /// 親オブジェクトは回転軸、子オブジェクトにアームメッシュを持つ
 /// 実際の配置はFieldクラスで行っています
+/// TODO: 現在の実装では、どの位置で反射しても同じ力で弾く仕様になっているため、
+///       将来的に「当たった位置で弾く力が変わる」ように改良したい
 /// </summary>
 class Flipper : public GameObject
 {
@@ -54,6 +56,8 @@ private:
     static constexpr float kDefaultArmThickness = 1.5f;             // デフォルトアーム厚さ
     static constexpr float kDefaultArmHeight = 2.0f;                // デフォルトアーム高さ
     static constexpr float kFlipperRotateSpeedDegPerSec = 360.0f;   // フリッパー回転速度（度/秒）
+    static constexpr float kFlipperHorizontalSpeed = 50.0f;         // フリッパーがボールを弾くときの水平速度調整値
+    static constexpr float kFlipperUpSpeed = 2.5f;                  // フリッパーがボールを弾くときの上方向速度調整値
     // HACK: フレームレートをどこかで設定するようにしたい
     static constexpr float kDeltaTime = 1.0f / 60.0f;               // フレーム想定時間（60FPS固定想定）
     
