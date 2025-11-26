@@ -19,32 +19,6 @@ struct OBBData
     float   half[3];    // 各軸方向の半サイズ
 };
 
-// 3Dベクトルの内積
-static float Dot3(const Vector3& a, const Vector3& b)
-{
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-// 3Dベクトルの外積
-static Vector3 Cross3(const Vector3& a, const Vector3& b)
-{
-    return Vector3{
-        a.y * b.z - a.z * b.y,
-        a.z * b.x - a.x * b.z,
-        a.x * b.y - a.y * b.x
-    };
-}
-
-// ベクトルの正規化（ゼロベクトル対策版）
-static Vector3 NormalizeSafe(const Vector3& v)
-{
-    float lenSq = v.LengthSq();
-    if (lenSq < 1e-12f) return { 1.0f, 0.0f, 0.0f };
-
-    float invLen = 1.0f / sqrtf(lenSq);
-    return v * invLen;
-}
-
 // Box から OBB データを取得する
 static void BuildOBBFromBox(const BoxCollider* box, OBBData& out)
 {
@@ -68,9 +42,9 @@ static void BuildOBBFromBox(const BoxCollider* box, OBBData& out)
     XMStoreFloat4x4(&rotF, rotM);
 
     // DirectX は行ベクトルなので、行 0,1,2 を各軸として使う
-    out.axis[0] = NormalizeSafe(Vector3{ rotF._11, rotF._12, rotF._13 }); // X軸
-    out.axis[1] = NormalizeSafe(Vector3{ rotF._21, rotF._22, rotF._23 }); // Y軸
-    out.axis[2] = NormalizeSafe(Vector3{ rotF._31, rotF._32, rotF._33 }); // Z軸
+    out.axis[0] = Vector3{ rotF._11, rotF._12, rotF._13 }.NormalizeSafe(); // X軸
+    out.axis[1] = Vector3{ rotF._21, rotF._22, rotF._23 }.NormalizeSafe(); // Y軸
+    out.axis[2] = Vector3{ rotF._31, rotF._32, rotF._33 }.NormalizeSafe(); // Z軸
 }
 
 // ワールド→OBB ローカル変換
@@ -78,9 +52,9 @@ static Vector3 ToLocalPoint(const OBBData& obb, const Vector3& pW)
 {
     Vector3 d = pW - obb.center;
     return Vector3{
-        Dot3(d, obb.axis[0]),
-        Dot3(d, obb.axis[1]),
-        Dot3(d, obb.axis[2])
+        d.Dot(obb.axis[0]),
+        d.Dot(obb.axis[1]),
+        d.Dot(obb.axis[2])
     };
 }
 
@@ -233,9 +207,9 @@ static bool BoxVsBox(BoxCollider* a, BoxCollider* b,
 
     // t を A の各軸方向へ投影
     float tA[3] = {
-        Dot3(t, A.axis[0]),
-        Dot3(t, A.axis[1]),
-        Dot3(t, A.axis[2])
+        t.Dot(A.axis[0]),
+        t.Dot(A.axis[1]),
+        t.Dot(A.axis[2])
     };
 
     // R[i][j] = Dot(A.axis[i], B.axis[j])
@@ -246,7 +220,7 @@ static bool BoxVsBox(BoxCollider* a, BoxCollider* b,
     {
         for (int j = 0; j < 3; ++j)
         {
-            R[i][j] = Dot3(A.axis[i], B.axis[j]);
+            R[i][j] = A.axis[i].Dot(B.axis[j]);
             AbsR[i][j] = fabsf(R[i][j]) + EPS; // ゼロ除算防止の微小値
         }
     }
@@ -265,8 +239,8 @@ static bool BoxVsBox(BoxCollider* a, BoxCollider* b,
         if (overlap < minOverlap)
         {
             // t と axis の向きから法線方向を決定（ほぼ A→B）
-            float sign = Dot3(axis, t) < 0.0f ? -1.0f : 1.0f;
-            bestNormal = NormalizeSafe(axis * sign);
+            float sign = axis.Dot(t) < 0.0f ? -1.0f : 1.0f;
+            bestNormal = (axis * sign).NormalizeSafe();
             minOverlap = overlap;
         }
         return true;
@@ -294,7 +268,7 @@ static bool BoxVsBox(BoxCollider* a, BoxCollider* b,
                    A.half[2] * AbsR[2][j];
         float rb = B.half[j];
 
-        float dist = fabsf(Dot3(t, B.axis[j]));
+        float dist = fabsf(t.Dot(B.axis[j]));
         if (!updateAxis(B.axis[j], dist, ra, rb))
         {
             return false;
@@ -312,8 +286,8 @@ static bool BoxVsBox(BoxCollider* a, BoxCollider* b,
             int j1 = (j + 1) % 3;
             int j2 = (j + 2) % 3;
 
-            Vector3 axis = Cross3(A.axis[i], B.axis[j]);
-            float axisLenSq = Dot3(axis, axis);
+            Vector3 axis = A.axis[i].Cross(B.axis[j]);
+            float axisLenSq = axis.Dot(axis);
             if (axisLenSq < 1e-6f)
             {
                 continue; // ほぼ平行
