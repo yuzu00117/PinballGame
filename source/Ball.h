@@ -38,6 +38,9 @@ private:
 	inline static const Vector3 kDefaultBallScale = { 0.5f, 0.5f, 0.5f };   // デフォルトのボールスケール
 	static constexpr float kDefaultBallRadius = 0.5f;                       // デフォルトのボール半径
 	static constexpr float kDefaultBallBounce = 0.8f;                       // デフォルトの反発係数
+    // テーブル面の高さと上に飛んで良い高さの制限
+    static constexpr float kTableMinY = 0.0f;                               // 床
+    static constexpr float kTableMaxY = 1.0f;                               // 天井
 
     // ------------------------------------------------------------------------------
     // 変数定義 

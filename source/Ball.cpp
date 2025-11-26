@@ -43,9 +43,6 @@ void Ball::Init()
     m_RigidBody->m_Restitution = m_Bounce;    // 反発係数を設定
     m_RigidBody->m_UseGravity = true;         // 重力を有効化
     m_RigidBody->m_IsKinematic = false;       // キネマティック無効化 
-
-    // Y位置を固定し、XY平面内でのみ移動させる
-    m_RigidBody->SetFreezeFlags(FreezeFlags::PosY);
 }
 
 // 終了処理
@@ -61,12 +58,19 @@ void Ball::Uninit()
 void Ball::Update()
 {
 #if defined(_DEBUG)
-    // SPACEキーで上方向に力を加える（デバッグ用）
-    if (Input::GetKeyTrigger(VK_SPACE))
+    // デバッグ用：キーでボールに力を加える処理（今のままでOK）
+    if (Input::GetKeyTrigger('W'))
     {
         m_RigidBody->m_Velocity.z += 12.0f;
     }
-    // Aキーで左方向に力を加える（デバッグ用）
+    if (Input::GetKeyTrigger('S'))
+    {
+        m_RigidBody->m_Velocity.z -= 12.0f;
+    }
+    if (Input::GetKeyTrigger('D'))
+    {
+        m_RigidBody->m_Velocity.x += 12.0f;
+    }
     if (Input::GetKeyTrigger('A'))
     {
         m_RigidBody->m_Velocity.x -= 12.0f;
@@ -75,6 +79,35 @@ void Ball::Update()
 
     // コンポーネントの更新
     GameObject::Update();
+
+    // ------------------------------------------------------
+    // ボールの高さ制限
+    // ------------------------------------------------------
+    Vector3& pos = m_Transform.Position;
+
+    // 下に抜けた場合
+    if (pos.y < kTableMinY)
+    {
+        pos.y = kTableMinY;
+        
+        // 下向き速度はカット
+        if (m_RigidBody->m_Velocity.y < 0.0f)
+        {
+            m_RigidBody->m_Velocity.y = 0.0f;
+        }
+    }
+
+    // 上に飛び出した場合
+    if (pos.y > kTableMaxY)
+    {
+        pos.y = kTableMaxY;
+
+        // 上向き速度はカット
+        if (m_RigidBody->m_Velocity.y > 0.0f)
+        {
+            m_RigidBody->m_Velocity.y = 0.0f;
+        }
+    }
 }
 
 // 描画処理
