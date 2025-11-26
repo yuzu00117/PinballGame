@@ -7,8 +7,8 @@
 #include "ColliderGroup.h"
 #include "BoxCollider.h"
 
-// フィールドのオブジェクト
-#include "Flipper.h"
+// ゲームオブジェクト関連
+#include "Ball.h"
 
 // 初期化処理
 void Field::Init()
