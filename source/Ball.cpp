@@ -48,7 +48,7 @@ void Ball::Init()
     const float g = 9.8f; // 重力加速度s
 
     // テーブルがZマイナス方向に傾いているイメージ
-    const float tiltDeg = 30.0f;
+    const float tiltDeg = 65.0f;
     const float rad = tiltDeg * XM_PI / 180.0f;
 
     const float gy = -g * std::cosf(rad); // Y成分
@@ -127,4 +127,26 @@ void Ball::Draw()
 {
     // コンポーネントの描画
     GameObject::Draw();
+}
+
+// ボールをリセットする
+void Ball::ResetBall()
+{
+    // ------------------------------------------------------
+    // 位置を右上にリセット
+    // ここでは (5.0f, 1.0f, 5.0f) に戻す
+    // 必要ならフィールド中心の座標に変更してください
+    // ------------------------------------------------------
+    m_Transform.Position = { 8.0f, 1.0f, 7.0f };
+
+    // ------------------------------------------------------
+    // 速度リセット
+    // Rigidbody と Ball の両方を念のためリセット
+    // ------------------------------------------------------
+    m_Velocity = { 0.0f, 0.0f, 0.0f };
+
+    if (m_RigidBody)
+    {
+        m_RigidBody->m_Velocity = { 0.0f, 0.0f, 0.0f };
+    }
 }

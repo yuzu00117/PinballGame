@@ -145,6 +145,7 @@
     <ClCompile Include="source\Field.cpp" />
     <ClCompile Include="source\Flipper.cpp" />
     <ClCompile Include="source\GameObject.cpp" />
+    <ClCompile Include="source\Hole.cpp" />
     <ClCompile Include="source\Input.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\manager.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="source\Field.h" />
     <ClInclude Include="source\Flipper.h" />
     <ClInclude Include="source\GameObject.h" />
+    <ClInclude Include="source\Hole.h" />
     <ClInclude Include="source\Input.h" />
     <ClInclude Include="source\main.h" />
     <ClInclude Include="source\manager.h" />

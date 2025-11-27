@@ -9,6 +9,7 @@
 
 // フィールドのオブジェクト
 #include "Flipper.h"
+#include "Hole.h"
 
 // 初期化処理
 void Field::Init()
@@ -71,7 +72,7 @@ void Field::Init()
     // ----------------------------------------------------------------------
     // 斜めガイド（左右インレーンガイド）
     // TODO: 将来は、左右下の空いている部分をなくすために、三角形のモデルを描画し、
-    //       当たり判定はBoxでやるよう
+    //       当たり判定はBoxでやるなど修正を行う
     // ----------------------------------------------------------------------
     auto MakeGuide = [&](const Vector3& position, float rotY)
     {
@@ -91,9 +92,8 @@ void Field::Init()
         colGroup->AddCollider<BoxCollider>();  // Transform から自動反映
     };
 
-    // ガイドの位置（フリッパーより少し上）
-    // flipperZ = -HalfHeight + 3.0f なので、その少し前に配置
-    const float guideZ = -HalfHeight + 3.75f;
+    // ガイドの位置
+    const float guideZ = -HalfHeight + 3.9f;
     const float guideY = WallHeight * 0.5f;
     const float guideX = HalfWidth - 1.5f;     // 外壁との隙間をなくすため少し内側
 
@@ -123,6 +123,18 @@ void Field::Init()
         rightFlipper->m_Transform.Position = { flipperX, flipperY, flipperZ };
         rightFlipper->Init();
     }    
+
+    // ----------------------------------------------------------------------
+    // ホール（穴）の作成
+    // ----------------------------------------------------------------------
+    const float holeY = 1.0f;                // 高さ位置
+    const float holeZ = -HalfHeight - 0.2f;  // 手前側に配置
+    {
+        auto hole = CreateChild<Hole>();
+        hole->m_Transform.Position = { 0.0f, holeY, holeZ };
+        hole->m_Transform.Scale = { 3.0f, 1.5f, 1.0f }; // 少し大きめに
+        hole->Init();
+    }
 }
 
 void Field::Uninit()

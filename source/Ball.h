@@ -18,17 +18,31 @@ public:
     // ------------------------------------------------------------------------------
     // 関数宣言
     // ------------------------------------------------------------------------------
+    /// <summary>
+    /// ライフサイクルメソッド
+    /// </summary>
     void Init() override;
     void Uninit() override;
     void Update() override;
     void Draw() override;
 
-    // ゲッター
+    /// <summary>
+    /// ゲッター
+    /// 現在はTransformのPositionとVelocityのみ公開
+    /// </summary>
     Vector3& GetPosition() { return m_Transform.Position; }
     Vector3& GetVelocity() { return m_Velocity; }
 
-    // 半径の取得
+    /// <summary>
+    /// 半径の取得
+    /// </summary>
     float GetRadius() const { return m_Radius; }
+
+    /// <summary>
+    /// ボールをリセットする
+    ///     ・ボールをリスポーンさせる
+    /// </summary>
+    void ResetBall();
 
 private:
     // ------------------------------------------------------------------------------
@@ -37,7 +51,7 @@ private:
     // ボールの属性デフォルト値
 	inline static const Vector3 kDefaultBallScale = { 0.5f, 0.5f, 0.5f };   // デフォルトのボールスケール
 	static constexpr float kDefaultBallRadius = 0.5f;                       // デフォルトのボール半径
-	static constexpr float kDefaultBallBounce = 0.3f;                       // デフォルトの反発係数
+	static constexpr float kDefaultBallBounce = 0.15f;                      // デフォルトの反発係数
     // テーブル面の高さと上に飛んで良い高さの制限
     static constexpr float kTableMinY = 0.0f;                               // 床
     static constexpr float kTableMaxY = 1.0f;                               // 天井

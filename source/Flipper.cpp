@@ -167,7 +167,7 @@ void Flipper::OnCollisionStay(const CollisionInfo& info)
     }
     n = n.NormalizeSafe(); // 自前の安全Normalize
 
-    const float kSeparateDist = 0.3f;
+    const float kSeparateDist = 0.5f; // 押し戻す距離
     info.other->m_Owner->m_Transform.Position += n * kSeparateDist;
 
     // --------------------------------------------------
