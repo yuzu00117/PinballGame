@@ -44,6 +44,6 @@ private:
     // 変数定義
     // ------------------------------------------------------------------------------
     // 見た目・当たり判定用コンポーネント
-    MeshRenderer* m_Floor = nullptr;
+    MeshRenderer* m_MeshRenderer = nullptr;
     ColliderGroup* m_ColliderGroup = nullptr;
 };

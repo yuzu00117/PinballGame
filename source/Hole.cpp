@@ -1,6 +1,6 @@
 #include "main.h"
 #include "renderer.h"
-#include "field.h"
+#include "Hole.h"
 
 // コンポーネント関連
 #include "MeshRenderer.h"
@@ -11,135 +11,87 @@
 #include "Ball.h"
 
 // 初期化処理
-void Field::Init()
+void Hole::Init()
 {
-    // ----------------------------------------------------------------------
-    // 床の作成
-    // ----------------------------------------------------------------------
-    // 床メッシュの作成
-    m_Floor = AddComponent<MeshRenderer>();
-    m_Floor->LoadShader(VertexShaderPath, PixelShaderPath);
-    m_Floor->SetTexture(TexturePath);
-    m_Floor->CreateUnitPlane();
-    m_Floor->SetLocalScale(HalfWidth * 2.0f, 1.0f, HalfHeight * 2.0f);
+    // 親クラスの初期化
+    GameObject::Init();
 
-    // 床コライダーの作成
+    // ------------------------------------------------------------------------------
+    // メッシュレンダラーの追加・設定
+    // ------------------------------------------------------------------------------
+    m_MeshRenderer = AddComponent<MeshRenderer>();
+    m_MeshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);
+    m_MeshRenderer->CreateUnitBox();
+    m_MeshRenderer->m_Color = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f); // ダークグレー
+
+    // ------------------------------------------------------------------------------
+    // 当たり判定用コライダーの追加・設定
+    // ------------------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
-    {
-        auto floorCollider = m_ColliderGroup->AddCollider<BoxCollider>();
-
-        // 位置を微調整して床の上面に合わせる
-        floorCollider->Center = { 0.0f, -0.25f, 0.0f };
-        floorCollider->Size = { HalfWidth * 2.0f, 0.5f, HalfHeight * 2.0f };
-    }
-
-    // ----------------------------------------------------------------------
-    // 壁の作成
-    // ----------------------------------------------------------------------
-    const float yCenter = WallHeight * 0.5f;
-
-    auto MakeWall = [&](const Vector3& position, const Vector3& scale)
-    {
-        // 子オブジェクトとして壁を作成
-        GameObject* wallObj = CreateChild();
-        wallObj->m_Transform.Position = position;
-        wallObj->m_Transform.Scale = scale;
-
-        // 見た目の設定
-        auto wallMesh = wallObj->AddComponent<MeshRenderer>();
-        wallMesh->LoadShader(VertexShaderPath, PixelShaderPath);    // シェーダーの設定
-        wallMesh->CreateUnitBox();                                  // メッシュの作成
-        wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);      // 色の設定
-        // wallMesh->SetTexture(TexturePath);                       // テクスチャの設定
-
-        // 当たり判定の設定
-        // CenterとSizeはTransformから自動計算されるので設定不要
-        auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
-        auto boxCollider = wallColliderGroup->AddCollider<BoxCollider>();
-    };
-
-    // 壁の作成
-    MakeWall({ 0.0f, yCenter,  HalfHeight + WallThick * 0.5f }, 
-             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // 前
-    MakeWall({ 0.0f, yCenter, -HalfHeight - WallThick * 0.5f }, 
-             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // 後
-    MakeWall({ -HalfWidth - WallThick * 0.5f, yCenter, 0.0f }, 
-             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 左
-    MakeWall({ HalfWidth + WallThick * 0.5f, yCenter, 0.0f }, 
-             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 右
-
-    // ----------------------------------------------------------------------
-    // 斜めガイド（左右インレーンガイド）
-    // TODO: 将来は、左右下の空いている部分をなくすために、三角形のモデルを描画し、
-    //       当たり判定はBoxでやるなど修正を行う
-    // ----------------------------------------------------------------------
-    auto MakeGuide = [&](const Vector3& position, float rotY)
-    {
-        GameObject* guideObj = CreateChild();
-        guideObj->m_Transform.Position = position;
-        guideObj->m_Transform.Scale = { 1.0f, WallHeight, 4.0f };   // 細長いガイド
-        guideObj->m_Transform.Rotation.y = rotY;
-
-        // 見た目
-        auto mesh = guideObj->AddComponent<MeshRenderer>();
-        mesh->LoadShader(VertexShaderPath, PixelShaderPath);
-        mesh->CreateUnitBox();
-        mesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);  // 壁より少し明るめ
-
-        // 当たり判定
-        auto colGroup = guideObj->AddComponent<ColliderGroup>();
-        colGroup->AddCollider<BoxCollider>();  // Transform から自動反映
-    };
-
-    // ガイドの位置（フリッパーより少し上）
-    // flipperZ = -HalfHeight + 3.0f なので、その少し前に配置
-    const float guideZ = -HalfHeight + 3.75f;
-    const float guideY = WallHeight * 0.5f;
-    const float guideX = HalfWidth - 1.5f;     // 外壁との隙間をなくすため少し内側
-
-    // 左ガイド（内側へ  +30°）
-    MakeGuide({ -guideX, guideY, guideZ }, 120.0f);
-
-    // 右ガイド（内側へ  -30°）
-    MakeGuide({ +guideX, guideY, guideZ }, -120.0f);
-
-
-    // ----------------------------------------------------------------------
-    // フリッパーの作成
-    // ----------------------------------------------------------------------
-    const float flipperZ = -HalfHeight + 3.0f;  // 奥行き位置
-    const float flipperY = 0.5f;                // 高さ位置
-    const float flipperX = HalfWidth - 2.5f;    // 左右位置
-
-    // 左フリッパー
-    {
-        auto leftFlipper = CreateChild<Flipper>(Flipper::Side::Left);
-        leftFlipper->m_Transform.Position = { -flipperX, flipperY, flipperZ };
-        leftFlipper->Init();
-    }
-    // 右フリッパー
-    {
-        auto rightFlipper = CreateChild<Flipper>(Flipper::Side::Right);
-        rightFlipper->m_Transform.Position = { flipperX, flipperY, flipperZ };
-        rightFlipper->Init();
-    }    
+    auto box = m_ColliderGroup->AddCollider<BoxCollider>();
+    (void)box; // 現状は特別な設定は不要
 }
 
-void Field::Uninit()
+// 終了処理
+void Hole::Uninit()
 {
-    m_Floor = nullptr;
+    // コンポーネントの解放
+    m_MeshRenderer = nullptr;
     m_ColliderGroup = nullptr;
 }
 
-void Field::Update()
+// 更新処理
+void Hole::Update()
 {
-    // フィールド固有の更新処理
+    // 親クラスの更新処理
     GameObject::Update();
 }
 
-void Field::Draw()
+// 描画処理
+void Hole::Draw()
 {
-    // フィールド固有の描画処理
+    // 親クラスの描画処理
     GameObject::Draw();
+}
 
+// 衝突コールバック
+void Hole::OnCollisionEnter(const CollisionInfo& info)
+{
+    // ------------------------------------------------------------------------------
+    // 1. このHoleコライダー以外からの衝突は無視
+    // ------------------------------------------------------------------------------
+    if (!info.self || info.other) return;
+    if (!info.self->m_Owner || info.other->m_Owner) return;
+
+    // selfが自分じゃなければ無視
+    if (info.self->m_Owner != this) return;
+
+    GameObject* otherObj = info.other->m_Owner;
+    
+    // ------------------------------------------------------------------------------
+    // 2. ボールが落ちた場合
+    // ------------------------------------------------------------------------------
+    if (auto* ball = dynamic_cast<Ball*>(otherObj))
+    {
+        // ここにボールが落ちたときの処理を記述
+        // 例: ボールをリセットする、スコアを加算する
+    }
+
+    // -------------------------------------------------------------------------------
+    // 3) エネミーがホールに入った場合
+    // --------------------------------------------------
+    // まだ Enemy クラスが無いので、ここは TODO として残しておく。
+    // Enemy クラスが GameObject から派生して定義できたら、
+    // 例えば dynamic_cast<Enemy*>(otherObj) で判定して処理を書く想定。
+    //
+    // 例:
+    //
+    // if (auto* enemy = dynamic_cast<Enemy*>(otherObj))
+    // {
+    //     GameManager::Get()->AddHp(-1);
+    //     GameManager::Get()->AddScore(-100);
+    //     enemy->Destroy(); // 破棄
+    // }
+
+    // TODO: Enemy 実装後にここに処理を追加
 }
