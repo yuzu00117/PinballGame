@@ -163,7 +163,9 @@ void Flipper::OnCollisionStay(const CollisionInfo& info)
     // 万が一、ほぼゼロになったら適当な横方向にする
     if (n.LengthSq() < 1e-6f)
     {
-        n = Vector3(1.0f, 0.0f, 0.0f);
+        // 左右で「外側」を変える
+        float dirX = (m_Side == Side::Left) ? 1.0f : -1.0f;
+        n = Vector3(dirX, 0.0f, 0.0f);
     }
     n = n.NormalizeSafe(); // 自前の安全Normalize
 
