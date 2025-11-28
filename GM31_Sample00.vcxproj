@@ -109,6 +109,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(ProjectDir)source;$(ProjectDir)source\Core;$(ProjectDir)source\Game;$(ProjectDir)source\Game\Scene;$(ProjectDir)source\Game\Objects;$(ProjectDir)source\Graphics;$(ProjectDir)source\Physics;$(ProjectDir)source\Audio;$(ProjectDir)source\Math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,6 +125,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(ProjectDir)source;$(ProjectDir)source\Core;$(ProjectDir)source\Game;$(ProjectDir)source\Game\Scene;$(ProjectDir)source\Game\Objects;$(ProjectDir)source\Graphics;$(ProjectDir)source\Physics;$(ProjectDir)source\Audio;$(ProjectDir)source\Math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -132,70 +134,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="source\animationModel.cpp" />
-    <ClCompile Include="source\audio.cpp" />
-    <ClCompile Include="source\Ball.cpp" />
-    <ClCompile Include="source\BoxCollider.cpp" />
-    <ClCompile Include="source\Bumper.cpp" />
-    <ClCompile Include="source\Camera.cpp" />
-    <ClCompile Include="source\Collider.cpp" />
-    <ClCompile Include="source\ColliderUtility.cpp" />
-    <ClCompile Include="source\explosion.cpp" />
-    <ClCompile Include="source\Field.cpp" />
-    <ClCompile Include="source\Flipper.cpp" />
-    <ClCompile Include="source\GameObject.cpp" />
-    <ClCompile Include="source\Hole.cpp" />
-    <ClCompile Include="source\Input.cpp" />
-    <ClCompile Include="source\main.cpp" />
-    <ClCompile Include="source\manager.cpp" />
-    <ClCompile Include="source\modelRenderer.cpp" />
-    <ClCompile Include="source\polygon.cpp" />
-    <ClCompile Include="source\Renderer.cpp" />
-    <ClCompile Include="source\result.cpp" />
-    <ClCompile Include="source\RigidBody.cpp" />
-    <ClCompile Include="source\score.cpp" />
-    <ClCompile Include="source\soundManager.cpp" />
-    <ClCompile Include="source\SphereCollider.cpp" />
-    <ClCompile Include="source\title.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="source\animationModel.h" />
-    <ClInclude Include="source\audio.h" />
-    <ClInclude Include="source\Ball.h" />
-    <ClInclude Include="source\BoxCollider.h" />
-    <ClInclude Include="source\Bumper.h" />
-    <ClInclude Include="source\Camera.h" />
-    <ClInclude Include="source\Collider.h" />
-    <ClInclude Include="source\ColliderGroup.h" />
-    <ClInclude Include="source\ColliderUtility.h" />
-    <ClInclude Include="source\CollisionInfo.h" />
-    <ClInclude Include="source\Component.h" />
-    <ClInclude Include="source\DebugSettings.h" />
-    <ClInclude Include="source\DirectXTex.h" />
-    <ClInclude Include="source\explosion.h" />
-    <ClInclude Include="source\Field.h" />
-    <ClInclude Include="source\Flipper.h" />
-    <ClInclude Include="source\GameObject.h" />
-    <ClInclude Include="source\Hole.h" />
-    <ClInclude Include="source\Input.h" />
-    <ClInclude Include="source\main.h" />
-    <ClInclude Include="source\manager.h" />
-    <ClInclude Include="source\MathUtil.h" />
-    <ClInclude Include="source\MeshRenderer.h" />
-    <ClInclude Include="source\ModelRenderer.h" />
-    <ClInclude Include="source\polygon.h" />
-    <ClInclude Include="source\Renderer.h" />
-    <ClInclude Include="source\result.h" />
-    <ClInclude Include="source\RigidBody.h" />
-    <ClInclude Include="source\scene.h" />
-    <ClInclude Include="source\score.h" />
-    <ClInclude Include="source\soundManager.h" />
-    <ClInclude Include="source\SphereCollider.h" />
-    <ClInclude Include="source\title.h" />
-    <ClInclude Include="source\Transform.h" />
-    <ClInclude Include="source\Vector3.h" />
-  </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader\src\common.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -259,6 +197,73 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)shader\bin\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)shader\bin\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\Audio\audio.cpp" />
+    <ClCompile Include="source\Audio\soundManager.cpp" />
+    <ClCompile Include="source\Core\GameObject.cpp" />
+    <ClCompile Include="source\Core\Input.cpp" />
+    <ClCompile Include="source\Core\main.cpp" />
+    <ClCompile Include="source\Core\manager.cpp" />
+    <ClCompile Include="source\Game\explosion.cpp" />
+    <ClCompile Include="source\Game\Objects\Ball.cpp" />
+    <ClCompile Include="source\Game\Objects\Bumper.cpp" />
+    <ClCompile Include="source\Game\Objects\Field.cpp" />
+    <ClCompile Include="source\Game\Objects\Flipper.cpp" />
+    <ClCompile Include="source\Game\Objects\Hole.cpp" />
+    <ClCompile Include="source\Game\Scene\result.cpp" />
+    <ClCompile Include="source\Game\Scene\title.cpp" />
+    <ClCompile Include="source\Game\score.cpp" />
+    <ClCompile Include="source\Graphics\animationModel.cpp" />
+    <ClCompile Include="source\Graphics\Camera.cpp" />
+    <ClCompile Include="source\Graphics\modelRenderer.cpp" />
+    <ClCompile Include="source\Graphics\polygon.cpp" />
+    <ClCompile Include="source\Graphics\Renderer.cpp" />
+    <ClCompile Include="source\Physics\BoxCollider.cpp" />
+    <ClCompile Include="source\Physics\Collider.cpp" />
+    <ClCompile Include="source\Physics\ColliderUtility.cpp" />
+    <ClCompile Include="source\Physics\RigidBody.cpp" />
+    <ClCompile Include="source\Physics\SphereCollider.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\Audio\audio.h" />
+    <ClInclude Include="source\Audio\soundManager.h" />
+    <ClInclude Include="source\Core\component.h" />
+    <ClInclude Include="source\Core\DirectXTex.h" />
+    <ClInclude Include="source\Core\GameObject.h" />
+    <ClInclude Include="source\Core\Input.h" />
+    <ClInclude Include="source\Core\main.h" />
+    <ClInclude Include="source\Core\manager.h" />
+    <ClInclude Include="source\Core\Transform.h" />
+    <ClInclude Include="source\Game\DebugSettings.h" />
+    <ClInclude Include="source\Game\explosion.h" />
+    <ClInclude Include="source\Game\Objects\Ball.h" />
+    <ClInclude Include="source\Game\Objects\Bumper.h" />
+    <ClInclude Include="source\Game\Objects\Field.h" />
+    <ClInclude Include="source\Game\Objects\Flipper.h" />
+    <ClInclude Include="source\Game\Objects\Hole.h" />
+    <ClInclude Include="source\Game\Scene\result.h" />
+    <ClInclude Include="source\Game\Scene\scene.h" />
+    <ClInclude Include="source\Game\Scene\title.h" />
+    <ClInclude Include="source\Game\score.h" />
+    <ClInclude Include="source\Graphics\animationModel.h" />
+    <ClInclude Include="source\Graphics\Camera.h" />
+    <ClInclude Include="source\Graphics\MeshRenderer.h" />
+    <ClInclude Include="source\Graphics\modelRenderer.h" />
+    <ClInclude Include="source\Graphics\polygon.h" />
+    <ClInclude Include="source\Graphics\Renderer.h" />
+    <ClInclude Include="source\Math\MathUtil.h" />
+    <ClInclude Include="source\Math\Vector3.h" />
+    <ClInclude Include="source\Physics\BoxCollider.h" />
+    <ClInclude Include="source\Physics\Collider.h" />
+    <ClInclude Include="source\Physics\ColliderGroup.h" />
+    <ClInclude Include="source\Physics\ColliderUtility.h" />
+    <ClInclude Include="source\Physics\CollisionInfo.h" />
+    <ClInclude Include="source\Physics\RigidBody.h" />
+    <ClInclude Include="source\Physics\SphereCollider.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="source\Core\DirectXTex.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
