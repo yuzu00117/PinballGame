@@ -3,7 +3,7 @@
 #include "GameObject.h"
 #include "Vector3.h"
 
-class CollliderGroup;
+class ColliderGroup;
 class MeshRenderer;
 
 /// <summary>
@@ -42,26 +42,23 @@ private:
     // ----------------------------------------------------------------------
     // 定数定義
     // ----------------------------------------------------------------------
-    static constexpr float kDefaultArmLength = 6.0f;                // デフォルトアーム長さ
-    static constexpr float kDefaultArmThickness = 1.5f;             // デフォルトアーム厚さ
-    static constexpr float kDefaultArmHeight = 2.0f;                // デフォルトアーム高さ
-    static constexpr float kFlipperRotateSpeedDegPerSec = 360.0f;   // フリッパー回転速度（度/秒）
-    static constexpr float kFlipperHorizontalSpeed = 50.0f;         // フリッパーがボールを弾くときの水平速度調整値
-    static constexpr float kFlipperUpSpeed = 2.5f;                  // フリッパーがボールを弾くときの上方向速度調整値
-    // HACK: フレームレートをどこかで設定するようにしたい
-    static constexpr float kDeltaTime = 1.0f / 60.0f;               // フレーム想定時間（60FPS固定想定）
+    // シェーダーパス
+    static constexpr const char* VertexShaderPath = // 頂点シェーダのパス
+        "shader\\bin\\unlitTextureVS.cso";   
+    static constexpr const char* PixelShaderPath  = // ピクセルシェーダのパス
+        "shader\\bin\\unlitTexturePS.cso";   
     
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
     // 共通パラメーター
-    float m_Speed = 0.15f;                      // 移動速度
-    int   m_HP = 1;                             // 体力
-    int   m_Score = 100;                        // スコア値
-    Vector3 m_TargetPos = { 0.0f, 0.0f, 0.0f }; // 目標位置
-    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };  // 現在速度
+    float   m_Speed = 0.15f;                        // 移動速度
+    int     m_HP = 1;                               // 体力
+    int     m_Score = 100;                          // スコア値
+    Vector3 m_TargetPos = { 0.0f, 0.0f, 0.0f };     // 目標位置
+    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };      // 現在速度
 
     // コンポーネント
-    CollliderGroup* m_ColliderGroup = nullptr; // コライダーグループコンポーネント
-    MeshRenderer*   m_MeshRenderer = nullptr;   // メッシュレンダラーコンポーネント
+    ColliderGroup* m_ColliderGroup = nullptr;      // コライダーグループコンポーネント
+    MeshRenderer*   m_MeshRenderer = nullptr;       // メッシュレンダラーコンポーネント
 };
