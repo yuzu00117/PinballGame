@@ -62,4 +62,6 @@ private:
     Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };  // 現在速度
 
     // コンポーネント
-    
+    CollliderGroup* m_ColliderGroup = nullptr; // コライダーグループコンポーネント
+    MeshRenderer*   m_MeshRenderer = nullptr;   // メッシュレンダラーコンポーネント
+};
