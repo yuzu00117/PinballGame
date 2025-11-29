@@ -7,33 +7,15 @@ class CollliderGroup;
 class MeshRenderer;
 
 /// <summary>
-/// ピンボールのフリッパクラス
-/// 親オブジェクトは回転軸、子オブジェクトにアームメッシュを持つ
-/// 実際の配置はFieldクラスで行っています
-/// TODO: 現在の実装では、どの位置で反射しても同じ力で弾く仕様になっているため、
-///       将来的に「当たった位置で弾く力が変わる」ように改良したい
+/// エネミー共通の基底クラス
+/// 全エネミーはこのクラスを継承して作成される
 /// </summary>
-class Flipper : public GameObject
+class EnemyBase : public GameObject
 {
 public:
     // ----------------------------------------------------------------------
-    // 構造体定義
-    // ----------------------------------------------------------------------
-    enum class Side
-    {
-        Left,
-        Right
-    };
-
-    // ----------------------------------------------------------------------
     // 関数定義
     // ----------------------------------------------------------------------
-
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    Flipper(Side side); 
-
     /// <summary>
     /// ライフサイクルメソッド
     /// </summary>
@@ -46,9 +28,17 @@ public:
     /// 衝突コールバック
     /// フリッパーでボールを弾くための簡易実装
     /// </summary>
-    void OnCollisionStay(const CollisionInfo& info) override;
+    void OnCollisionEnter(const CollisionInfo& info) override;
 
 private:
+    // ----------------------------------------------------------------------
+    // 関数定義
+    // ----------------------------------------------------------------------
+    /// <summary>
+    /// ターゲットへの正規化方向
+    /// </summary>
+    Vector3 GetDirToTarget() const;
+
     // ----------------------------------------------------------------------
     // 定数定義
     // ----------------------------------------------------------------------
@@ -64,24 +54,12 @@ private:
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
-    // 角度関連
-    float m_DefaultAngle = 0.0f;                                    // 休み位置
-    float m_ActiveAngle  = 0.0f;                                    // 動作位置
+    // 共通パラメーター
+    float m_Speed = 0.15f;                      // 移動速度
+    int   m_HP = 1;                             // 体力
+    int   m_Score = 100;                        // スコア値
+    Vector3 m_TargetPos = { 0.0f, 0.0f, 0.0f }; // 目標位置
+    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };  // 現在速度
 
-    Side m_Side;                                                    // 左右の区別用構造体変数
-
-    // アーム用子オブジェクト
-    GameObject* m_ArmObject = nullptr;                              // アーム用子オブジェクトポインタ
-
-    // アーム形状
-    float m_ArmLength = kDefaultArmLength;                          // アーム長さ
-    float m_ArmThickness = kDefaultArmThickness;                    // アーム厚さ
-    float m_ArmHeight = kDefaultArmHeight;                          // アーム高さ
+    // コンポーネント
     
-    static constexpr const char* VertexShaderPath =                 // 頂点シェーダのパス
-        "shader\\bin\\unlitTextureVS.cso";   
-    static constexpr const char* PixelShaderPath  =                 // ピクセルシェーダのパス
-        "shader\\bin\\unlitTexturePS.cso";   
-    
-    BYTE GetActiveKey() const;                                      // 動作キー取得
-};  

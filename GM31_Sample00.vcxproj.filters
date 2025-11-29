@@ -134,6 +134,9 @@
     <ClCompile Include="source\Physics\SphereCollider.cpp">
       <Filter>ソース ファイル\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="source\Game\Objects\EnemyBase.cpp">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Audio\audio.h">
@@ -240,6 +243,9 @@
     </ClInclude>
     <ClInclude Include="source\Physics\SphereCollider.h">
       <Filter>ソース ファイル\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\Objects\EnemyBase.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

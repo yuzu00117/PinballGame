@@ -208,6 +208,7 @@
     <ClCompile Include="source\Game\explosion.cpp" />
     <ClCompile Include="source\Game\Objects\Ball.cpp" />
     <ClCompile Include="source\Game\Objects\Bumper.cpp" />
+    <ClCompile Include="source\Game\Objects\EnemyBase.cpp" />
     <ClCompile Include="source\Game\Objects\Field.cpp" />
     <ClCompile Include="source\Game\Objects\Flipper.cpp" />
     <ClCompile Include="source\Game\Objects\Hole.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="source\Game\explosion.h" />
     <ClInclude Include="source\Game\Objects\Ball.h" />
     <ClInclude Include="source\Game\Objects\Bumper.h" />
+    <ClInclude Include="source\Game\Objects\EnemyBase.h" />
     <ClInclude Include="source\Game\Objects\Field.h" />
     <ClInclude Include="source\Game\Objects\Flipper.h" />
     <ClInclude Include="source\Game\Objects\Hole.h" />
