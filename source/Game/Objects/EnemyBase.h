@@ -30,6 +30,11 @@ public:
     /// </summary>
     void OnCollisionEnter(const CollisionInfo& info) override;
 
+    /// <summary>
+    /// ターゲット位置を設定する
+    /// </summary>
+    void SetTargetPos(const Vector3& targetPos) { m_TargetPos = targetPos; }
+
 private:
     // ----------------------------------------------------------------------
     // 関数定義

@@ -31,6 +31,11 @@ public:
     /// </summary>
     void OnCollisionEnter(const CollisionInfo& info) override;
 
+    /// <summary>
+    /// ホール位置のGetter
+    /// </summary>
+    Vector3 GetHolePosition() const { return m_Transform.Position; }
+
 private:
     // ------------------------------------------------------------------------------
     // 定数定義
