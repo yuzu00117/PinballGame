@@ -33,7 +33,7 @@ public:
     /// <summary>
     /// ターゲット位置を設定する
     /// </summary>
-    void SetTargetPos(const Vector3& targetPos) { m_TargetPos = targetPos; }
+    void SetTargetPosition(const Vector3& targetPos) { m_TargetPos = targetPos; }
 
 private:
     // ----------------------------------------------------------------------
