@@ -68,6 +68,12 @@ public:
 	/// </summary>
 	void UpdateBlend(const char* AnimationNameA, int FrameA, const char* AnimationNameB, int FrameB, float Alpha);
 
+	/// <summary>
+	/// スケール設定用Getter/Setter
+	/// </summary>
+	void SetModelScale(float Scale) { m_ModelScale = Scale; }
+	float GetModelScale() const { return m_ModelScale; }
+
 private:
 	// ------------------------------------------------------------------------------
 	// 関数定義
@@ -81,12 +87,6 @@ private:
 	/// ボーン行列更新
 	/// </summary>
 	void UpdateBoneMatrix(aiNode* Node, aiMatrix4x4 Matrix);
-
-	/// <summary>
-	/// スケール設定用Getter/Setter
-	/// </summary>
-	void SetModelScale(float Scale) { m_ModelScale = Scale; }
-	float GetModelScale() const { return m_ModelScale; }
 
 	// ------------------------------------------------------------------------------
 	// 変数定義

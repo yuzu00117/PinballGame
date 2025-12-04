@@ -20,6 +20,7 @@ void EnemyBase::Init()
     // ------------------------------------------------------------------------------
     m_AnimationModel = AddComponent<AnimationModel>();
     m_AnimationModel->Load("asset\\model\\ball.fbx");
+    m_AnimationModel->SetModelScale(0.01f);
 
     // TODO: 再生したいアニメーションがあればここで読み込み
     // 例: "asset\\model\\enemy_run.fbx" を "Run" という名前で登録

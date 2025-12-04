@@ -47,26 +47,29 @@ private:
     // ----------------------------------------------------------------------
     // 定数定義
     // ----------------------------------------------------------------------
+    // エネミーのデフォルトパラメーター
+    static constexpr float kDefaultEnemyScale = 0.5f; // スケール
+
     // シェーダーパス
-    static constexpr const char* VertexShaderPath = // 頂点シェーダのパス
+    static constexpr const char* VertexShaderPath =   // 頂点シェーダのパス
         "shader\\bin\\unlitTextureVS.cso";   
-    static constexpr const char* PixelShaderPath  = // ピクセルシェーダのパス
+    static constexpr const char* PixelShaderPath  =   // ピクセルシェーダのパス
         "shader\\bin\\unlitTexturePS.cso";   
     
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
     // 共通パラメーター
-    float   m_Speed = 0.15f;                        // 移動速度
-    int     m_HP = 1;                               // 体力
-    int     m_Score = 100;                          // スコア値
-    Vector3 m_TargetPos = { 0.0f, 0.0f, 0.0f };     // 目標位置
-    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };      // 現在速度
+    float   m_Speed = 0.15f;                          // 移動速度
+    int     m_HP = 1;                                 // 体力
+    int     m_Score = 100;                            // スコア値
+    Vector3 m_TargetPos = { 0.0f, 0.0f, 0.0f };       // 目標位置
+    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };        // 現在速度
 
     // アニメーション用
-    int m_AnimFrame = 0;                            // アニメーションフレームカウンタ
+    int m_AnimFrame = 0;                              // アニメーションフレームカウンタ
 
     // コンポーネント
-    ColliderGroup*  m_ColliderGroup = nullptr;      // コライダーグループコンポーネント
-    AnimationModel* m_AnimationModel = nullptr;     // アニメーションモデルコンポーネント
+    ColliderGroup*  m_ColliderGroup = nullptr;        // コライダーグループコンポーネント
+    AnimationModel* m_AnimationModel = nullptr;       // アニメーションモデルコンポーネント
 };
