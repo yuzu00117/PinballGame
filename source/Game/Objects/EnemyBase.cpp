@@ -14,13 +14,16 @@ void EnemyBase::Init()
 {
     // 親クラスの初期化呼び出し
     GameObject::Init();
+    // ------------------------------------------------------------------------------
+    // Transformの初期設定
+    // ------------------------------------------------------------------------------
+    m_Transform.Scale = Vector3{ kDefaultEnemyScale, kDefaultEnemyScale, kDefaultEnemyScale };
 
     // ------------------------------------------------------------------------------
     // AnimationModelコンポーネントの追加
     // ------------------------------------------------------------------------------
     m_AnimationModel = AddComponent<AnimationModel>();
     m_AnimationModel->Load("asset\\model\\Akai.fbx");
-    m_AnimationModel->SetModelScale(kDefaultEnemyScale);
 
     // TODO: 再生したいアニメーションがあればここで読み込み
     m_AnimationModel->LoadAnimation("asset\\model\\Akai_idle.fbx", "Idle");
@@ -34,7 +37,8 @@ void EnemyBase::Init()
     // ------------------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
     SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
-    (void)sphereCollider; // 現状は特別な設定は不要
+    sphereCollider->m_radius = 1.0f;
+    sphereCollider->m_center = Vector3{ 0.0f, 1.0f, 0.0f };
 }
 
 // 終了処理
