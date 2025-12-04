@@ -36,11 +36,11 @@ public:
     /// <summary>
     /// 半径の取得
     /// </summary>
-    float GetRadius() const { return m_Radius; }
+    float GetRadius() const { return m_BallRadius; }
 
     /// <summary>
     /// ボールをリセットする
-    ///     ・ボールをリスポーンさせる
+    /// ・ボールをリスポーンさせる
     /// </summary>
     void ResetBall();
 
@@ -49,24 +49,24 @@ private:
 	// 定数定義
     // ------------------------------------------------------------------------------
     // ボールの属性デフォルト値
-	inline static const Vector3 kDefaultBallScale = { 0.5f, 0.5f, 0.5f };   // デフォルトのボールスケール
-	static constexpr float kDefaultBallRadius = 0.5f;                       // デフォルトのボール半径
-	static constexpr float kDefaultBallBounce = 0.15f;                      // デフォルトの反発係数
+	inline static const Vector3 kDefaultBallScale = { 0.5f, 0.5f, 0.5f }; // デフォルトのボールスケール
+	static constexpr float kDefaultBallRadius = 0.5f;                     // デフォルトのボール半径
+	static constexpr float kDefaultBallBounce = 0.15f;                    // デフォルトの反発係数
     // テーブル面の高さと上に飛んで良い高さの制限
-    static constexpr float kTableMinY = 0.0f;                               // 床
-    static constexpr float kTableMaxY = 1.0f;                               // 天井
+    static constexpr float kTableMinY = 0.0f;                             // 床
+    static constexpr float kTableMaxY = 1.0f;                             // 天井
 
     // ------------------------------------------------------------------------------
     // 変数定義 
     // ------------------------------------------------------------------------------
-    ModelRenderer* m_ModelRenderer = nullptr;                               // モデルレンダラー
-    ColliderGroup* m_ColliderGroup = nullptr;                               // コリジョングループ
-    RigidBody* m_RigidBody = nullptr;                                       // リジッドボディ
+    ModelRenderer* m_ModelRenderer = nullptr;                             // モデルレンダラー
+    ColliderGroup* m_ColliderGroup = nullptr;                             // コリジョングループ
+    RigidBody* m_RigidBody = nullptr;                                     // リジッドボディ
 
     // ボールの属性
-    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };                              // 速度
-    float m_Radius = kDefaultBallRadius;                                    // 半径
-    float m_Bounce = kDefaultBallBounce;                                    // 反発係数
+    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };                            // 速度
+    float m_BallRadius = kDefaultBallRadius;                              // 半径
+    float m_BallBounce = kDefaultBallBounce;                              // 反発係数
 };
 
 #endif // _BALL_H

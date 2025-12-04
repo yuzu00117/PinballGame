@@ -4,7 +4,7 @@
 // コンポーネント
 #include "SphereCollider.h"
 #include "ColliderGroup.h"
-#include "MeshRenderer.h"
+#include "AnimationModel.h"
 
 // ゲームオブジェクト
 #include "Ball.h"
@@ -16,12 +16,14 @@ void EnemyBase::Init()
     GameObject::Init();
 
     // ------------------------------------------------------------------------------
-    // MeshRendererコンポーネントの追加
+    // AnimationModelコンポーネントの追加
     // ------------------------------------------------------------------------------
-    m_MeshRenderer = AddComponent<MeshRenderer>();
-    m_MeshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);
-    m_MeshRenderer->CreateUnitSphere();
-    m_MeshRenderer->m_Color = XMFLOAT4(0.8f, 0.2f, 0.2f, 1.0f); // 赤色
+    m_AnimationModel = AddComponent<AnimationModel>();
+    m_AnimationModel->Load("asset\\model\\ball.fbx");
+
+    // TODO: 再生したいアニメーションがあればここで読み込み
+    // 例: "asset\\model\\enemy_run.fbx" を "Run" という名前で登録
+    // m_AnimationModel->LoadAnimation("asset\\model\\enemy_run.fbx", "Run");
 
     // ------------------------------------------------------------------------------
     // ColliderGroup + SphereColliderコンポーネントの追加
@@ -38,7 +40,7 @@ void EnemyBase::Uninit()
     GameObject::Uninit();
 
     // Componentsのポインタ解放
-    m_MeshRenderer = nullptr;
+    m_AnimationModel = nullptr;
     m_ColliderGroup = nullptr;
 }
 
@@ -49,8 +51,12 @@ void EnemyBase::Update()
     GameObject::Update();
 
     // ターゲット方向へ移動する
-    m_Velocity = GetDirToTarget() * m_Speed;
-    m_Transform.Position += m_Velocity;
+    // m_Velocity = GetDirToTarget() * m_Speed;
+    // m_Transform.Position += m_Velocity;
+
+    // アニメーションの更新
+    // 例: m_AnimationModel->Update("Run", m_AnimFrame);
+    ++m_AnimFrame;
 }
 
 // 描画処理

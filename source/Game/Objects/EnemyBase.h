@@ -4,7 +4,7 @@
 #include "Vector3.h"
 
 class ColliderGroup;
-class MeshRenderer;
+class AnimationModel;
 
 /// <summary>
 /// エネミー共通の基底クラス
@@ -63,7 +63,10 @@ private:
     Vector3 m_TargetPos = { 0.0f, 0.0f, 0.0f };     // 目標位置
     Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };      // 現在速度
 
+    // アニメーション用
+    int m_AnimFrame = 0;                            // アニメーションフレームカウンタ
+
     // コンポーネント
-    ColliderGroup* m_ColliderGroup = nullptr;      // コライダーグループコンポーネント
-    MeshRenderer*   m_MeshRenderer = nullptr;       // メッシュレンダラーコンポーネント
+    ColliderGroup*  m_ColliderGroup = nullptr;      // コライダーグループコンポーネント
+    AnimationModel* m_AnimationModel = nullptr;     // アニメーションモデルコンポーネント
 };

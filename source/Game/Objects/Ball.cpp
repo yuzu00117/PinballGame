@@ -34,15 +34,15 @@ void Ball::Init()
     m_ColliderGroup = AddComponent<ColliderGroup>();
 
     SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
-    sphereCollider->m_radius = m_Radius;        // 半径を設定
+    sphereCollider->m_radius = m_BallRadius;        // 半径を設定
 
     // ----------------------------------------------------------------------
     // Rigidbodyコンポーネントの追加
     // ----------------------------------------------------------------------
     m_RigidBody = AddComponent<RigidBody>();
-    m_RigidBody->m_Restitution = m_Bounce;    // 反発係数を設定
-    m_RigidBody->m_UseGravity = true;         // 重力を有効化
-    m_RigidBody->m_IsKinematic = false;       // キネマティック無効化
+    m_RigidBody->m_Restitution = m_BallBounce; // 反発係数を設定
+    m_RigidBody->m_UseGravity = true;          // 重力を有効化
+    m_RigidBody->m_IsKinematic = false;        // キネマティック無効化
 
     // ピンボール用の重力設定
     const float g = 9.8f; // 重力加速度s

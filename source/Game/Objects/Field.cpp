@@ -10,6 +10,7 @@
 // フィールドのオブジェクト
 #include "Flipper.h"
 #include "Hole.h"
+#include "EnemyBase.h"
 
 // 初期化処理
 void Field::Init()
@@ -127,13 +128,26 @@ void Field::Init()
     // ----------------------------------------------------------------------
     // ホール（穴）の作成
     // ----------------------------------------------------------------------
-    const float holeY = 1.0f;                // 高さ位置
-    const float holeZ = -HalfHeight - 0.2f;  // 手前側に配置
+    const float holeY = 1.0f;               // 高さ位置
+    const float holeZ = -HalfHeight - 0.2f; // 手前側に配置
     {
         auto hole = CreateChild<Hole>();
-        hole->m_Transform.Position = { 0.0f, holeY, holeZ };
-        hole->m_Transform.Scale = { 3.0f, 1.5f, 1.0f }; // 少し大きめに
+        hole->m_Transform.Position = {0.0f, holeY, holeZ};
+        hole->m_Transform.Scale = {3.0f, 1.5f, 1.0f}; // 少し大きめに
         hole->Init();
+
+        // テストでエネミーを生成
+        auto enemy = CreateChild<EnemyBase>();
+
+        // ステージ上部あたりから出現させる（必要に応じて調整）
+        const float enemyY = 1.0f;
+        const float enemyZ = HalfHeight + 5.0f; // 上側
+        enemy->m_Transform.Position = {0.0f, enemyY, enemyZ};
+
+        enemy->Init();
+
+        // EnemyBase に用意したターゲット設定関数でホール位置をセット
+        enemy->SetTargetPosition(hole->m_Transform.Position);
     }
 }
 
