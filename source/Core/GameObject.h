@@ -10,6 +10,7 @@
 #include "Collider.h"
 #include "Component.h"
 #include "MeshRenderer.h"
+#include "AnimationModel.h"
 
 // 前方宣言
 class Collider;
@@ -50,12 +51,17 @@ public:
         // GameObjectとの連携を設定
         comp->m_Owner = this;
 
-        // ColliderやMeshRendererのTransformリンク
+        // --- Transformリンク ---
+        // Collider
         if constexpr (std::is_base_of<Collider, T>::value)
             comp->m_Transform = &m_Transform;
+        // MeshRenderer
         if constexpr (std::is_base_of<MeshRenderer, T>::value)
             comp->m_Transform = &m_Transform;
-
+        // AnimationModel
+        if constexpr (std::is_base_of<AnimationModel, T>::value)
+            comp->m_Transform = &m_Transform;
+            
         comp->Init(); // 初期化呼び出し
         m_Components.push_back(std::move(comp));
         return ptr;

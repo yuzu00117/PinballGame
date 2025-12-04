@@ -72,22 +72,11 @@ public:
 	void UpdateBlend(const char* AnimationNameA, int FrameA, const char* AnimationNameB, int FrameB, float Alpha);
 
 	/// <summary>
-	/// スケール設定用Getter/Setter
-	/// </summary>
-	void SetModelScale(float Scale) { m_ModelScale = Scale; }
-	float GetModelScale() const { return m_ModelScale; }
-
-	/// <summary>
 	/// アニメーション管理用API
 	/// </summary>
 	void Play(const char* AnimationName, bool Loop = true, bool ResetFrame = true);
 	void Stop();
 	void SetSpeed(float Speed) { m_Speed = Speed; }
-
-	/// <summary>
-	/// 親GameObjectのTransformをセットする
-	/// </summary>
-	void SetTransform(Transform* transform) { m_Transform = transform; }
 
 private:
 	// ------------------------------------------------------------------------------
