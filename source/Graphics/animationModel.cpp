@@ -3,13 +3,130 @@
 #include "animationModel.h"
 #include <algorithm>
 
+// ------------------------------------------------------------------------------
+/// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«ãƒ¡ã‚½ãƒƒãƒ‰
+/// -----------------------------------------------------------------------------
+// æ›´æ–°å‡¦ç†
+void AnimationModel::Update(const char* AnimationName1, int Frame1)
+{
+	if (m_Animation.count(AnimationName1) == 0)
+		return;
+
+	if (!m_Animation[AnimationName1]->HasAnimations())
+		return;
+
+	// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰ãƒœãƒ¼ãƒ³ãƒãƒˆãƒªã‚¯ã‚¹ç®—å‡º
+	aiAnimation* animation = m_Animation[AnimationName1]->mAnimations[0];
+
+	for (auto pair : m_Bone)
+	{
+		BONE* bone = &m_Bone[pair.first];
+
+		aiNodeAnim* nodeAnim = nullptr;
+
+		for (unsigned int c = 0; c < animation->mNumChannels; c++)
+		{
+			if (animation->mChannels[c]->mNodeName == aiString(pair.first))
+			{
+				nodeAnim = animation->mChannels[c];
+				break;
+			}
+		}
+
+		aiQuaternion rot = aiQuaternion();
+		aiVector3D pos = aiVector3D(0.0f, 0.0f, 0.0f);
+		int f;
+
+		if (nodeAnim)
+		{
+			f = Frame1 % std::max(1u, nodeAnim->mNumRotationKeys); // ç°¡æ˜“å®Ÿè£…
+			rot = nodeAnim->mRotationKeys[f].mValue;
+
+			f = Frame1 % std::max(1u, nodeAnim->mNumPositionKeys); // ç°¡æ˜“å®Ÿè£…
+			pos = nodeAnim->mPositionKeys[f].mValue;
+		}
+
+		bone->AnimationMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), rot, pos);
+	}
+
+
+	//å†å¸°çš„ã«ãƒœãƒ¼ãƒ³ãƒãƒˆãƒªã‚¯ã‚¹ã‚’æ›´æ–°
+	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f),
+		aiQuaternion((float)AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
+
+	UpdateBoneMatrix(m_AiScene->mRootNode, rootMatrix);
+
+	// é ‚ç‚¹å¤‰æ›ï¼ˆCPUã‚¹ã‚­ãƒ‹ãƒ³ã‚°ï¼‰
+	// é ‚ç‚¹æ›´æ–°ï¼ˆã‚¹ã‚­ãƒ‹ãƒ³ã‚°ï¼‰
+	for (unsigned int i = 0; i < m_AiScene->mNumMeshes; ++i)
+	{
+		aiMesh* mesh = m_AiScene->mMeshes[i];
+
+		D3D11_MAPPED_SUBRESOURCE ms;
+		Renderer::GetDeviceContext()->Map(m_VertexBuffer[i], 0,
+			D3D11_MAP_WRITE_DISCARD, 0, &ms);
+
+		VERTEX_3D* vertex = (VERTEX_3D*)ms.pData;
+
+		for (unsigned int v = 0; v < mesh->mNumVertices; ++v)
+		{
+			DEFORM_VERTEX& deformVertex = m_DeformVertex[i][v];
+
+			aiMatrix4x4 matrix[4];
+			matrix[0] = m_Bone[deformVertex.BoneName[0]].Matrix;
+			matrix[1] = m_Bone[deformVertex.BoneName[1]].Matrix;
+			matrix[2] = m_Bone[deformVertex.BoneName[2]].Matrix;
+			matrix[3] = m_Bone[deformVertex.BoneName[3]].Matrix;
+
+			aiMatrix4x4 outMatrix;
+			outMatrix = matrix[0] * deformVertex.BoneWeight[0]
+				+ matrix[1] * deformVertex.BoneWeight[1]
+				+ matrix[2] * deformVertex.BoneWeight[2]
+				+ matrix[3] * deformVertex.BoneWeight[3];
+
+			// ä½ç½®
+			deformVertex.Position = mesh->mVertices[v];
+			deformVertex.Position *= outMatrix;
+
+			// ãƒ¢ãƒ‡ãƒ«å…¨ä½“ã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’é©ç”¨
+			deformVertex.Position *= m_ModelScale;
+
+			// æ³•ç·šå¤‰æ›ç”¨ã«å¹³è¡Œç§»å‹•æˆåˆ†ã‚’ç„¡åŠ¹åŒ–
+			outMatrix.a4 = 0.0f;
+			outMatrix.b4 = 0.0f;
+			outMatrix.c4 = 0.0f;
+			outMatrix.d4 = 0.0f;
+
+			deformVertex.Normal = mesh->mNormals[v];
+			deformVertex.Normal *= outMatrix;
+
+			// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã¸æ›¸ãè¾¼ã¿
+			vertex[v].Position.x = deformVertex.Position.x;
+			vertex[v].Position.y = deformVertex.Position.y;
+			vertex[v].Position.z = deformVertex.Position.z;
+
+			vertex[v].Normal.x = deformVertex.Normal.x;
+			vertex[v].Normal.y = deformVertex.Normal.y;
+			vertex[v].Normal.z = deformVertex.Normal.z;
+
+			vertex[v].TexCoord.x = mesh->mTextureCoords[0][v].x;
+			vertex[v].TexCoord.y = mesh->mTextureCoords[0][v].y;
+
+			vertex[v].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+
+		Renderer::GetDeviceContext()->Unmap(m_VertexBuffer[i], 0);
+	}
+}
+
+// æç”»å‡¦ç†
 void AnimationModel::Draw()
 {
-	// ƒvƒŠƒ~ƒeƒBƒuƒgƒ|ƒƒWİ’è
+	// ãƒ—ãƒªãƒŸãƒ†ã‚£ãƒ–ãƒˆãƒãƒ­ã‚¸è¨­å®š
 	Renderer::GetDeviceContext()->IASetPrimitiveTopology(
 		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// ƒ}ƒeƒŠƒAƒ‹İ’è
+	// ãƒãƒ†ãƒªã‚¢ãƒ«è¨­å®š
 	MATERIAL material;
 	ZeroMemory(&material, sizeof(material));
 	material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -22,7 +139,7 @@ void AnimationModel::Draw()
 		aiMesh* mesh = m_AiScene->mMeshes[m];
 
 
-		// ƒ}ƒeƒŠƒAƒ‹İ’è
+		// ãƒãƒ†ãƒªã‚¢ãƒ«è¨­å®š
 		aiString texture;
 		aiColor3D diffuse;
 		float opacity;
@@ -47,24 +164,60 @@ void AnimationModel::Draw()
 		Renderer::SetMaterial(material);
 
 
-		// ’¸“_ƒoƒbƒtƒ@İ’è
+		// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡è¨­å®š
 		UINT stride = sizeof(VERTEX_3D);
 		UINT offset = 0;
 		Renderer::GetDeviceContext()->IASetVertexBuffers(0, 1, &m_VertexBuffer[m], &stride, &offset);
 
-		// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@İ’è
+		// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡è¨­å®š
 		Renderer::GetDeviceContext()->IASetIndexBuffer(m_IndexBuffer[m], DXGI_FORMAT_R32_UINT, 0);
 
-		// ƒ|ƒŠƒSƒ“•`‰æ
+		// ãƒãƒªã‚´ãƒ³æç”»
 		Renderer::GetDeviceContext()->DrawIndexed(mesh->mNumFaces * 3, 0, 0);
 	}
 }
 
+// çµ‚äº†å‡¦ç†
+void AnimationModel::Uninit()
+{
+	for (unsigned int m = 0; m < m_AiScene->mNumMeshes; m++)
+	{
+		m_VertexBuffer[m]->Release();
+		m_IndexBuffer[m]->Release();
+	}
+
+	delete[] m_VertexBuffer;
+	delete[] m_IndexBuffer;
+
+	delete[] m_DeformVertex;
+
+
+	for (std::pair<const std::string, ID3D11ShaderResourceView*> pair : m_Texture)
+	{
+		pair.second->Release();
+	}
+
+
+
+	aiReleaseImport(m_AiScene);
+
+
+	for (std::pair<const std::string, const aiScene*> pair : m_Animation)
+	{
+		aiReleaseImport(pair.second);
+	}
+}
+
+
+// ------------------------------------------------------------------------------
+// ãƒ¢ãƒ‡ãƒ«ãƒ»ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³é–¢é€£
+// ------------------------------------------------------------------------------
+// ãƒ¢ãƒ‡ãƒ«èª­ã¿è¾¼ã¿
 void AnimationModel::Load(const char* FileName)
 {
 	const std::string modelPath(FileName);
 
-	// ’Ç‰Á: Triangulate / SortByPType ‚ğ–¾¦“I‚Éw’è‚µA”ñOŠpŒ`‚âƒ‰ƒCƒ“‚ğ”rœ
+	// è¿½åŠ : Triangulate / SortByPType ã‚’æ˜ç¤ºçš„ã«æŒ‡å®šã—ã€éä¸‰è§’å½¢ã‚„ãƒ©ã‚¤ãƒ³ã‚’æ’é™¤
 	m_AiScene = aiImportFile(
 		FileName,
 		aiProcessPreset_TargetRealtime_MaxQuality |
@@ -76,17 +229,17 @@ void AnimationModel::Load(const char* FileName)
 	m_VertexBuffer = new ID3D11Buffer * [m_AiScene->mNumMeshes];
 	m_IndexBuffer = new ID3D11Buffer * [m_AiScene->mNumMeshes];
 
-	//•ÏŒ`Œã’¸“_”z—ñ¶¬
+	//å¤‰å½¢å¾Œé ‚ç‚¹é…åˆ—ç”Ÿæˆ
 	m_DeformVertex = new std::vector<DEFORM_VERTEX>[m_AiScene->mNumMeshes];
 
-	//Ä‹A“I‚Éƒ{[ƒ“¶¬
+	//å†å¸°çš„ã«ãƒœãƒ¼ãƒ³ç”Ÿæˆ
 	CreateBone(m_AiScene->mRootNode);
 
 	for (unsigned int m = 0; m < m_AiScene->mNumMeshes; m++)
 	{
 		aiMesh* mesh = m_AiScene->mMeshes[m];
 
-		// ’¸“_ƒoƒbƒtƒ@¶¬
+		// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ç”Ÿæˆ
 		{
 			VERTEX_3D* vertex = new VERTEX_3D[mesh->mNumVertices];
 
@@ -123,7 +276,7 @@ void AnimationModel::Load(const char* FileName)
 		}
 
 
-		// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@¶¬
+		// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ç”Ÿæˆ
 		{
 			unsigned int* index = new unsigned int[mesh->mNumFaces * 3];
 
@@ -156,7 +309,7 @@ void AnimationModel::Load(const char* FileName)
 
 
 
-		//•ÏŒ`Œã’¸“_ƒf[ƒ^‰Šú‰»
+		//å¤‰å½¢å¾Œé ‚ç‚¹ãƒ‡ãƒ¼ã‚¿åˆæœŸåŒ–
 		for (unsigned int v = 0; v < mesh->mNumVertices; v++)
 		{
 			DEFORM_VERTEX deformVertex;
@@ -174,14 +327,14 @@ void AnimationModel::Load(const char* FileName)
 		}
 
 
-		//ƒ{[ƒ“ƒf[ƒ^‰Šú‰»
+		//ãƒœãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿åˆæœŸåŒ–
 		for (unsigned int b = 0; b < mesh->mNumBones; b++)
 		{
 			aiBone* bone = mesh->mBones[b];
 
 			m_Bone[bone->mName.C_Str()].OffsetMatrix = bone->mOffsetMatrix;
 
-			//•ÏŒ`Œã’¸“_‚Éƒ{[ƒ“ƒf[ƒ^Ši”[
+			//å¤‰å½¢å¾Œé ‚ç‚¹ã«ãƒœãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿æ ¼ç´
 			for (unsigned int w = 0; w < bone->mNumWeights; w++)
 			{
 				aiVertexWeight weight = bone->mWeights[w];
@@ -199,14 +352,14 @@ void AnimationModel::Load(const char* FileName)
 
 
 
-	// –„‚ß‚İƒeƒNƒXƒ`ƒƒ
+	// åŸ‹ã‚è¾¼ã¿ãƒ†ã‚¯ã‚¹ãƒãƒ£
 	for (int i = 0; i < m_AiScene->mNumTextures; i++)
 	{
 		aiTexture* aitexture = m_AiScene->mTextures[i];
 
 		ID3D11ShaderResourceView* texture;
 
-		// ƒeƒNƒXƒ`ƒƒ“Ç‚İ‚İ
+		// ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿
 		TexMetadata metadata;
 		ScratchImage image;
 		LoadFromWICMemory(aitexture->pcData, aitexture->mWidth, WIC_FLAGS_NONE, &metadata, image);
@@ -217,6 +370,7 @@ void AnimationModel::Load(const char* FileName)
 	}
 }
 
+// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³èª­ã¿è¾¼ã¿
 void AnimationModel::LoadAnimation(const char* FileName, const char* Name)
 {
 
@@ -225,164 +379,7 @@ void AnimationModel::LoadAnimation(const char* FileName, const char* Name)
 
 }
 
-
-void AnimationModel::CreateBone(aiNode* node)
-{
-	BONE bone;
-
-	m_Bone[node->mName.C_Str()] = bone;
-
-	for (unsigned int n = 0; n < node->mNumChildren; n++)
-	{
-		CreateBone(node->mChildren[n]);
-	}
-
-}
-
-
-void AnimationModel::Uninit()
-{
-	for (unsigned int m = 0; m < m_AiScene->mNumMeshes; m++)
-	{
-		m_VertexBuffer[m]->Release();
-		m_IndexBuffer[m]->Release();
-	}
-
-	delete[] m_VertexBuffer;
-	delete[] m_IndexBuffer;
-
-	delete[] m_DeformVertex;
-
-
-	for (std::pair<const std::string, ID3D11ShaderResourceView*> pair : m_Texture)
-	{
-		pair.second->Release();
-	}
-
-
-
-	aiReleaseImport(m_AiScene);
-
-
-	for (std::pair<const std::string, const aiScene*> pair : m_Animation)
-	{
-		aiReleaseImport(pair.second);
-	}
-}
-
-
-
-
-
-void AnimationModel::Update(const char* AnimationName1, int Frame1)
-{
-	if (m_Animation.count(AnimationName1) == 0)
-		return;
-
-	if (!m_Animation[AnimationName1]->HasAnimations())
-		return;
-
-	// ƒAƒjƒ[ƒVƒ‡ƒ“ƒf[ƒ^‚©‚çƒ{[ƒ“ƒ}ƒgƒŠƒNƒXZo
-	aiAnimation* animation = m_Animation[AnimationName1]->mAnimations[0];
-
-	for (auto pair : m_Bone)
-	{
-		BONE* bone = &m_Bone[pair.first];
-
-		aiNodeAnim* nodeAnim = nullptr;
-
-		for (unsigned int c = 0; c < animation->mNumChannels; c++)
-		{
-			if (animation->mChannels[c]->mNodeName == aiString(pair.first))
-			{
-				nodeAnim = animation->mChannels[c];
-				break;
-			}
-		}
-
-		aiQuaternion rot = aiQuaternion();
-		aiVector3D pos = aiVector3D(0.0f, 0.0f, 0.0f);
-		int f;
-
-		if (nodeAnim)
-		{
-			f = Frame1 % std::max(1u, nodeAnim->mNumRotationKeys); // ŠÈˆÕÀ‘•
-			rot = nodeAnim->mRotationKeys[f].mValue;
-
-			f = Frame1 % std::max(1u, nodeAnim->mNumPositionKeys); // ŠÈˆÕÀ‘•
-			pos = nodeAnim->mPositionKeys[f].mValue;
-		}
-
-		bone->AnimationMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), rot, pos);
-	}
-
-
-	//Ä‹A“I‚Éƒ{[ƒ“ƒ}ƒgƒŠƒNƒX‚ğXV
-	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f),
-		aiQuaternion((float)AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
-
-	UpdateBoneMatrix(m_AiScene->mRootNode, rootMatrix);
-
-	//’¸“_•ÏŠ·iCPUƒXƒLƒjƒ“ƒOj
-	// ’¸“_XViƒXƒLƒjƒ“ƒOj
-	for (unsigned int i = 0; i < m_AiScene->mNumMeshes; ++i)
-	{
-		aiMesh* mesh = m_AiScene->mMeshes[i];
-
-		D3D11_MAPPED_SUBRESOURCE ms;
-		Renderer::GetDeviceContext()->Map(m_VertexBuffer[i], 0,
-			D3D11_MAP_WRITE_DISCARD, 0, &ms);
-
-		VERTEX_3D* vertex = (VERTEX_3D*)ms.pData;
-
-		for (unsigned int v = 0; v < mesh->mNumVertices; ++v)
-		{
-			DEFORM_VERTEX& deformVertex = m_DeformVertex[i][v];
-
-			aiMatrix4x4 matrix[4];
-			matrix[0] = m_Bone[deformVertex.BoneName[0]].Matrix;
-			matrix[1] = m_Bone[deformVertex.BoneName[1]].Matrix;
-			matrix[2] = m_Bone[deformVertex.BoneName[2]].Matrix;
-			matrix[3] = m_Bone[deformVertex.BoneName[3]].Matrix;
-
-			aiMatrix4x4 outMatrix;
-			outMatrix = matrix[0] * deformVertex.BoneWeight[0]
-				+ matrix[1] * deformVertex.BoneWeight[1]
-				+ matrix[2] * deformVertex.BoneWeight[2]
-				+ matrix[3] * deformVertex.BoneWeight[3];
-
-			// ˆÊ’u
-			deformVertex.Position = mesh->mVertices[v];
-			deformVertex.Position *= outMatrix;
-
-			// –@ü•ÏŠ·—p‚É•½sˆÚ“®¬•ª‚ğ–³Œø‰»
-			outMatrix.a4 = 0.0f;
-			outMatrix.b4 = 0.0f;
-			outMatrix.c4 = 0.0f;
-			outMatrix.d4 = 0.0f;
-
-			deformVertex.Normal = mesh->mNormals[v];
-			deformVertex.Normal *= outMatrix;
-
-			// ’¸“_ƒoƒbƒtƒ@‚Ö‘‚«‚İ
-			vertex[v].Position.x = deformVertex.Position.x;
-			vertex[v].Position.y = deformVertex.Position.y;
-			vertex[v].Position.z = deformVertex.Position.z;
-
-			vertex[v].Normal.x = deformVertex.Normal.x;
-			vertex[v].Normal.y = deformVertex.Normal.y;
-			vertex[v].Normal.z = deformVertex.Normal.z;
-
-			vertex[v].TexCoord.x = mesh->mTextureCoords[0][v].x;
-			vertex[v].TexCoord.y = mesh->mTextureCoords[0][v].y;
-
-			vertex[v].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		}
-
-		Renderer::GetDeviceContext()->Unmap(m_VertexBuffer[i], 0);
-	}
-}
-
+// 2æœ¬ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ã‚¢ãƒ«ãƒ•ã‚¡ã§ãƒ–ãƒ¬ãƒ³ãƒ‰ã—ã¦æ›´æ–°
 void AnimationModel::UpdateBlend(const char* AnimationNameA, int FrameA, const char* AnimationNameB, int FrameB, float Alpha)
 {
 	bool hasA = (m_Animation.count(AnimationNameA) != 0) && m_Animation[AnimationNameA]->HasAnimations();
@@ -449,12 +446,12 @@ void AnimationModel::UpdateBlend(const char* AnimationNameA, int FrameA, const c
 		bone->AnimationMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f), rotOut, posOut);
 	}
 
-	//Ä‹A“I‚Éƒ{[ƒ“ƒ}ƒgƒŠƒNƒX‚ğXV
+	//å†å¸°çš„ã«ãƒœãƒ¼ãƒ³ãƒãƒˆãƒªã‚¯ã‚¹ã‚’æ›´æ–°
 	aiMatrix4x4 rootMatrix = aiMatrix4x4(aiVector3D(1.0f, 1.0f, 1.0f),
 		aiQuaternion((float)AI_MATH_PI, 0.0f, 0.0f), aiVector3D(0.0f, 0.0f, 0.0f));
 	UpdateBoneMatrix(m_AiScene->mRootNode, rootMatrix);
 
-	// ’¸“_XViƒXƒLƒjƒ“ƒOj
+	// é ‚ç‚¹æ›´æ–°ï¼ˆã‚¹ã‚­ãƒ‹ãƒ³ã‚°ï¼‰
 	for (unsigned int i = 0; i < m_AiScene->mNumMeshes; ++i)
 	{
 		aiMesh* mesh = m_AiScene->mMeshes[i];
@@ -481,11 +478,14 @@ void AnimationModel::UpdateBlend(const char* AnimationNameA, int FrameA, const c
 				+ matrix[2] * deformVertex.BoneWeight[2]
 				+ matrix[3] * deformVertex.BoneWeight[3];
 
-			// ˆÊ’u
+			// ä½ç½®
 			deformVertex.Position = mesh->mVertices[v];
 			deformVertex.Position *= outMatrix;
 
-			// –@ü•ÏŠ·—p‚É•½sˆÚ“®¬•ª‚ğ–³Œø‰»
+			// ãƒ¢ãƒ‡ãƒ«å…¨ä½“ã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’é©ç”¨
+			deformVertex.Position *= m_ModelScale;
+
+			// æ³•ç·šå¤‰æ›ç”¨ã«å¹³è¡Œç§»å‹•æˆåˆ†ã‚’ç„¡åŠ¹åŒ–
 			outMatrix.a4 = 0.0f;
 			outMatrix.b4 = 0.0f;
 			outMatrix.c4 = 0.0f;
@@ -494,7 +494,7 @@ void AnimationModel::UpdateBlend(const char* AnimationNameA, int FrameA, const c
 			deformVertex.Normal = mesh->mNormals[v];
 			deformVertex.Normal *= outMatrix;
 
-			// ’¸“_ƒoƒbƒtƒ@‚Ö‘‚«‚İ
+			// é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã¸æ›¸ãè¾¼ã¿
 			vertex[v].Position.x = deformVertex.Position.x;
 			vertex[v].Position.y = deformVertex.Position.y;
 			vertex[v].Position.z = deformVertex.Position.z;
@@ -513,7 +513,24 @@ void AnimationModel::UpdateBlend(const char* AnimationNameA, int FrameA, const c
 	}
 }
 
+// ------------------------------------------------------------------------------
+// ãƒœãƒ¼ãƒ³é–¢é€£
+// ------------------------------------------------------------------------------
+// ãƒœãƒ¼ãƒ³ä½œæˆ
+void AnimationModel::CreateBone(aiNode* node)
+{
+	BONE bone;
 
+	m_Bone[node->mName.C_Str()] = bone;
+
+	for (unsigned int n = 0; n < node->mNumChildren; n++)
+	{
+		CreateBone(node->mChildren[n]);
+	}
+
+}
+
+// ãƒœãƒ¼ãƒ³è¡Œåˆ—æ›´æ–°
 void AnimationModel::UpdateBoneMatrix(aiNode* node, aiMatrix4x4 matrix)
 {
 	BONE* bone = &m_Bone[node->mName.C_Str()];

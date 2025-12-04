@@ -10,18 +10,24 @@
 
 #include "component.h"
 
+/// <summary>
+/// アニメーション用のモデル描画コンポーネント
+/// </summary>
 
-//�ό`�㒸�_�\����
+// ------------------------------------------------------------------------------
+// 構造体定義
+// ------------------------------------------------------------------------------
+//変形後頂点構造体
 struct DEFORM_VERTEX
 {
 	aiVector3D Position;
 	aiVector3D Normal;
 	int				BoneNum;
-	std::string		BoneName[4];//�{���̓{�[���C���f�b�N�X�ŊǗ�����ׂ�
+	std::string		BoneName[4];//本来はボーンインデックスで管理するべき
 	float			BoneWeight[4];
 };
 
-//�{�[���\����
+//ボーン構造体
 struct BONE
 {
 	aiMatrix4x4 Matrix;
@@ -29,9 +35,62 @@ struct BONE
 	aiMatrix4x4 OffsetMatrix;
 };
 
+/// <summary>
+/// アニメーション用のモデル描画コンポーネントクラス
+/// </summary>
 class AnimationModel : public Component
 {
+public:
+	using Component::Component;
+
+	// ------------------------------------------------------------------------------
+	// 関数定義
+	// ------------------------------------------------------------------------------
+	/// <summary>
+	/// モデル読み込み
+	/// </summary>
+	void Load(const char* FileName);
+
+	/// <summary>
+	/// アニメーション読み込み
+	/// </summary>
+	void LoadAnimation(const char* FileName, const char* Name);
+
+	/// <summary>
+	/// ライフサイクルメソッド
+	/// </summary>
+	void Uninit() override;
+	void Update(const char* AnimationName1, int Frame1);
+	void Draw() override;
+
+	/// <summary>
+	/// 2本のアニメーションをアルファでブレンドして更新
+	/// </summary>
+	void UpdateBlend(const char* AnimationNameA, int FrameA, const char* AnimationNameB, int FrameB, float Alpha);
+
 private:
+	// ------------------------------------------------------------------------------
+	// 関数定義
+	// ------------------------------------------------------------------------------
+	/// <summary>
+	/// ボーン作成
+	/// </summary>
+	void CreateBone(aiNode* Node);
+
+	/// <summary>
+	/// ボーン行列更新
+	/// </summary>
+	void UpdateBoneMatrix(aiNode* Node, aiMatrix4x4 Matrix);
+
+	/// <summary>
+	/// スケール設定用Getter/Setter
+	/// </summary>
+	void SetModelScale(float Scale) { m_ModelScale = Scale; }
+	float GetModelScale() const { return m_ModelScale; }
+
+	// ------------------------------------------------------------------------------
+	// 変数定義
+	// ------------------------------------------------------------------------------
 	const aiScene* m_AiScene = nullptr;
 	std::unordered_map<std::string, const aiScene*> m_Animation;
 
@@ -40,20 +99,8 @@ private:
 
 	std::unordered_map<std::string, ID3D11ShaderResourceView*> m_Texture;
 
-	std::vector<DEFORM_VERTEX>* m_DeformVertex;//�ό`�㒸�_�f�[�^
-	std::unordered_map<std::string, BONE> m_Bone;//�{�[���f�[�^�i���O�ŎQ�Ɓj
+	std::vector<DEFORM_VERTEX>* m_DeformVertex;//変形後頂点データ
+	std::unordered_map<std::string, BONE> m_Bone;//ボーンデータ（名前で参照）
 
-	void CreateBone(aiNode* Node);
-	void UpdateBoneMatrix(aiNode* Node, aiMatrix4x4 Matrix);
-
-public:
-	using Component::Component;
-
-	void Load(const char* FileName);
-	void LoadAnimation(const char* FileName, const char* Name);
-	void Uninit() override;
-	void Update(const char* AnimationName1, int Frame1);
-	// 2�{�̃A�j���[�V�������A���t�@�Ńu�����h���čX�V
-	void UpdateBlend(const char* AnimationNameA, int FrameA, const char* AnimationNameB, int FrameB, float Alpha);
-	void Draw() override;
+	float m_ModelScale = 1.0f; // モデル全体にかけるローカルスケール
 };
