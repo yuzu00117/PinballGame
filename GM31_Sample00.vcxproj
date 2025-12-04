@@ -208,13 +208,14 @@
     <ClCompile Include="source\Game\explosion.cpp" />
     <ClCompile Include="source\Game\Objects\Ball.cpp" />
     <ClCompile Include="source\Game\Objects\Bumper.cpp" />
+    <ClCompile Include="source\Game\Objects\EnemyBase.cpp" />
     <ClCompile Include="source\Game\Objects\Field.cpp" />
     <ClCompile Include="source\Game\Objects\Flipper.cpp" />
     <ClCompile Include="source\Game\Objects\Hole.cpp" />
     <ClCompile Include="source\Game\Scene\result.cpp" />
     <ClCompile Include="source\Game\Scene\title.cpp" />
     <ClCompile Include="source\Game\score.cpp" />
-    <ClCompile Include="source\Graphics\animationModel.cpp" />
+    <ClCompile Include="source\Graphics\AnimationModel.cpp" />
     <ClCompile Include="source\Graphics\Camera.cpp" />
     <ClCompile Include="source\Graphics\modelRenderer.cpp" />
     <ClCompile Include="source\Graphics\polygon.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="source\Game\explosion.h" />
     <ClInclude Include="source\Game\Objects\Ball.h" />
     <ClInclude Include="source\Game\Objects\Bumper.h" />
+    <ClInclude Include="source\Game\Objects\EnemyBase.h" />
     <ClInclude Include="source\Game\Objects\Field.h" />
     <ClInclude Include="source\Game\Objects\Flipper.h" />
     <ClInclude Include="source\Game\Objects\Hole.h" />
@@ -246,7 +248,7 @@
     <ClInclude Include="source\Game\Scene\scene.h" />
     <ClInclude Include="source\Game\Scene\title.h" />
     <ClInclude Include="source\Game\score.h" />
-    <ClInclude Include="source\Graphics\animationModel.h" />
+    <ClInclude Include="source\Graphics\AnimationModel.h" />
     <ClInclude Include="source\Graphics\Camera.h" />
     <ClInclude Include="source\Graphics\MeshRenderer.h" />
     <ClInclude Include="source\Graphics\modelRenderer.h" />
