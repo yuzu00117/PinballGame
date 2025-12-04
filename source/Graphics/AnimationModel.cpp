@@ -137,6 +137,13 @@ void AnimationModel::Update(const char* AnimationName1, int Frame1)
 // 描画処理
 void AnimationModel::Draw()
 {
+	// ワールド行列設定
+	// Transformがセットされていればそれを使う
+	auto world = m_Transform
+		? m_Transform->GetWorldMatrix()
+		: DirectX::XMMatrixIdentity();
+	Renderer::SetWorldMatrix(world);
+
 	// プリミティブトポロジ設定
 	Renderer::GetDeviceContext()->IASetPrimitiveTopology(
 		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

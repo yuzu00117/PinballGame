@@ -2,18 +2,20 @@
 
 #include <unordered_map>
 
+// Assimp関連
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 #include "assimp/matrix4x4.h"
 #pragma comment (lib, "assimp-vc143-mt.lib")
 
+// コンポーネント関連
 #include "component.h"
+#include "Transform.h"
 
 /// <summary>
 /// アニメーション用のモデル描画コンポーネント
 /// </summary>
-
 // ------------------------------------------------------------------------------
 // 構造体定義
 // ------------------------------------------------------------------------------
@@ -82,6 +84,11 @@ public:
 	void Stop();
 	void SetSpeed(float Speed) { m_Speed = Speed; }
 
+	/// <summary>
+	/// 親GameObjectのTransformをセットする
+	/// </summary>
+	void SetTransform(Transform* transform) { m_Transform = transform; }
+
 private:
 	// ------------------------------------------------------------------------------
 	// 関数定義
@@ -111,6 +118,9 @@ private:
 	std::unordered_map<std::string, BONE> m_Bone; 						  //ボーンデータ（名前で参照）
 
 	float m_ModelScale = 1.0f; 											  // モデル全体にかけるローカルスケール
+
+	// 親ゲームオブジェクトのTransformコンポーネントへのポインタ
+	Transform* m_Transform = nullptr;
 
 	// アニメーション制御用
 	std::string m_CurrentAnim; 											  // 現在再生中のアニメーション名
