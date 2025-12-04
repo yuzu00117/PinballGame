@@ -60,6 +60,7 @@ public:
 	/// ライフサイクルメソッド
 	/// </summary>
 	void Uninit() override;
+	void Update() override; // コンポーネント用の引数なし版
 	void Update(const char* AnimationName1, int Frame1);
 	void Draw() override;
 
@@ -73,6 +74,13 @@ public:
 	/// </summary>
 	void SetModelScale(float Scale) { m_ModelScale = Scale; }
 	float GetModelScale() const { return m_ModelScale; }
+
+	/// <summary>
+	/// アニメーション管理用API
+	/// </summary>
+	void Play(const char* AnimationName, bool Loop = true, bool ResetFrame = true);
+	void Stop();
+	void SetSpeed(float Speed) { m_Speed = Speed; }
 
 private:
 	// ------------------------------------------------------------------------------
@@ -99,8 +107,15 @@ private:
 
 	std::unordered_map<std::string, ID3D11ShaderResourceView*> m_Texture;
 
-	std::vector<DEFORM_VERTEX>* m_DeformVertex;//変形後頂点データ
-	std::unordered_map<std::string, BONE> m_Bone;//ボーンデータ（名前で参照）
+	std::vector<DEFORM_VERTEX>* m_DeformVertex;   						  //変形後頂点データ
+	std::unordered_map<std::string, BONE> m_Bone; 						  //ボーンデータ（名前で参照）
 
-	float m_ModelScale = 1.0f; // モデル全体にかけるローカルスケール
+	float m_ModelScale = 1.0f; 											  // モデル全体にかけるローカルスケール
+
+	// アニメーション制御用
+	std::string m_CurrentAnim; 											  // 現在再生中のアニメーション名
+	int	  m_CurrentFrame = 0; 											  // 現在のアニメーションフレーム
+	float m_Speed = 1.0f; 												  // アニメーション再生速度
+	bool  m_Loop = true; 												  // ループ再生フラグ
+	bool  m_IsPlaying = false; 											  // 再生中フラグ
 };

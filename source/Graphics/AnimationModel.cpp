@@ -6,7 +6,23 @@
 // ------------------------------------------------------------------------------
 /// ライフサイクルメソッド
 /// -----------------------------------------------------------------------------
-// 更新処理
+// 更新処理（ComponentのUpdate）
+void AnimationModel::Update()
+{
+	if (!m_IsPlaying || m_CurrentAnim.empty())
+	{
+		return;
+	}
+
+	// フレーム進行
+	m_CurrentFrame += static_cast<int>(std::round(m_Speed));
+	if (m_CurrentFrame < 0) m_CurrentFrame = 0;
+
+	// 既存のアニメーション更新処理を呼び出し
+	Update(m_CurrentAnim.c_str(), m_CurrentFrame);
+}
+
+// 更新処理（AnimationModelのUpdate）
 void AnimationModel::Update(const char* AnimationName1, int Frame1)
 {
 	if (m_Animation.count(AnimationName1) == 0)
@@ -545,3 +561,34 @@ void AnimationModel::UpdateBoneMatrix(aiNode* node, aiMatrix4x4 matrix)
 	}
 }
 
+// ------------------------------------------------------------------------------
+// アニメーション管理用API
+// ------------------------------------------------------------------------------
+// アニメーション再生
+void AnimationModel::Play(const char* animName, bool loop, bool resetFrame)
+{
+	// 登録されていないアニメーションなら何もしない
+	if (m_Animation.count(animName) == 0)
+	{
+		m_IsPlaying = false;
+		return;
+	}
+
+	// アニメーション再生開始
+	if (resetFrame || m_CurrentAnim != animName)
+	{
+		m_CurrentFrame = 0;
+	}
+
+	m_CurrentAnim = animName;
+	m_Loop 		  = loop;
+	m_IsPlaying   = true;
+}
+
+// アニメーション停止
+void AnimationModel::Stop()
+{
+	m_IsPlaying = false;
+}
+
+// 

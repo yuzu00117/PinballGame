@@ -19,12 +19,15 @@ void EnemyBase::Init()
     // AnimationModelコンポーネントの追加
     // ------------------------------------------------------------------------------
     m_AnimationModel = AddComponent<AnimationModel>();
-    m_AnimationModel->Load("asset\\model\\ball.fbx");
-    m_AnimationModel->SetModelScale(0.01f);
+    m_AnimationModel->Load("asset\\model\\Akai.fbx");
+    m_AnimationModel->SetModelScale(kDefaultEnemyScale);
 
     // TODO: 再生したいアニメーションがあればここで読み込み
-    // 例: "asset\\model\\enemy_run.fbx" を "Run" という名前で登録
+    m_AnimationModel->LoadAnimation("asset\\model\\Akai_idle.fbx", "Idle");
     // m_AnimationModel->LoadAnimation("asset\\model\\enemy_run.fbx", "Run");
+
+    // 初期状態はIdleをループ再生
+    m_AnimationModel->Play("Idle", true);
 
     // ------------------------------------------------------------------------------
     // ColliderGroup + SphereColliderコンポーネントの追加
@@ -56,7 +59,8 @@ void EnemyBase::Update()
     // m_Transform.Position += m_Velocity;
 
     // アニメーションの更新
-    // 例: m_AnimationModel->Update("Run", m_AnimFrame);
+    // 状態に応じてアニメーションを切り替える場合はここで実装
+    // _AnimationModel->Play("Run", true, false);
     ++m_AnimFrame;
 }
 

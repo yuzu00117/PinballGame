@@ -42,6 +42,13 @@ static ID3D11VertexShader*	s_DebugLineVS	= nullptr;
 static ID3D11PixelShader*	s_DebugLinePS	= nullptr;
 static ID3D11InputLayout*	s_DebugLineIL	= nullptr;
 
+XMFLOAT4X4 Renderer::m_CurrentWorld = {
+	1,0,0,0,
+	0,1,0,0,
+	0,0,1,0,
+	0,0,0,1
+};
+
 
 void Renderer::Init()
 {
@@ -306,8 +313,6 @@ void Renderer::Init()
 
 }
 
-
-
 void Renderer::Uninit()
 {
 
@@ -334,9 +339,6 @@ void Renderer::Uninit()
 
 }
 
-
-
-
 void Renderer::Begin()
 {
 	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -344,15 +346,10 @@ void Renderer::Begin()
 	m_DeviceContext->ClearDepthStencilView( m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
-
-
 void Renderer::End()
 {
 	m_SwapChain->Present( 1, 0 );
 }
-
-
-
 
 void Renderer::SetDepthEnable( bool Enable )
 {
@@ -362,8 +359,6 @@ void Renderer::SetDepthEnable( bool Enable )
 		m_DeviceContext->OMSetDepthStencilState( m_DepthStateDisable, NULL );
 
 }
-
-
 
 void Renderer::SetATCEnable( bool Enable )
 {
@@ -386,9 +381,12 @@ void Renderer::SetWorldViewProjection2D()
 	SetProjectionMatrix(projection);
 }
 
-
 void Renderer::SetWorldMatrix(XMMATRIX WorldMatrix)
 {
+	// 元の行列をそのまま保持
+	XMStoreFloat4x4(&m_CurrentWorld, WorldMatrix);
+
+	// シェーダーに渡す用に転置行列を計算
 	XMFLOAT4X4 worldf;
 	XMStoreFloat4x4(&worldf, XMMatrixTranspose(WorldMatrix));
 	m_DeviceContext->UpdateSubresource(m_WorldBuffer, 0, NULL, &worldf, 0, 0);
@@ -409,8 +407,6 @@ void Renderer::SetProjectionMatrix(XMMATRIX ProjectionMatrix)
 
 }
 
-
-
 void Renderer::SetMaterial( MATERIAL Material )
 {
 	m_DeviceContext->UpdateSubresource( m_MaterialBuffer, 0, NULL, &Material, 0, 0 );
@@ -421,10 +417,6 @@ void Renderer::SetLight( LIGHT Light )
 {
 	m_DeviceContext->UpdateSubresource(m_LightBuffer, 0, NULL, &Light, 0, 0);
 }
-
-
-
-
 
 void Renderer::CreateVertexShader( ID3D11VertexShader** VertexShader, ID3D11InputLayout** VertexLayout, const char* FileName )
 {
@@ -461,8 +453,6 @@ void Renderer::CreateVertexShader( ID3D11VertexShader** VertexShader, ID3D11Inpu
 	delete[] buffer;
 }
 
-
-
 void Renderer::CreatePixelShader( ID3D11PixelShader** PixelShader, const char* FileName )
 {
 	FILE* file;
@@ -480,7 +470,6 @@ void Renderer::CreatePixelShader( ID3D11PixelShader** PixelShader, const char* F
 
 	delete[] buffer;
 }
-
 
 void Renderer::DrawText(const std::wstring& text, float x, float y)
 {
@@ -540,12 +529,26 @@ void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
     auto* dev = GetDevice();
     auto* ctx = GetDeviceContext();
 
-    // 動的VBを確保/拡張（毎フレーム使い回し）
+    // --- 直前のパイプライン状態を退避 ---
+    ID3D11InputLayout*     	 prevIL  = nullptr;
+    ID3D11VertexShader*    	 prevVS  = nullptr;
+    ID3D11PixelShader*     	 prevPS  = nullptr;
+    D3D11_PRIMITIVE_TOPOLOGY prevTopo;
+
+    ctx->IAGetInputLayout(&prevIL);
+    ctx->VSGetShader(&prevVS, nullptr, nullptr);
+    ctx->PSGetShader(&prevPS, nullptr, nullptr);
+    ctx->IAGetPrimitiveTopology(&prevTopo);
+
+    // World行列も退避
+	XMMATRIX prevWorld = XMLoadFloat4x4(&m_CurrentWorld);
+
+    // --- 動的VBを確保/拡張 ---
     const UINT bytesNeeded = sizeof(DebugLineVertex) * vertexCount;
     if (!s_DebugVB || s_DebugVBBytes < bytesNeeded)
     {
         if (s_DebugVB) { s_DebugVB->Release(); s_DebugVB = nullptr; }
-        s_DebugVBBytes = std::max<UINT>(bytesNeeded, 4096); // 少し余裕を確保
+        s_DebugVBBytes = std::max<UINT>(bytesNeeded, 4096);
 
         D3D11_BUFFER_DESC bd{};
         bd.Usage = D3D11_USAGE_DYNAMIC;
@@ -561,12 +564,7 @@ void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
     memcpy(msr.pData, vertices, bytesNeeded);
     ctx->Unmap(s_DebugVB, 0);
 
-    // 行列：World=I（BoxCollider側でworld変換済みを渡している想定）
-    // 既存の WVP 定数バッファ更新APIをそのまま使う
-    Renderer::SetWorldMatrix(DirectX::XMMatrixIdentity());  // 既存APIあり :contentReference[oaicite:2]{index=2}
-    // View/Projection は「直前に設定されている値」を流用（通常の3D描画と同じ）
-
-    // パイプライン設定（シンプルVS/PS・独自IL・LINELIST）
+    // ===== デバッグ用パイプライン設定 =====
     UINT stride = sizeof(DebugLineVertex), offset = 0;
     ctx->IASetInputLayout(s_DebugLineIL);
     ctx->IASetVertexBuffers(0, 1, &s_DebugVB, &stride, &offset);
@@ -574,6 +572,18 @@ void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
     ctx->VSSetShader(s_DebugLineVS, nullptr, 0);
     ctx->PSSetShader(s_DebugLinePS, nullptr, 0);
 
-    // 深度は通常ONのままでOK（必要なら SetDepthEnable(false) で2D重ね描きに）
+    // デバッグ線は頂点がワールド座標なので、World=Iにする
+	SetWorldMatrix(XMMatrixIdentity());
+
     ctx->Draw(vertexCount, 0);
+
+    // --- パイプライン状態を元に戻す ---
+    ctx->IASetInputLayout(prevIL);
+    ctx->VSSetShader(prevVS, nullptr, 0);
+    ctx->PSSetShader(prevPS, nullptr, 0);
+    ctx->IASetPrimitiveTopology(prevTopo);
+
+    if (prevIL) prevIL->Release();
+    if (prevVS) prevVS->Release();
+    if (prevPS) prevPS->Release();
 }
