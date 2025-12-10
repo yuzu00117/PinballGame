@@ -139,9 +139,11 @@ void AnimationModel::Draw()
 {
 	// ワールド行列設定
 	// Transformがセットされていればそれを使う
-	auto world = m_Transform
-		? m_Transform->GetWorldMatrix()
-		: DirectX::XMMatrixIdentity();
+	XMMATRIX world = XMMatrixIdentity();
+	if (m_Transform)
+	{
+		world = m_Transform->GetWorldMatrix();
+	}
 	Renderer::SetWorldMatrix(world);
 
 	// プリミティブトポロジ設定

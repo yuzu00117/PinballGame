@@ -78,6 +78,12 @@ public:
 	void Stop();
 	void SetSpeed(float Speed) { m_Speed = Speed; }
 
+	// ------------------------------------------------------------------------------
+	// 変数定義
+	// ------------------------------------------------------------------------------
+	// GameObject の Transform 情報を保持するポインタ
+	Transform* m_Transform = nullptr;
+
 private:
 	// ------------------------------------------------------------------------------
 	// 関数定義
@@ -106,10 +112,7 @@ private:
 	std::vector<DEFORM_VERTEX>* m_DeformVertex;   						  //変形後頂点データ
 	std::unordered_map<std::string, BONE> m_Bone; 						  //ボーンデータ（名前で参照）
 
-	float m_ModelScale = 1.0f; 											  // モデル全体にかけるローカルスケール
-
-	// 親ゲームオブジェクトのTransformコンポーネントへのポインタ
-	Transform* m_Transform = nullptr;
+	float m_ModelScale = 1.0f; 											  //モデルスケール
 
 	// アニメーション制御用
 	std::string m_CurrentAnim; 											  // 現在再生中のアニメーション名
