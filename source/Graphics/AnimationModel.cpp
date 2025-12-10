@@ -1,11 +1,27 @@
 #include "main.h"
 #include "renderer.h"
 #include "animationModel.h"
+#include "GameObject.h"
+#include "Transform.h"
 #include <algorithm>
+
 
 // ------------------------------------------------------------------------------
 /// ライフサイクルメソッド
 /// -----------------------------------------------------------------------------
+// 初期化処理
+void AnimationModel::Init()
+{
+	// 基底クラスの初期化呼び出し
+	Component::Init();
+	
+	// 自分の Owner から Transform を自動リンク
+    if (m_Owner)
+    {
+        m_Transform = &m_Owner->m_Transform;
+    }
+}
+
 // 更新処理（ComponentのUpdate）
 void AnimationModel::Update()
 {
@@ -137,6 +153,14 @@ void AnimationModel::Update(const char* AnimationName1, int Frame1)
 // 描画処理
 void AnimationModel::Draw()
 {
+	// ワールド行列設定
+	// Transformがセットされていればそれを使う
+	// GameObject の Transform をワールド行列に反映
+    auto world = m_Transform
+        ? m_Transform->GetWorldMatrix()
+        : DirectX::XMMatrixIdentity();
+    Renderer::SetWorldMatrix(world);
+
 	// プリミティブトポロジ設定
 	Renderer::GetDeviceContext()->IASetPrimitiveTopology(
 		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

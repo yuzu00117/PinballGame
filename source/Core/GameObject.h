@@ -50,9 +50,12 @@ public:
         // GameObjectとの連携を設定
         comp->m_Owner = this;
 
-        // ColliderやMeshRendererのTransformリンク
+        // Collider / MeshRenderer / AnimationModel のときだけ Transform をリンク
+        // TODO: Transformが必要なコンポーネントは、各コンポーネントのInitでTransformをリンクするように適宜修正
+        // Collider
         if constexpr (std::is_base_of<Collider, T>::value)
             comp->m_Transform = &m_Transform;
+        // MeshRenderer
         if constexpr (std::is_base_of<MeshRenderer, T>::value)
             comp->m_Transform = &m_Transform;
 

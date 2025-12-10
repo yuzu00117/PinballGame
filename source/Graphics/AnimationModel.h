@@ -2,18 +2,21 @@
 
 #include <unordered_map>
 
+// Assimp関連
 #include "assimp/cimport.h"
 #include "assimp/scene.h"
 #include "assimp/postprocess.h"
 #include "assimp/matrix4x4.h"
 #pragma comment (lib, "assimp-vc143-mt.lib")
 
+// コンポーネント関連
 #include "component.h"
+
+class Transform;
 
 /// <summary>
 /// アニメーション用のモデル描画コンポーネント
 /// </summary>
-
 // ------------------------------------------------------------------------------
 // 構造体定義
 // ------------------------------------------------------------------------------
@@ -59,6 +62,7 @@ public:
 	/// <summary>
 	/// ライフサイクルメソッド
 	/// </summary>
+	void Init() override;
 	void Uninit() override;
 	void Update() override; // コンポーネント用の引数なし版
 	void Update(const char* AnimationName1, int Frame1);
@@ -68,12 +72,6 @@ public:
 	/// 2本のアニメーションをアルファでブレンドして更新
 	/// </summary>
 	void UpdateBlend(const char* AnimationNameA, int FrameA, const char* AnimationNameB, int FrameB, float Alpha);
-
-	/// <summary>
-	/// スケール設定用Getter/Setter
-	/// </summary>
-	void SetModelScale(float Scale) { m_ModelScale = Scale; }
-	float GetModelScale() const { return m_ModelScale; }
 
 	/// <summary>
 	/// アニメーション管理用API
@@ -110,7 +108,10 @@ private:
 	std::vector<DEFORM_VERTEX>* m_DeformVertex;   						  //変形後頂点データ
 	std::unordered_map<std::string, BONE> m_Bone; 						  //ボーンデータ（名前で参照）
 
-	float m_ModelScale = 1.0f; 											  // モデル全体にかけるローカルスケール
+	float m_ModelScale = 1.0f; 											  //モデルスケール
+
+	// 親GameObjectのTransform
+	Transform* m_Transform = nullptr;
 
 	// アニメーション制御用
 	std::string m_CurrentAnim; 											  // 現在再生中のアニメーション名
