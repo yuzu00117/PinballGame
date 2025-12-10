@@ -48,7 +48,7 @@ private:
     // 定数定義
     // ----------------------------------------------------------------------
     // エネミーのデフォルトパラメーター
-    static constexpr float kDefaultEnemyScale = 0.05f; // スケール
+    static constexpr float kDefaultEnemyScale = 0.01f; // スケール
 
     // シェーダーパス
     static constexpr const char* VertexShaderPath =   // 頂点シェーダのパス

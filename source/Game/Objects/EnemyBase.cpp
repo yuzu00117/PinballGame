@@ -14,7 +14,12 @@ void EnemyBase::Init()
 {
     // 親クラスの初期化呼び出し
     GameObject::Init();
-    
+    // ------------------------------------------------------------------------------
+    // パラメーター初期化
+    // ------------------------------------------------------------------------------
+    // Transformの初期設定
+    m_Transform.Scale = Vector3{ kDefaultEnemyScale, kDefaultEnemyScale, kDefaultEnemyScale };
+
     // ------------------------------------------------------------------------------
     // AnimationModelコンポーネントの追加
     // ------------------------------------------------------------------------------
@@ -33,7 +38,7 @@ void EnemyBase::Init()
     // ------------------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
     SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
-    sphereCollider->m_radius = 1.0f;
+    sphereCollider->m_radius = 0.1f;
     sphereCollider->m_center = Vector3{ 0.0f, 1.0f, 0.0f };
 }
 
