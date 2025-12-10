@@ -51,8 +51,7 @@ public:
         comp->m_Owner = this;
 
         // Collider / MeshRenderer / AnimationModel のときだけ Transform をリンク
-        // 全ComponentsがTransformを持つわけではないため、ここで条件分岐する
-        // Transformが必要なコンポーネントは、各コンポーネントのInitでTransformをリンクするように適宜修正
+        // TODO: Transformが必要なコンポーネントは、各コンポーネントのInitでTransformをリンクするように適宜修正
         // Collider
         if constexpr (std::is_base_of<Collider, T>::value)
             comp->m_Transform = &m_Transform;
