@@ -11,7 +11,8 @@
 
 // コンポーネント関連
 #include "component.h"
-#include "Transform.h"
+
+class Transform;
 
 /// <summary>
 /// アニメーション用のモデル描画コンポーネント
@@ -61,6 +62,7 @@ public:
 	/// <summary>
 	/// ライフサイクルメソッド
 	/// </summary>
+	void Init() override;
 	void Uninit() override;
 	void Update() override; // コンポーネント用の引数なし版
 	void Update(const char* AnimationName1, int Frame1);
@@ -77,12 +79,6 @@ public:
 	void Play(const char* AnimationName, bool Loop = true, bool ResetFrame = true);
 	void Stop();
 	void SetSpeed(float Speed) { m_Speed = Speed; }
-
-	// ------------------------------------------------------------------------------
-	// 変数定義
-	// ------------------------------------------------------------------------------
-	// GameObject の Transform 情報を保持するポインタ
-	Transform* m_Transform = nullptr;
 
 private:
 	// ------------------------------------------------------------------------------
@@ -113,6 +109,9 @@ private:
 	std::unordered_map<std::string, BONE> m_Bone; 						  //ボーンデータ（名前で参照）
 
 	float m_ModelScale = 1.0f; 											  //モデルスケール
+
+	// 親GameObjectのTransform
+	Transform* m_Transform = nullptr;
 
 	// アニメーション制御用
 	std::string m_CurrentAnim; 											  // 現在再生中のアニメーション名

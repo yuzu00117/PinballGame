@@ -13,7 +13,6 @@
 
 // 前方宣言
 class Collider;
-class AnimationModel;
 
 /// <summary>
 /// ゲームオブジェクトの基底クラス
@@ -53,15 +52,12 @@ public:
 
         // Collider / MeshRenderer / AnimationModel のときだけ Transform をリンク
         // 全ComponentsがTransformを持つわけではないため、ここで条件分岐する
-        // ifが増え過ぎたら別途メソッド化してもよい
+        // Transformが必要なコンポーネントは、各コンポーネントのInitでTransformをリンクするように適宜修正
         // Collider
         if constexpr (std::is_base_of<Collider, T>::value)
             comp->m_Transform = &m_Transform;
         // MeshRenderer
         if constexpr (std::is_base_of<MeshRenderer, T>::value)
-            comp->m_Transform = &m_Transform;
-        // AnimationModel
-        if constexpr (std::is_base_of<AnimationModel, T>::value)
             comp->m_Transform = &m_Transform;
 
         comp->Init(); // 初期化呼び出し
