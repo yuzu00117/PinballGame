@@ -2,7 +2,7 @@
 #include "Input.h"
 
 // コンポーネント
-#include "SphereCollider.h"
+#include "BoxCollider.h"
 #include "ColliderGroup.h"
 #include "AnimationModel.h"
 
@@ -37,9 +37,9 @@ void EnemyBase::Init()
     // ColliderGroup + SphereColliderコンポーネントの追加
     // ------------------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
-    SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
-    sphereCollider->m_radius = 0.1f;
-    sphereCollider->m_center = Vector3{ 0.0f, 1.0f, 0.0f };
+    BoxCollider* boxCollider = m_ColliderGroup->AddCollider<BoxCollider>();
+    boxCollider->Center = Vector3{ 0.0f, 85.0f, 0.0f }; // モデルの中心に合わせて調整すること
+    boxCollider->Size = Vector3{ 60.0f, 170.0f, 60.0f }; // モデルのサイズと合わないため、適宜調整すること
 }
 
 // 終了処理
@@ -60,8 +60,8 @@ void EnemyBase::Update()
     GameObject::Update();
 
     // ターゲット方向へ移動する
-    // m_Velocity = GetDirToTarget() * m_Speed;
-    // m_Transform.Position += m_Velocity;
+    m_Velocity = GetDirToTarget() * m_Speed;
+    m_Transform.Position += m_Velocity;
 
     // アニメーションの更新
     // 状態に応じてアニメーションを切り替える場合はここで実装
