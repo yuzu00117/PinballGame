@@ -152,3 +152,15 @@ void Audio::Play(bool Loop)
 	// 再生
 	m_SourceVoice->Start();
 }
+
+// サウンドの停止
+void Audio::Stop()
+{
+	if (!m_Initialized)
+	{
+		return;
+	}
+
+	m_SourceVoice->Stop();
+	m_SourceVoice->FlushSourceBuffers();
+}

@@ -1,13 +1,11 @@
 #pragma once
 
 #include <xaudio2.h>
-#include "GameObject.h"
-#include "Component.h"
 
 /// <summary>
 /// オーディオ管理クラス
 /// </summary>
-class Audio : public Component
+class Audio
 {
 public:
 	// ------------------------------------------------------------------------------
@@ -37,14 +35,20 @@ public:
 	void Load(const char *FileName);
 
 	///	<summary>
-	/// サウンドの再生
+	/// サウンドの再生・停止
 	/// </summary>
 	void Play(bool Loop = false);
+	void Stop();
 
 	///	<summary>
 	/// 音量設定
 	/// </summary>
 	void SetVolume(float Volume);
+
+	/// <summary>
+	/// 初期化済みかどうか取得
+	/// </summary>
+	bool IsInitialized() const { return m_Initialized; }
 
 private:
 	// ------------------------------------------------------------------------------
@@ -58,6 +62,5 @@ private:
 
 	int								m_Length{};			   // サウンドデータ長
 	int								m_PlayLength{};		   // 再生長
-
 	bool 							m_Initialized = false; // 初期化済みフラグ
 };

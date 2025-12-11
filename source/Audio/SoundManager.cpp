@@ -24,17 +24,10 @@ void SoundManager::Uninit()
         s_Instance = nullptr;
     }
 
-    // --- サウンドの解放処理 ---
-    // BGM・SEそれぞれのUninitを呼び出す
-    // BGM
-    for (int i = 0; i < (int)BGMID::Count; ++i)
+    // 登録済みサウンドの解放
+    for (int i = 0; i < (int)SoundID::Count; ++i)
     {
-        m_BGMs[i].Uninit();
-    }
-    // SE
-    for (int i = 0; i < (int)SEID::Count; ++i)
-    {
-        m_SEs[i].Uninit();
+        m_Sounds[i].Uninit();
     }
 }
 
@@ -49,6 +42,15 @@ void SoundManager::Update()
 void SoundManager::Draw()
 {
     // 描画処理は特になし（音声管理なので）
+}
+
+// サウンドの読み込み
+void Load(SoundID id, const char* filename)
+{
+    int index = static_cast<int>(id);
+    if (index < 0 || index >= (int)SoundID::Count) { return; }
+
+    m_Sounds[index].Load(filename);
 }
 
 // ------------------------------------------------------------------------------

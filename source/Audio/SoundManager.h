@@ -27,29 +27,31 @@ public:
     void Draw() override;
 
     /// <summary>
-    /// BGM・SEの再生
-    /// オーバーロードで分けているので、受け取ったIDに応じて適切なサウンドを再生する
+    /// サウンドの読み込み
     /// </summary>
-    void Play(BGMID id, bool loop = true, float volume = 1.0f);
-    void Play(SEID id, bool loop = false, float volume = 1.0f);
+    void Load(SoundID id, const char* filename);
 
     /// <summary>
-    /// 音量設定
+    /// BGM・SEの再生・停止
     /// </summary>
-    void SetBGMVolume(float volume);
-    void SetSEVolume(float volume);
+    void Play(SoundID id, bool loop = false, float volume = 1.0f);
+    void Stop(SoundID id);
+    void StopAll();
+
+    /// <summary>
+    /// マスターボリュームの設定
+    /// </summary>
+    void SetMasterVolume(float volume);
+    float GetMasterVolume() const { return m_MasterVolume; }
 
 private:
     // ------------------------------------------------------------------------------
     // 変数定義
     // ------------------------------------------------------------------------------
-    // BGM・SEをそれぞれIDごとに保持
-    Audio m_BGMs[(int)BGMID::Count]{};
-    Audio m_SEs[(int)SEID::Count]{};
+    Audio m_Sounds[(int)SoundID::Count]{}; // SundIDごとのAudio
     
-    // グループ音量
-    float m_BGMVolume = 1.0f;
-    float m_SEVolume = 1.0f;
+    // マスターボリューム
+    float m_MasterVolume = 1.0f;
 
     // シングルトンインスタンス
     static SoundManager* s_Instance;
