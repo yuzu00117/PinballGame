@@ -6,6 +6,7 @@
 #include "ColliderGroup.h"
 #include "AnimationModel.h"
 #include "MeshRenderer.h"
+#include "Rigidbody.h"
 
 // ゲームオブジェクト
 #include "Ball.h"
@@ -59,6 +60,14 @@ void EnemyBase::Init()
     m_ColliderGroup = AddComponent<ColliderGroup>();
     BoxCollider* boxCollider = m_ColliderGroup->AddCollider<BoxCollider>();
     (void)boxCollider; // 設定無し
+
+    // ----------------------------------------------------------------------
+    // Rigidbodyコンポーネントの追加
+    // ----------------------------------------------------------------------
+    m_RigidBody = AddComponent<RigidBody>();
+    m_RigidBody->m_Restitution = 0.0f;         // 反発係数を設定
+    m_RigidBody->m_UseGravity = true;          // 重力を有効化
+    m_RigidBody->m_IsKinematic = false;        // キネマティック無効化
 }
 
 // 終了処理
@@ -87,6 +96,12 @@ void EnemyBase::Update()
     // 状態に応じてアニメーションを切り替える場合はここで実装
     // _AnimationModel->Play("Run", true, false);
     ++m_AnimFrame;
+
+    // HPが0以下ならIsDeadをtrueに設定
+    if (m_HP <= 0)
+    {
+        m_IsDead = true;
+    }
 }
 
 // 描画処理
@@ -104,7 +119,7 @@ void EnemyBase::OnCollisionEnter(const CollisionInfo& info)
     // ボールと衝突したときの処理
     if (auto* ball = dynamic_cast<Ball*>(otherObj))
     {
-        // ここにボールと衝突したときの処理を記述
+        m_HP -= 1; // ボールと衝突したらHPを1減らす
     }
 }
 
