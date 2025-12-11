@@ -1,28 +1,27 @@
-
-#include "main.h"
 #include "audio.h"
+#include "main.h"
 
-
-
-
-
+// 静的変数の初期化
 IXAudio2*				Audio::m_Xaudio = NULL;
 IXAudio2MasteringVoice*	Audio::m_MasteringVoice = NULL;
 
-
+// オーディオシステムの初期化処理
 void Audio::InitMaster()
 {
-	// COM������
+	// COM初期化
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
-	// XAudio����
+	// XAudio生成
 	XAudio2Create(&m_Xaudio, 0);
 
-	// �}�X�^�����O�{�C�X����
+	// マスタリングボイス生成
 	m_Xaudio->CreateMasteringVoice(&m_MasteringVoice);
+
+	// 初期化済みフラグを立てる
+	m_Initialized = true;
 }
 
-
+// オーディオシステムの破棄処理
 void Audio::UninitMaster()
 {
 	m_MasteringVoice->DestroyVoice();
@@ -30,18 +29,37 @@ void Audio::UninitMaster()
 	CoUninitialize();
 }
 
+// オーディオコンポーネントの破棄処理
+void Audio::Uninit()
+{
+	if (!m_Initialized)
+	{
+		return;
+	}
 
+	// ソースボイスの破棄
+	m_SourceVoice->Stop();
+	m_SourceVoice->DestroyVoice();
+	m_SourceVoice = nullptr;
 
+	// サウンドデータの解放
+	delete[] m_SoundData;
+	m_SoundData = nullptr;
 
+	m_Initialized = false; // フラグをリセット
+}
 
+// 音量設定
+void Audio::SetVolume(float Volume)
+{
+	assert(m_SourceVoice); // LoadしてないのにSetVolumeしようとしてないか確認
+	m_SourceVoice->SetVolume(Volume);
+}
 
-
-
-
+// サウンドデータの読み込み
 void Audio::Load(const char *FileName)
 {
-
-	// �T�E���h�f�[�^�Ǎ�
+	// サウンドデータ読込
 	WAVEFORMATEX wfx = { 0 };
 
 	{
@@ -95,31 +113,19 @@ void Audio::Load(const char *FileName)
 	}
 
 
-	// �T�E���h�\�[�X����
+	// サウンドソース生成
 	m_Xaudio->CreateSourceVoice(&m_SourceVoice, &wfx);
 	assert(m_SourceVoice);
 }
 
-
-void Audio::Uninit()
-{
-	m_SourceVoice->Stop();
-	m_SourceVoice->DestroyVoice();
-
-	delete[] m_SoundData;
-}
-
-
-
-
-
+// サウンドの再生
 void Audio::Play(bool Loop)
 {
 	m_SourceVoice->Stop();
 	m_SourceVoice->FlushSourceBuffers();
 
 
-	// �o�b�t�@�ݒ�
+	// バッファ設定
 	XAUDIO2_BUFFER bufinfo;
 
 	memset(&bufinfo, 0x00, sizeof(bufinfo));
@@ -128,7 +134,7 @@ void Audio::Play(bool Loop)
 	bufinfo.PlayBegin = 0;
 	bufinfo.PlayLength = m_PlayLength;
 
-	// ���[�v�ݒ�
+	// ループ設定
 	if (Loop)
 	{
 		bufinfo.LoopBegin = 0;
@@ -143,12 +149,6 @@ void Audio::Play(bool Loop)
 	m_SourceVoice->SetOutputMatrix(m_MasteringVoice, 2, 2, outputMatrix);
 	//m_SourceVoice->SetVolume(0.1f);
 */
-
-
-	// �Đ�
+	// 再生
 	m_SourceVoice->Start();
-
 }
-
-
-

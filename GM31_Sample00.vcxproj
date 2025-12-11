@@ -230,6 +230,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Audio\audio.h" />
+    <ClInclude Include="source\Audio\SoundID.h" />
     <ClInclude Include="source\Audio\soundManager.h" />
     <ClInclude Include="source\Core\component.h" />
     <ClInclude Include="source\Core\DirectXTex.h" />
