@@ -34,7 +34,7 @@ void EnemyBase::Init()
     m_AnimationModel->Play("Idle", true);
 
     // ------------------------------------------------------------------------------
-    // ColliderGroup + SphereColliderコンポーネントの追加
+    // ColliderGroup + BoxColliderコンポーネントの追加
     // ------------------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
     BoxCollider* boxCollider = m_ColliderGroup->AddCollider<BoxCollider>();
