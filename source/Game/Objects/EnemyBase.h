@@ -48,7 +48,7 @@ private:
     // 定数定義
     // ----------------------------------------------------------------------
     // エネミーのデフォルトパラメーター
-    static constexpr float kDefaultEnemyScale = 0.05f; // スケール
+    static constexpr float kDefaultEnemyScale = 0.01f; // スケール
 
     // シェーダーパス
     static constexpr const char* VertexShaderPath =   // 頂点シェーダのパス
@@ -60,7 +60,7 @@ private:
     // 変数定義
     // ----------------------------------------------------------------------
     // 共通パラメーター
-    float   m_Speed = 0.15f;                          // 移動速度
+    float   m_Speed = 0.05f;                          // 移動速度
     int     m_HP = 1;                                 // 体力
     int     m_Score = 100;                            // スコア値
     Vector3 m_TargetPos = { 0.0f, 0.0f, 0.0f };       // 目標位置
