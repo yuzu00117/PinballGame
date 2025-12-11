@@ -5,6 +5,8 @@
 #include "BoxCollider.h"
 #include "ColliderGroup.h"
 #include "AnimationModel.h"
+#include "MeshRenderer.h"
+#include "Rigidbody.h"
 
 // ゲームオブジェクト
 #include "Ball.h"
@@ -18,8 +20,10 @@ void EnemyBase::Init()
     // パラメーター初期化
     // ------------------------------------------------------------------------------
     // Transformの初期設定
-    m_Transform.Scale = Vector3{ kDefaultEnemyScale, kDefaultEnemyScale, kDefaultEnemyScale };
+    // m_Transform.Scale = Vector3{ kDefaultEnemyScale, kDefaultEnemyScale, kDefaultEnemyScale };
 
+    // モデル＆アニメーション関連は一旦オフにする
+    /*
     // ------------------------------------------------------------------------------
     // AnimationModelコンポーネントの追加
     // ------------------------------------------------------------------------------
@@ -34,12 +38,36 @@ void EnemyBase::Init()
     m_AnimationModel->Play("Idle", true);
 
     // ------------------------------------------------------------------------------
-    // ColliderGroup + SphereColliderコンポーネントの追加
+    // ColliderGroup + BoxColliderコンポーネントの追加
     // ------------------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
     BoxCollider* boxCollider = m_ColliderGroup->AddCollider<BoxCollider>();
     boxCollider->Center = Vector3{ 0.0f, 85.0f, 0.0f }; // モデルの中心に合わせて調整すること
-    boxCollider->Size = Vector3{ 60.0f, 170.0f, 60.0f }; // モデルのサイズと合わないため、適宜調整すること
+    boxCollider->Size = Vector3{ 60.0f, 170.0f, 60.0f }; // モデルのサイズと合わないため、適宜調整
+    */
+
+    // ------------------------------------------------------------------------------
+    // MeshRendererコンポーネントの追加
+    // ------------------------------------------------------------------------------
+    m_MeshRenderer = AddComponent<MeshRenderer>();
+    m_MeshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);
+    m_MeshRenderer->CreateUnitBox(); // とりあえず箱メッシュで代用
+    m_MeshRenderer->m_Color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f); // 赤色に設定
+
+    // ------------------------------------------------------------------------------
+    // BoxColliderコンポーネントの追加
+    // ------------------------------------------------------------------------------
+    m_ColliderGroup = AddComponent<ColliderGroup>();
+    BoxCollider* boxCollider = m_ColliderGroup->AddCollider<BoxCollider>();
+    (void)boxCollider; // 設定無し
+
+    // ----------------------------------------------------------------------
+    // Rigidbodyコンポーネントの追加
+    // ----------------------------------------------------------------------
+    m_RigidBody = AddComponent<RigidBody>();
+    m_RigidBody->m_Restitution = 0.0f;         // 反発係数を設定
+    m_RigidBody->m_UseGravity = true;          // 重力を有効化
+    m_RigidBody->m_IsKinematic = false;        // キネマティック無効化
 }
 
 // 終了処理
@@ -49,8 +77,9 @@ void EnemyBase::Uninit()
     GameObject::Uninit();
 
     // Componentsのポインタ解放
-    m_AnimationModel = nullptr;
+    // m_AnimationModel = nullptr;
     m_ColliderGroup = nullptr;
+    m_MeshRenderer = nullptr;
 }
 
 // 更新処理
@@ -67,6 +96,12 @@ void EnemyBase::Update()
     // 状態に応じてアニメーションを切り替える場合はここで実装
     // _AnimationModel->Play("Run", true, false);
     ++m_AnimFrame;
+
+    // HPが0以下ならIsDeadをtrueに設定
+    if (m_HP <= 0)
+    {
+        m_IsDead = true;
+    }
 }
 
 // 描画処理
@@ -84,7 +119,7 @@ void EnemyBase::OnCollisionEnter(const CollisionInfo& info)
     // ボールと衝突したときの処理
     if (auto* ball = dynamic_cast<Ball*>(otherObj))
     {
-        // ここにボールと衝突したときの処理を記述
+        m_HP -= 1; // ボールと衝突したらHPを1減らす
     }
 }
 

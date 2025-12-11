@@ -11,6 +11,16 @@ void GameObject::Update()
     for (auto& Component : m_Components) Component->Update();
     // 子オブジェクトの更新
     for (auto& Child : m_Children) Child->Update();
+
+    // Destroyフラグが立っている子オブジェクトを削除
+    m_Children.erase(
+        std::remove_if(
+            m_Children.begin(),
+            m_Children.end(),
+            [](const std::unique_ptr<GameObject>& child) {
+                return child->IsDead();
+            }),
+        m_Children.end());
 }
 
 // ------------------------------------------------------------------------------

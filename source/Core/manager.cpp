@@ -11,6 +11,7 @@
 #include "audio.h"
 #include "input.h"
 #include <windows.h>
+#include <unordered_set>
 
 // 静的メンバ変数の定義
 Manager::Scene Manager::m_CurrentScene = Manager::Scene::Title; // 初期シーンはタイトル
@@ -155,14 +156,24 @@ void Manager::CheckCollisions()
     // シーン直下のGameObjectから、子も含めて全てのコライダーを収集
     for (GameObject* gameObject : m_SceneGameObjects)
     {
-        if (!gameObject) continue; // nullptrの場合はスキップ
+        if (!gameObject) continue;
         gameObject->CollectCollidersRecursive(colliders);
     }
 
     const size_t n = colliders.size();
     std::set<ColliderPair> currentPairs; // 今フレームの衝突ペア情報
 
-    // ペアごとの当たり判定処理
+    // ★ 今フレームに存在するコライダー集合を作成
+    std::unordered_set<Collider*> activeColliders;
+    activeColliders.reserve(n * 2);
+    for (auto* c : colliders)
+    {
+        if (c) activeColliders.insert(c);
+    }
+
+    // ------------------------
+    // 衝突判定（Enter / Stay）
+    // ------------------------
     for (size_t i = 0; i < n; ++i)
     {
         Collider* colliderA = colliders[i];
@@ -173,19 +184,16 @@ void Manager::CheckCollisions()
             Collider* colliderB = colliders[j];
             if (!colliderB) continue;
 
-            // 当たり判定を行う
             CollisionInfo infoA;
             CollisionInfo infoB;
             if (colliderA->CheckCollision(colliderB, infoA, infoB))
             {
-                // 衝突ペアを記録
                 ColliderPair pair = MakePair(colliderA, colliderB);
                 currentPairs.insert(pair);
 
-                // 前フレームに衝突していたか確認
                 bool wasColliding = (m_PreviousPairs.find(pair) != m_PreviousPairs.end());
 
-                // RigidBodyによるデフォルト衝突解決
+                // RigidBody によるデフォルト衝突解決
                 if (auto* ownerA = colliderA->m_Owner)
                 {
                     if (auto* rbA = ownerA->GetComponent<RigidBody>())
@@ -203,13 +211,11 @@ void Manager::CheckCollisions()
 
                 if (wasColliding)
                 {
-                    // 衝突継続イベント
                     colliderA->InvokeOnCollisionStay(infoA);
                     colliderB->InvokeOnCollisionStay(infoB);
                 }
                 else
                 {
-                    // 衝突開始イベント
                     colliderA->InvokeOnCollisionEnter(infoA);
                     colliderB->InvokeOnCollisionEnter(infoB);
                 }
@@ -217,27 +223,38 @@ void Manager::CheckCollisions()
         }
     }
 
-    // Exit判定
+    // ------------------------
+    // 衝突終了（Exit）判定
+    // ------------------------
     for (const auto& pair : m_PreviousPairs)
     {
+        Collider* a = pair.first;
+        Collider* b = pair.second;
+
+        // ★ どちらかのコライダーが「今フレーム存在しない」なら Exit を飛ばさない
+        //    → 削除済みの Collider* にアクセスするのを防ぐ
+        if (activeColliders.find(a) == activeColliders.end() ||
+            activeColliders.find(b) == activeColliders.end())
+        {
+            continue;
+        }
+
+        // 今フレームで衝突していなければ Exit
         if (currentPairs.find(pair) == currentPairs.end())
         {
-            Collider* a = pair.first;
-            Collider* b = pair.second;
-            if (!a || !b) continue;
-
-            // 衝突終了イベント
             CollisionInfo infoA{};
-            infoA.self = a;
+            infoA.self  = a;
             infoA.other = b;
 
             CollisionInfo infoB{};
-            infoB.self = b;
+            infoB.self  = b;
             infoB.other = a;
 
             a->InvokeOnCollisionExit(infoA);
             b->InvokeOnCollisionExit(infoB);
         }
     }
-    m_PreviousPairs.swap(currentPairs); // 今フレームの情報を保存 for 次フレーム
+
+    // 次フレーム用に保存
+    m_PreviousPairs.swap(currentPairs);
 }

@@ -137,6 +137,12 @@
     <ClCompile Include="source\Game\Objects\EnemyBase.cpp">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="source\Game\Objects\EnemySpawner.cpp">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Game\Objects\EnemyStraight.cpp">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Audio\audio.h">
@@ -245,6 +251,12 @@
       <Filter>ソース ファイル\Physics</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Objects\EnemyBase.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\Objects\EnemySpawner.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\Objects\EnemyStraight.h">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
   </ItemGroup>

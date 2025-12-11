@@ -5,6 +5,8 @@
 
 class ColliderGroup;
 class AnimationModel;
+class MeshRenderer;
+class RigidBody;
 
 /// <summary>
 /// エネミー共通の基底クラス
@@ -60,16 +62,18 @@ private:
     // 変数定義
     // ----------------------------------------------------------------------
     // 共通パラメーター
-    float   m_Speed = 0.05f;                          // 移動速度
-    int     m_HP = 1;                                 // 体力
-    int     m_Score = 100;                            // スコア値
+    float   m_Speed     = 0.05f;                      // 移動速度
+    int     m_HP        = 1;                          // 体力
+    int     m_Score     = 100;                        // スコア値
     Vector3 m_TargetPos = { 0.0f, 0.0f, 0.0f };       // 目標位置
-    Vector3 m_Velocity = { 0.0f, 0.0f, 0.0f };        // 現在速度
+    Vector3 m_Velocity  = { 0.0f, 0.0f, 0.0f };       // 現在速度
 
     // アニメーション用
     int m_AnimFrame = 0;                              // アニメーションフレームカウンタ
 
     // コンポーネント
-    ColliderGroup*  m_ColliderGroup = nullptr;        // コライダーグループコンポーネント
-    AnimationModel* m_AnimationModel = nullptr;       // アニメーションモデルコンポーネント
+    ColliderGroup*     m_ColliderGroup  = nullptr;    // コライダーグループコンポーネント
+    // AnimationModel* m_AnimationModel = nullptr;    // アニメーションモデルコンポーネント
+    MeshRenderer*      m_MeshRenderer   = nullptr;    // メッシュレンダラーコンポーネント
+    RigidBody*         m_RigidBody      = nullptr;    // リジッドボディコンポーネント
 };
