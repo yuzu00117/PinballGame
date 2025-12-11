@@ -153,6 +153,7 @@ void Field::Init()
 
         // ホールをターゲットに登録
         spawner->AddTargetHole(hole);
+        spawner->Init();
     }
 }
 

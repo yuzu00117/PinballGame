@@ -54,7 +54,8 @@ void EnemySpawner::SpawnEnemy()
 
     // 敵を生成
     EnemyStraight* enemy = nullptr;
-    enemy = m_Parent->CreateChild<EnemyStraight>();
+    enemy = CreateChild<EnemyStraight>();
+    enemy->Init();
     enemy->m_Transform.Position = spawnPos;
 
     // ターゲットホールの位置をエネミーに設定

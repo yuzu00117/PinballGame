@@ -116,6 +116,16 @@ public:
     /// </summary>
     void CollectCollidersRecursive(std::vector<Collider*>& outColliders);
 
+    /// <summary>
+    /// オブジェクトを削除する
+    /// </summary>
+    void Destroy() { m_IsDead = true; }
+
+    /// <summary>
+    /// オブジェクトが削除予定かどうかを返す
+    /// </summary>
+    bool IsDead() const { return m_IsDead; }
+
     // ------------------------------------------------------------------------------
     // 変数定義
     // ------------------------------------------------------------------------------
@@ -126,6 +136,9 @@ protected:
     // 変数定義
     // -------------------------------------------------------------------------------
     GameObject* m_Parent = nullptr;                         // 親オブジェクトへのポインタ
+    
     std::vector<std::unique_ptr<Component>> m_Components;   // 所属するコンポーネントのリスト
     std::vector<std::unique_ptr<GameObject>> m_Children;    // 子オブジェクトのリスト
+
+    bool m_IsDead = false;                                  // オブジェクト削除フラグ
 };
