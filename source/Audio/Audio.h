@@ -1,8 +1,8 @@
 #pragma once
 
 #include <xaudio2.h>
-#include "gameObject.h"
-#include "component.h"
+#include "GameObject.h"
+#include "Component.h"
 
 /// <summary>
 /// オーディオ管理クラス

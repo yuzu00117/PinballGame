@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gameObject.h"
-#include "audio.h"
+#include "GameObject.h"
+#include "Audio.h"
 #include "SoundID.h"
 
 /// <summary>

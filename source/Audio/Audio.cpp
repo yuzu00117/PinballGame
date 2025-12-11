@@ -1,4 +1,4 @@
-#include "audio.h"
+#include "Audio.h"
 #include "main.h"
 
 // 静的変数の初期化
@@ -16,9 +16,6 @@ void Audio::InitMaster()
 
 	// マスタリングボイス生成
 	m_Xaudio->CreateMasteringVoice(&m_MasteringVoice);
-
-	// 初期化済みフラグを立てる
-	m_Initialized = true;
 }
 
 // オーディオシステムの破棄処理
@@ -116,6 +113,9 @@ void Audio::Load(const char *FileName)
 	// サウンドソース生成
 	m_Xaudio->CreateSourceVoice(&m_SourceVoice, &wfx);
 	assert(m_SourceVoice);
+
+	// 初期化済みフラグを立てる
+	m_Initialized = true;
 }
 
 // サウンドの再生

@@ -1,6 +1,6 @@
 // soundManager.cpp
 #include "main.h"
-#include "soundManager.h"
+#include "SoundManager.h"
 
 // Ã“Iƒƒ“ƒo‚Ì’è‹`
 SoundManager* SoundManager::s_Instance = nullptr;

@@ -199,8 +199,8 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\Audio\audio.cpp" />
-    <ClCompile Include="source\Audio\soundManager.cpp" />
+    <ClCompile Include="source\Audio\Audio.cpp" />
+    <ClCompile Include="source\Audio\SoundManager.cpp" />
     <ClCompile Include="source\Core\GameObject.cpp" />
     <ClCompile Include="source\Core\Input.cpp" />
     <ClCompile Include="source\Core\main.cpp" />
@@ -229,9 +229,9 @@
     <ClCompile Include="source\Physics\SphereCollider.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\Audio\audio.h" />
+    <ClInclude Include="source\Audio\Audio.h" />
     <ClInclude Include="source\Audio\SoundID.h" />
-    <ClInclude Include="source\Audio\soundManager.h" />
+    <ClInclude Include="source\Audio\SoundManager.h" />
     <ClInclude Include="source\Core\component.h" />
     <ClInclude Include="source\Core\DirectXTex.h" />
     <ClInclude Include="source\Core\GameObject.h" />
