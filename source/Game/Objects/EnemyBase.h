@@ -5,6 +5,7 @@
 
 class ColliderGroup;
 class AnimationModel;
+class MeshRenderer;
 
 /// <summary>
 /// エネミー共通の基底クラス
@@ -71,5 +72,6 @@ private:
 
     // コンポーネント
     ColliderGroup*  m_ColliderGroup = nullptr;        // コライダーグループコンポーネント
-    AnimationModel* m_AnimationModel = nullptr;       // アニメーションモデルコンポーネント
+    // AnimationModel* m_AnimationModel = nullptr;       // アニメーションモデルコンポーネント
+    MeshRenderer*   m_MeshRenderer = nullptr;         // メッシュレンダラーコンポーネント
 };
