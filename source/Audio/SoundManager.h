@@ -5,21 +5,23 @@
 #include "SoundID.h"
 
 /// <summary>
-/// ƒTƒEƒ“ƒhŠÇ—ƒNƒ‰ƒX
+/// ã‚µã‚¦ãƒ³ãƒ‰ç®¡ç†ã‚¯ãƒ©ã‚¹
+/// TODO: å°†æ¥çš„ã«ã¯ã€Unityã®AudioManagerã®ã‚ˆã†ã«
+/// BGMã‚„SEã®ä¸€æ‹¬ç®¡ç†ã€ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¤ãƒ³ãƒ»ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆã‚’å®Ÿè£…ã—ãŸã„
 /// </summary>
 class SoundManager : public GameObject
 {
 public:
     // ------------------------------------------------------------------------------
-    // ŠÖ”’è‹`
+    // é–¢æ•°å®šç¾©
     // ------------------------------------------------------------------------------
     /// <summary>
-    /// ƒOƒ[ƒoƒ‹ƒCƒ“ƒXƒ^ƒ“ƒX‚Ìæ“¾
+    /// ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã®å–å¾—
     /// </summary>
     static SoundManager& GetInstance() { return *s_Instance; }
         
     /// <summary>
-    /// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+    /// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«ãƒ¡ã‚½ãƒƒãƒ‰
     /// </summary>
     void Init() override;
     void Uninit() override;
@@ -27,32 +29,32 @@ public:
     void Draw() override;
 
     /// <summary>
-    /// ƒTƒEƒ“ƒh‚Ì“Ç‚İ‚İ
+    /// ã‚µã‚¦ãƒ³ãƒ‰ã®èª­ã¿è¾¼ã¿
     /// </summary>
     void Load(SoundID id, const char* filename);
 
     /// <summary>
-    /// BGMESE‚ÌÄ¶E’â~
+    /// BGMãƒ»SEã®å†ç”Ÿãƒ»åœæ­¢
     /// </summary>
     void Play(SoundID id, bool loop = false, float volume = 1.0f);
     void Stop(SoundID id);
     void StopAll();
 
     /// <summary>
-    /// ƒ}ƒXƒ^[ƒ{ƒŠƒ…[ƒ€‚Ìİ’è
+    /// ãƒã‚¹ã‚¿ãƒ¼ãƒœãƒªãƒ¥ãƒ¼ãƒ ã®è¨­å®š
     /// </summary>
     void SetMasterVolume(float volume);
     float GetMasterVolume() const { return m_MasterVolume; }
 
 private:
     // ------------------------------------------------------------------------------
-    // •Ï”’è‹`
+    // å¤‰æ•°å®šç¾©
     // ------------------------------------------------------------------------------
-    Audio m_Sounds[(int)SoundID::Count]{}; // SundID‚²‚Æ‚ÌAudio
+    Audio m_Sounds[(int)SoundID::Count]{}; // SundIDã”ã¨ã®Audio
     
-    // ƒ}ƒXƒ^[ƒ{ƒŠƒ…[ƒ€
+    // ãƒã‚¹ã‚¿ãƒ¼ãƒœãƒªãƒ¥ãƒ¼ãƒ 
     float m_MasterVolume = 1.0f;
 
-    // ƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX
+    // ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
     static SoundManager* s_Instance;
 };
