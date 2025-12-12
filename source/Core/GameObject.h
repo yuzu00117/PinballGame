@@ -110,6 +110,10 @@ public:
     virtual void OnCollisionEnter(const CollisionInfo& info) {}
     virtual void OnCollisionStay(const CollisionInfo& info) {}
     virtual void OnCollisionExit(const CollisionInfo& info) {}
+    // / トリガー用イベントコールバック
+    virtual void OnTriggerEnter(const CollisionInfo& info) {}
+    virtual void OnTriggerStay(const CollisionInfo& info) {}
+    virtual void OnTriggerExit(const CollisionInfo& info) {}
 
     /// <summary>
     /// 子オブジェクトも含めて全てのコライダーを収集する

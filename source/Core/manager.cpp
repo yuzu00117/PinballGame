@@ -14,9 +14,10 @@
 #include <unordered_set>
 
 // 静的メンバ変数の定義
-Manager::Scene Manager::m_CurrentScene = Manager::Scene::Title; // 初期シーンはタイトル
-std::vector<GameObject*> Manager::m_SceneGameObjects;           // 現在のシーンのGameObjectリスト
-std::set<Manager::ColliderPair> Manager::m_PreviousPairs;       // 前フレームの衝突ペア情報
+Manager::Scene Manager::m_CurrentScene = Manager::Scene::Title;  // 初期シーンはタイトル
+std::vector<GameObject*> Manager::m_SceneGameObjects;            // 現在のシーンのGameObjectリスト
+std::set<Manager::ColliderPair> Manager::m_PreviousPairs;        // 前フレームの衝突ペア情報
+std::set<Manager::ColliderPair> Manager::m_PreviousTriggerPairs; // 前フレームのトリガーペア情報
 
 // デバッグ用コライダー描画フラグ
 bool g_EnableColliderDebugDraw = false; // デフォルトは無効
@@ -161,7 +162,10 @@ void Manager::CheckCollisions()
     }
 
     const size_t n = colliders.size();
-    std::set<ColliderPair> currentPairs; // 今フレームの衝突ペア情報
+    
+    // 今フレームの衝突ペア情報を格納するセット
+    std::set<ColliderPair> currentCollisionPairs; // 衝突ペア情報
+    std::set<ColliderPair> currentTriggerPairs;   // トリガーペア情報
 
     // ★ 今フレームに存在するコライダー集合を作成
     std::unordered_set<Collider*> activeColliders;
@@ -171,9 +175,7 @@ void Manager::CheckCollisions()
         if (c) activeColliders.insert(c);
     }
 
-    // ------------------------
-    // 衝突判定（Enter / Stay）
-    // ------------------------
+    // --- 衝突判定（Enter / Stay）---
     for (size_t i = 0; i < n; ++i)
     {
         Collider* colliderA = colliders[i];
@@ -186,28 +188,45 @@ void Manager::CheckCollisions()
 
             CollisionInfo infoA;
             CollisionInfo infoB;
-            if (colliderA->CheckCollision(colliderB, infoA, infoB))
+
+            if (!colliderA->CheckCollision(colliderB, infoA, infoB))
+                continue;
+
+            const bool isTriggerPair = (colliderA->m_IsTrigger || colliderB->m_IsTrigger);
+
+            ColliderPair pair = MakePair(colliderA, colliderB);
+
+            if (isTriggerPair)
             {
-                ColliderPair pair = MakePair(colliderA, colliderB);
-                currentPairs.insert(pair);
+                currentTriggerPairs.insert(pair);
+                const bool wasTriggering =
+                    (m_PreviousTriggerPairs.find(pair) != m_PreviousTriggerPairs.end());
 
-                bool wasColliding = (m_PreviousPairs.find(pair) != m_PreviousPairs.end());
+                if (wasTriggering)
+                {
+                    colliderA->InvokeOnTriggerStay(infoA);
+                    colliderB->InvokeOnTriggerStay(infoB);
+                }
+                else
+                {
+                    colliderA->InvokeOnTriggerEnter(infoA);
+                    colliderB->InvokeOnTriggerEnter(infoB);
+                }
+            }
+            else
+            {
+                currentCollisionPairs.insert(pair);
+                const bool wasColliding =
+                    (m_PreviousPairs.find(pair) != m_PreviousPairs.end());
 
-                // RigidBody によるデフォルト衝突解決
+                // 既存：RigidBody解決（Triggerではやらない） :contentReference[oaicite:7]{index=7}
                 if (auto* ownerA = colliderA->m_Owner)
-                {
                     if (auto* rbA = ownerA->GetComponent<RigidBody>())
-                    {
                         rbA->ResolveCollision(infoA);
-                    }
-                }
+
                 if (auto* ownerB = colliderB->m_Owner)
-                {
                     if (auto* rbB = ownerB->GetComponent<RigidBody>())
-                    {
                         rbB->ResolveCollision(infoB);
-                    }
-                }
 
                 if (wasColliding)
                 {
@@ -223,38 +242,53 @@ void Manager::CheckCollisions()
         }
     }
 
-    // ------------------------
-    // 衝突終了（Exit）判定
-    // ------------------------
+    // --- Collision Exit ---
     for (const auto& pair : m_PreviousPairs)
     {
         Collider* a = pair.first;
         Collider* b = pair.second;
 
-        // ★ どちらかのコライダーが「今フレーム存在しない」なら Exit を飛ばさない
-        //    → 削除済みの Collider* にアクセスするのを防ぐ
         if (activeColliders.find(a) == activeColliders.end() ||
             activeColliders.find(b) == activeColliders.end())
-        {
             continue;
-        }
 
-        // 今フレームで衝突していなければ Exit
-        if (currentPairs.find(pair) == currentPairs.end())
+        if (currentCollisionPairs.find(pair) == currentCollisionPairs.end())
         {
             CollisionInfo infoA{};
-            infoA.self  = a;
-            infoA.other = b;
+            infoA.self  = a; infoA.other = b;
 
             CollisionInfo infoB{};
-            infoB.self  = b;
-            infoB.other = a;
+            infoB.self  = b; infoB.other = a;
 
             a->InvokeOnCollisionExit(infoA);
             b->InvokeOnCollisionExit(infoB);
         }
     }
 
+    // --- Trigger Exit ---
+    for (const auto& pair : m_PreviousTriggerPairs)
+    {
+        Collider* a = pair.first;
+        Collider* b = pair.second;
+
+        if (activeColliders.find(a) == activeColliders.end() ||
+            activeColliders.find(b) == activeColliders.end())
+            continue;
+
+        if (currentTriggerPairs.find(pair) == currentTriggerPairs.end())
+        {
+            CollisionInfo infoA{};
+            infoA.self  = a; infoA.other = b;
+
+            CollisionInfo infoB{};
+            infoB.self  = b; infoB.other = a;
+
+            a->InvokeOnTriggerExit(infoA);
+            b->InvokeOnTriggerExit(infoB);
+        }
+    }
+
     // 次フレーム用に保存
-    m_PreviousPairs.swap(currentPairs);
+    m_PreviousPairs.swap(currentCollisionPairs);
+    m_PreviousTriggerPairs.swap(currentTriggerPairs);
 }

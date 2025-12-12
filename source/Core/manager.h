@@ -74,9 +74,10 @@ private:
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
-    static Scene m_CurrentScene;                        // 現在のシーン
-    static std::vector<GameObject*> m_SceneGameObjects; // 現在のシーンのGameObjectリスト
-    static std::set<ColliderPair> m_PreviousPairs;      // 前フレームの衝突ペア情報
+    static Scene m_CurrentScene;                          // 現在のシーン
+    static std::vector<GameObject*> m_SceneGameObjects;   // 現在のシーンのGameObjectリスト
+    static std::set<ColliderPair> m_PreviousPairs;        // 前フレームの衝突ペア情報
+    static std::set<ColliderPair> m_PreviousTriggerPairs; // 前フレームのトリガーペア情報
 
     
 };
