@@ -41,6 +41,10 @@ public:
     void InvokeOnCollisionEnter(const CollisionInfo& info);
     void InvokeOnCollisionStay(const CollisionInfo& info);
     void InvokeOnCollisionExit(const CollisionInfo& info);
+    // / トリガー用イベント転送
+    void InvokeOnTriggerEnter(const CollisionInfo& info);
+    void InvokeOnTriggerStay(const CollisionInfo& info);
+    void InvokeOnTriggerExit(const CollisionInfo& info);
     
     /// <summary>
     /// コライダーのデバッグ描画
@@ -57,5 +61,7 @@ public:
     // ------------------------------------------------------------------------------
     Transform* m_Transform = nullptr;                       // コライダーが所属するオブジェクトのTransformポインタ
     GameObject* m_Owner = nullptr;                          // 所属するオブジェクトへのポインタ
+
+    bool m_IsTrigger = false;                               // UnityのIsTriggerに相当するフラグ
 
 };
