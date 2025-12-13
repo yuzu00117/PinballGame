@@ -10,6 +10,7 @@
 
 // ゲームオブジェクト
 #include "Ball.h"
+#include "Hole.h"
 
 // 初期化処理
 void EnemyBase::Init()
@@ -115,6 +116,11 @@ void EnemyBase::OnTriggerEnter(const CollisionInfo& info)
     }
 
     // --- ホールに入ったときの処理 ---
+    if (auto* hole = dynamic_cast<Hole*>(otherObj))
+    {
+        // ホールに入ったら即座に死亡扱いにする
+        m_IsDead = true;
+    }
 }
 
 // ターゲットへの正規化方向
