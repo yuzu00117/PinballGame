@@ -59,7 +59,7 @@ void EnemyBase::Init()
     // ------------------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
     BoxCollider* boxCollider = m_ColliderGroup->AddCollider<BoxCollider>();
-    (void)boxCollider; // 設定無し
+    boxCollider->m_IsTrigger = true; // トリガーに設定
 }
 
 // 終了処理
@@ -104,15 +104,17 @@ void EnemyBase::Draw()
 }
 
 // 衝突コールバック
-void EnemyBase::OnCollisionEnter(const CollisionInfo& info)
+void EnemyBase::OnTriggerEnter(const CollisionInfo& info)
 {
     GameObject* otherObj = info.other->m_Owner;
 
-    // ボールと衝突したときの処理
+    // --- ボールと衝突したときの処理 ---
     if (auto* ball = dynamic_cast<Ball*>(otherObj))
     {
         m_HP -= 1; // ボールと衝突したらHPを1減らす
     }
+
+    // --- ホールに入ったときの処理 ---
 }
 
 // ターゲットへの正規化方向

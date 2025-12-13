@@ -143,6 +143,9 @@ void Field::Init()
     // ----------------------------------------------------------------------
     {
         auto spawner = CreateChild<EnemySpawner>();
+
+        // 位置設定
+        spawner->m_Transform.Position = { 0.0f, 0.5f, 0.0f };
         
         // フィールド上部からスポーンするように設定
         const float spawnZ = HalfHeight - 2.0f;
