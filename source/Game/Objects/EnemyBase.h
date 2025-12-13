@@ -28,9 +28,8 @@ public:
 
     /// <summary>
     /// 衝突コールバック
-    /// フリッパーでボールを弾くための簡易実装
     /// </summary>
-    void OnCollisionEnter(const CollisionInfo& info) override;
+    void OnTriggerEnter(const CollisionInfo& info) override;
 
     /// <summary>
     /// ターゲット位置を設定する

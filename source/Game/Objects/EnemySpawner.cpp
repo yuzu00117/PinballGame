@@ -12,6 +12,17 @@ void EnemySpawner::Init()
     
     // 最初のスポーンまでのタイマー
     m_SpawnTimer = m_SpawnInterval;
+
+    // ----------------------------------------------------------------------
+    // MeshRendererコンポーネントの追加
+    // デバッグ用に黒い箱メッシュを表示
+    // ----------------------------------------------------------------------
+#if defined(_DEBUG)
+    m_MeshRenderer = AddComponent<MeshRenderer>();
+    m_MeshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);
+    m_MeshRenderer->CreateUnitBox();
+    m_MeshRenderer->m_Color = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f); // 黒色
+#endif
 }
 
 // 更新処理

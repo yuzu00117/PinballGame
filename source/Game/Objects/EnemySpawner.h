@@ -6,6 +6,7 @@
 
 class Hole;
 class EnemyBase;
+class MeshRenderer;
 
 /// <summary>
 /// エネミースポナークラス
@@ -66,6 +67,12 @@ private:
     static constexpr float kDefaultSpawnXMax     = 5.0f;  // デフォルトスポーン位置X最大値
     static constexpr float kDefaultSpawnZ        = 5.0f;  // デフォルトスポーン位置Z
     
+    // シェーダーパス
+    static constexpr const char* VertexShaderPath =   // 頂点シェーダのパス
+        "shader\\bin\\unlitTextureVS.cso";   
+    static constexpr const char* PixelShaderPath  =   // ピクセルシェーダのパス
+        "shader\\bin\\unlitTexturePS.cso";  
+    
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
@@ -75,4 +82,6 @@ private:
     float m_SpawnXMax     = kDefaultSpawnXMax;            // スポーン位置X最大値
     float m_SpawnZ        = kDefaultSpawnZ;               // スポーン位置Z
     std::vector<Hole*> m_TargetHoles;                     // ターゲットHoleリスト
+    
+    MeshRenderer*      m_MeshRenderer   = nullptr;        // メッシュレンダラーコンポーネント
 };

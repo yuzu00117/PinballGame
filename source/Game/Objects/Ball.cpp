@@ -18,7 +18,7 @@ void Ball::Init()
     // ----------------------------------------------------------------------
     // Transformの初期設定
     // ----------------------------------------------------------------------
-    m_Transform.Position = { 0.0f, 0.0f, 0.0f };
+    m_Transform.Position = { 8.0f, 1.0f, 7.0f };
     m_Transform.Rotation = { 0.0f, 0.0f, 0.0f };
     m_Transform.Scale = kDefaultBallScale;
 
