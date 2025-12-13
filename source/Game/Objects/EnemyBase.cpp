@@ -60,14 +60,6 @@ void EnemyBase::Init()
     m_ColliderGroup = AddComponent<ColliderGroup>();
     BoxCollider* boxCollider = m_ColliderGroup->AddCollider<BoxCollider>();
     (void)boxCollider; // 設定無し
-
-    // ----------------------------------------------------------------------
-    // Rigidbodyコンポーネントの追加
-    // ----------------------------------------------------------------------
-    m_RigidBody = AddComponent<RigidBody>();
-    m_RigidBody->m_Restitution = 0.0f;         // 反発係数を設定
-    m_RigidBody->m_UseGravity = true;          // 重力を有効化
-    m_RigidBody->m_IsKinematic = false;        // キネマティック無効化
 }
 
 // 終了処理
