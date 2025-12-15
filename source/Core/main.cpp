@@ -1,12 +1,11 @@
-
-
 #include "main.h"
 #include "manager.h"
+#include "Time.h"
 #include <thread>
 
 
 const char* CLASS_NAME = "AppClass";
-const char* WINDOW_NAME = "DX11�Q�[��";
+const char* WINDOW_NAME = "DX11PinballGame";
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -53,8 +52,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 
 	Manager::Init();
-
-
+	Time::Init();
 
 	ShowWindow(g_Window, nCmdShow);
 	UpdateWindow(g_Window);
@@ -75,27 +73,21 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	{
         if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			if(msg.message == WM_QUIT)
-			{
-				break;
-			}
-			else
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-        }
+			if (msg.message == WM_QUIT) break;
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 		else
 		{
-			dwCurrentTime = timeGetTime();
+			// 時間更新
+			Time::Update();
+			float deltaTime = Time::DeltaTime();
 
-			if((dwCurrentTime - dwExecLastTime) >= (1000 / 60))
-			{
-				dwExecLastTime = dwCurrentTime;
+			// マネージャ更新
+			Manager::Update(deltaTime);
 
-				Manager::Update();
-				Manager::Draw();
-			}
+			// 描画
+			Manager::Draw();
 		}
 	}
 

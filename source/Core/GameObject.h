@@ -33,7 +33,7 @@ public:
     /// </summary>
     virtual void Init() {}  
     virtual void Uninit() {}  
-    virtual void Update();
+    virtual void Update(float deltaTime);
     virtual void Draw();
 
     /// <summary>

@@ -5,7 +5,7 @@
 // ------------------------------------------------------------------------------
 // 更新処理
 // ------------------------------------------------------------------------------
-void GameObject::Update()
+void GameObject::Update(float deltaTime)
 {
     // コンポーネントの更新
     for (auto& Component : m_Components) Component->Update();
