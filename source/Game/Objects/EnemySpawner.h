@@ -22,7 +22,7 @@ public:
     /// ライフサイクルメソッド
     /// </summary>
     void Init() override;
-    void Update() override;
+    void Update(float deltaTime) override;
 
     /// <summary>
     /// 何フレームごとにすぽーんするかを設定

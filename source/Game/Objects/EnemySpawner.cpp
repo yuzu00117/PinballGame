@@ -26,10 +26,10 @@ void EnemySpawner::Init()
 }
 
 // 更新処理
-void EnemySpawner::Update()
+void EnemySpawner::Update(float deltaTime)
 {
     // 親クラスの更新処理呼び出し
-    GameObject::Update();
+    GameObject::Update(deltaTime);
 
     if (m_TargetHoles.empty()) {
         // ターゲットホールが登録されていない場合はスポーンしない

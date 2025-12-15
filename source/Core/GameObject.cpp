@@ -8,9 +8,9 @@
 void GameObject::Update(float deltaTime)
 {
     // コンポーネントの更新
-    for (auto& Component : m_Components) Component->Update();
+    for (auto& Component : m_Components) Component->Update(deltaTime);
     // 子オブジェクトの更新
-    for (auto& Child : m_Children) Child->Update();
+    for (auto& Child : m_Children) Child->Update(deltaTime);
 
     // Destroyフラグが立っている子オブジェクトを削除
     m_Children.erase(

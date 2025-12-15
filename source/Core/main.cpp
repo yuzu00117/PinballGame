@@ -1,6 +1,6 @@
 #include "main.h"
 #include "manager.h"
-#include "Time.h"
+#include "TimeSystem.h"
 #include <thread>
 
 
@@ -52,21 +52,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 
 	Manager::Init();
-	Time::Init();
+	TimeSystem::Init();
 
 	ShowWindow(g_Window, nCmdShow);
 	UpdateWindow(g_Window);
-
-
-
-
-	DWORD dwExecLastTime;
-	DWORD dwCurrentTime;
-	timeBeginPeriod(1);
-	dwExecLastTime = timeGetTime();
-	dwCurrentTime = 0;
-
-
 
 	MSG msg;
 	while(1)
@@ -80,8 +69,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		else
 		{
 			// 時間更新
-			Time::Update();
-			float deltaTime = Time::DeltaTime();
+			TimeSystem::Update();
+			float deltaTime = TimeSystem::DeltaTime();
 
 			// マネージャ更新
 			Manager::Update(deltaTime);
@@ -90,8 +79,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			Manager::Draw();
 		}
 	}
-
-	timeEndPeriod(1);
 
 	UnregisterClass(CLASS_NAME, wcex.hInstance);
 

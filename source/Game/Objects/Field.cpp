@@ -166,10 +166,10 @@ void Field::Uninit()
     m_ColliderGroup = nullptr;
 }
 
-void Field::Update()
+void Field::Update(float deltaTime)
 {
     // フィールド固有の更新処理
-    GameObject::Update();
+    GameObject::Update(deltaTime);
 }
 
 void Field::Draw()

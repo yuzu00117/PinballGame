@@ -16,6 +16,6 @@ private:
 public:
     void Init() override;
     void Uninit() override;
-    void Update() override;
+    void Update(float deltaTime) override;
     void Draw() override;
 };

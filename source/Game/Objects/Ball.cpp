@@ -67,7 +67,7 @@ void Ball::Uninit()
 }
 
 // 更新処理
-void Ball::Update()
+void Ball::Update(float deltaTime)
 {
 #if defined(_DEBUG)
     // デバッグ用：キーでボールに力を加える処理（今のままでOK）
@@ -90,7 +90,7 @@ void Ball::Update()
 #endif
 
     // コンポーネントの更新
-    GameObject::Update();
+    GameObject::Update(deltaTime);
 
     // ------------------------------------------------------
     // ボールの高さ制限

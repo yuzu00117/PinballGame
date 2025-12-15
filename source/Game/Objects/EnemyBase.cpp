@@ -76,10 +76,10 @@ void EnemyBase::Uninit()
 }
 
 // 更新処理
-void EnemyBase::Update()
+void EnemyBase::Update(float deltaTime)
 {
     // 親クラスの更新処理呼び出し
-    GameObject::Update();
+    GameObject::Update(deltaTime);
 
     // ターゲット方向へ移動する
     m_Velocity = GetDirToTarget() * m_Speed;

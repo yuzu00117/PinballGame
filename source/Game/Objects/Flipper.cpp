@@ -66,7 +66,7 @@ void Flipper::Init()
 }
 
 // 更新処理
-void Flipper::Update()
+void Flipper::Update(float deltaTime)
 {
     // キー入力取得
     const BYTE key     = GetActiveKey();
@@ -102,7 +102,7 @@ void Flipper::Update()
     m_Transform.Rotation.y = currentDeg;
 
     // 親のUpdateを呼ぶ
-    GameObject::Update();
+    GameObject::Update(deltaTime);
 }
 
 // 描画処理

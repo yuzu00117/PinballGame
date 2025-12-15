@@ -32,7 +32,7 @@ void SoundManager::Uninit()
 }
 
 // 更新処理
-void SoundManager::Update()
+void SoundManager::Update(float deltaTime)
 {
     // 特に更新処理はなし（音声管理なので）
     // 将来的には、フェード処理や一括ミュートなどをここで行うかも
