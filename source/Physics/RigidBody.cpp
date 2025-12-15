@@ -2,11 +2,6 @@
 #include "GameObject.h"
 #include "SphereCollider.h"
 
-namespace
-{
-    constexpr float kDeltaTime = 1.0f / 60.0f;      // 仮の固定フレームレート
-}
-
 void RigidBody::Update(float deltaTime)
 {
     if (!m_Owner || m_IsKinematic) return;
@@ -44,12 +39,11 @@ void RigidBody::Update(float deltaTime)
         if (HasFlag(m_FreezeFlags, FreezeFlags::PosY) ) gravity.y = 0.0f;
         if (HasFlag(m_FreezeFlags, FreezeFlags::PosZ) ) gravity.z = 0.0f;
 
-        m_Velocity += gravity * kDeltaTime;
+        m_Velocity += gravity * deltaTime;
     }
 
     // 位置を速度分だけ更新
-    transform.Position += m_Velocity * kDeltaTime;
-
+    transform.Position += m_Velocity * deltaTime;
     // ----------------------------------------------------------------------
     // 軸フリーズ適用
     //  ・位置は更新前の値に戻す

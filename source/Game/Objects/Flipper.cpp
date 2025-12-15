@@ -79,7 +79,7 @@ void Flipper::Update(float deltaTime)
     float currentDeg = m_Transform.Rotation.y;
 
     // 1フレームで回せる最大角度（度）
-    const float maxStep = kFlipperRotateSpeedDegPerSec * kDeltaTime;
+    const float maxStep = kFlipperRotateSpeedDegPerSec * deltaTime;
 
     // 目標との差
     float diff = targetDeg - currentDeg;
