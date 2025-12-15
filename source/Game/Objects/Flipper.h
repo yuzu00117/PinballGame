@@ -58,9 +58,7 @@ private:
     static constexpr float kFlipperRotateSpeedDegPerSec = 360.0f;   // フリッパー回転速度（度/秒）
     static constexpr float kFlipperHorizontalSpeed = 50.0f;         // フリッパーがボールを弾くときの水平速度調整値
     static constexpr float kFlipperUpSpeed = 2.5f;                  // フリッパーがボールを弾くときの上方向速度調整値
-    // HACK: フレームレートをどこかで設定するようにしたい
-    static constexpr float kDeltaTime = 1.0f / 60.0f;               // フレーム想定時間（60FPS固定想定）
-    
+
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
