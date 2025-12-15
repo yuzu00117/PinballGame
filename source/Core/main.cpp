@@ -1,12 +1,11 @@
-
-
 #include "main.h"
 #include "manager.h"
+#include "TimeSystem.h"
 #include <thread>
 
 
 const char* CLASS_NAME = "AppClass";
-const char* WINDOW_NAME = "DX11�Q�[��";
+const char* WINDOW_NAME = "DX11PinballGame";
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -53,53 +52,33 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 
 	Manager::Init();
-
-
+	TimeSystem::Init();
 
 	ShowWindow(g_Window, nCmdShow);
 	UpdateWindow(g_Window);
-
-
-
-
-	DWORD dwExecLastTime;
-	DWORD dwCurrentTime;
-	timeBeginPeriod(1);
-	dwExecLastTime = timeGetTime();
-	dwCurrentTime = 0;
-
-
 
 	MSG msg;
 	while(1)
 	{
         if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			if(msg.message == WM_QUIT)
-			{
-				break;
-			}
-			else
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-        }
+			if (msg.message == WM_QUIT) break;
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 		else
 		{
-			dwCurrentTime = timeGetTime();
+			// 時間更新
+			TimeSystem::Update();
+			float deltaTime = TimeSystem::DeltaTime();
 
-			if((dwCurrentTime - dwExecLastTime) >= (1000 / 60))
-			{
-				dwExecLastTime = dwCurrentTime;
+			// マネージャ更新
+			Manager::Update(deltaTime);
 
-				Manager::Update();
-				Manager::Draw();
-			}
+			// 描画
+			Manager::Draw();
 		}
 	}
-
-	timeEndPeriod(1);
 
 	UnregisterClass(CLASS_NAME, wcex.hInstance);
 

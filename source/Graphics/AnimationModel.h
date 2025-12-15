@@ -64,7 +64,7 @@ public:
 	/// </summary>
 	void Init() override;
 	void Uninit() override;
-	void Update() override; // コンポーネント用の引数なし版
+	void Update(float deltaTime) override; // コンポーネント用の引数なし版
 	void Update(const char* AnimationName1, int Frame1);
 	void Draw() override;
 

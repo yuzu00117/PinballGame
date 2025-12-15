@@ -27,7 +27,7 @@ public:
     /// </summary>
     static void Init();
     static void Uninit();
-    static void Update();
+    static void Update(float deltaTime);
     static void Draw();
 
     /// <summary>

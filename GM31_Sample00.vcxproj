@@ -209,6 +209,7 @@
     <ClCompile Include="source\Core\Input.cpp" />
     <ClCompile Include="source\Core\main.cpp" />
     <ClCompile Include="source\Core\manager.cpp" />
+    <ClCompile Include="source\Core\TimeSystem.cpp" />
     <ClCompile Include="source\Game\explosion.cpp" />
     <ClCompile Include="source\Game\Objects\Ball.cpp" />
     <ClCompile Include="source\Game\Objects\Bumper.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="source\Core\Input.h" />
     <ClInclude Include="source\Core\main.h" />
     <ClInclude Include="source\Core\manager.h" />
+    <ClInclude Include="source\Core\TimeSystem.h" />
     <ClInclude Include="source\Core\Transform.h" />
     <ClInclude Include="source\Game\DebugSettings.h" />
     <ClInclude Include="source\Game\explosion.h" />

@@ -64,14 +64,14 @@ void Manager::Uninit() {
 // ----------------------------------------------------------------------
 // 更新処理
 // ----------------------------------------------------------------------
-void Manager::Update()
+void Manager::Update(float deltaTime)
 {
     // 入力状態の更新
     Input::Update();
 
     // 各シーンのゲームオブジェクトを更新
     for (GameObject* gameObject : m_SceneGameObjects) {
-        gameObject->Update();
+        gameObject->Update(deltaTime);
     }
 
     // コライダー同士の当たり判定処理

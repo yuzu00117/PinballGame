@@ -7,7 +7,7 @@ namespace
     constexpr float kDeltaTime = 1.0f / 60.0f;      // 仮の固定フレームレート
 }
 
-void RigidBody::Update()
+void RigidBody::Update(float deltaTime)
 {
     if (!m_Owner || m_IsKinematic) return;
 

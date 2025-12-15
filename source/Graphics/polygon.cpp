@@ -29,7 +29,7 @@ void Polygon2D::Init()
     vertex[3].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     vertex[3].TexCoord = XMFLOAT2(1.0f, 1.0f);
 
-    // ’¸“_ƒoƒbƒtƒ@¶¬
+    // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ç”Ÿæˆ
     D3D11_BUFFER_DESC bd{};
     bd.Usage = D3D11_USAGE_DEFAULT;
     bd.ByteWidth = sizeof(VERTEX_3D) * 4;
@@ -41,7 +41,7 @@ void Polygon2D::Init()
 
     Renderer::GetDevice()->CreateBuffer(&bd, &sd, &m_VertexBuffer);
 
-    // ƒeƒNƒXƒ`ƒƒ“Ç‚Ýž‚Ý
+    // ãƒ†ã‚¯ã‚¹ãƒãƒ£èª­ã¿è¾¼ã¿
     TexMetadata metadata;
     ScratchImage image;
     LoadFromWICFile(L"asset\\texture\\pati.jpg", WIC_FLAGS_NONE, &metadata, image);
@@ -67,34 +67,34 @@ void Polygon2D::Uninit()
     m_PixelShader->Release();
 }
 
-void Polygon2D::Update()
+void Polygon2D::Update(float deltaTime)
 {
-    // ‰½‚à‚µ‚È‚¢
+    // ä½•ã‚‚ã—ãªã„
 }
 
 void Polygon2D::Draw()
 {
-    // “ü—ÍƒŒƒCƒAƒEƒgÝ’è
+    // å…¥åŠ›ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆè¨­å®š
     Renderer::GetDeviceContext()->IASetInputLayout(m_VertexLayout);
 
-    // ƒVƒF[ƒ_[Ý’è
+    // ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼è¨­å®š
     Renderer::GetDeviceContext()->VSSetShader(m_VertexShader, NULL, 0);
     Renderer::GetDeviceContext()->PSSetShader(m_PixelShader, NULL, 0);
 
-    // ƒ}ƒgƒŠƒNƒXÝ’è
+    // ãƒžãƒˆãƒªã‚¯ã‚¹è¨­å®š
     Renderer::SetWorldViewProjection2D();
 
-    // ’¸“_ƒoƒbƒtƒ@Ý’è
+    // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡è¨­å®š
     UINT stride = sizeof(VERTEX_3D);
     UINT offset = 0;
     Renderer::GetDeviceContext()->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
 
-    // ƒeƒNƒXƒ`ƒƒÝ’è
+    // ãƒ†ã‚¯ã‚¹ãƒãƒ£è¨­å®š
     Renderer::GetDeviceContext()->PSSetShaderResources(0, 1, &m_Texture);
 
-    // ƒvƒŠƒ~ƒeƒBƒuŒ`óÝ’è
+    // ãƒ—ãƒªãƒŸãƒ†ã‚£ãƒ–å½¢çŠ¶è¨­å®š
     Renderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-    // •`‰æ
+    // æç”»
     // Renderer::GetDeviceContext()->Draw(4, 0);
 }

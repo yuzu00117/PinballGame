@@ -41,10 +41,10 @@ void Hole::Uninit()
 }
 
 // 更新処理
-void Hole::Update()
+void Hole::Update(float deltaTime)
 {
     // 親クラスの更新処理
-    GameObject::Update();
+    GameObject::Update(deltaTime);
 }
 
 // 描画処理

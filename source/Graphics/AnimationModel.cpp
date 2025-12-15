@@ -23,7 +23,7 @@ void AnimationModel::Init()
 }
 
 // 更新処理（ComponentのUpdate）
-void AnimationModel::Update()
+void AnimationModel::Update(float deltaTime)
 {
 	if (!m_IsPlaying || m_CurrentAnim.empty())
 	{

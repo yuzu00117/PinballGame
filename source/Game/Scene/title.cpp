@@ -4,19 +4,23 @@
 #include "renderer.h"
 #include <windows.h>   // 表示位置計算などで利用する場合
 
-void Title::Init() {
+void Title::Init()
+{
     // 必要なら初期化。今回は特になし
 }
 
-void Title::Uninit() {
+void Title::Uninit()
+{
     // 終了処理。今回は特になし
 }
 
-void Title::Update() {
+void Title::Update(float deltaTime)
+{
     // タイトル画面固有の動作（アニメーション等）があればここに
 }
 
-void Title::Draw() {
+void Title::Draw()
+{
     // Manager::Draw() 内で Begin()/End() しているため、
     // ここではテキスト描画のみ行う
     // 仮に Renderer::DrawText を使う場合の例：

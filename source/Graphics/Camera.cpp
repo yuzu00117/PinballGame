@@ -54,7 +54,7 @@ void Camera::Uninit()
 }
 
 // XVˆ—
-void Camera::Update()
+void Camera::Update(float deltaTime)
 {
 #if defined(_DEBUG)
     // --------------------------------------------------------------

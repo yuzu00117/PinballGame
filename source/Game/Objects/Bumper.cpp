@@ -36,7 +36,7 @@ void Bumper::Uninit()
 }
 
 // XVˆ—
-void Bumper::Update() {}
+void Bumper::Update(float deltaTime) {}
 
 // •`‰æˆ—
 void Bumper::Draw()

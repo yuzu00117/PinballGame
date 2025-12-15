@@ -16,7 +16,7 @@ void Score::Uninit() {
     // 終了処理（必要に応じて）
 }
 
-void Score::Update() {
+void Score::Update(float deltaTime) {
     // デバッグ用：+キーと-キーでスコア増減
     static bool prevPlus = false;
     static bool prevMinus = false;

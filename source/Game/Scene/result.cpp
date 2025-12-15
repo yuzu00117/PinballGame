@@ -12,7 +12,7 @@ void Result::Uninit() {
     // 後片付けがあれば
 }
 
-void Result::Update() {
+void Result::Update(float deltaTime) {
     // リトライ演出やアニメーションなど
 }
 
