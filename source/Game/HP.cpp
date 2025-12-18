@@ -1,5 +1,6 @@
 #include "HP.h"
 #include "Renderer.h"
+#include "Input.h"
 #include <algorithm>
 #include <string>
 #include "MathUtil.h"
@@ -42,8 +43,17 @@ void HP::Update(float deltaTime)
     // 毎秒HP減少処理
     Drain(deltaTime);
 
+#if defined(DEBUG)
     // --- デバッグ操作 ---
-    // Input使ってあとで実装
+    // H: 回復 +10
+    // J: ダメージ -10
+    // K: エネミーがホールに入った
+    // L: エネミー撃破
+    if (Input::GetKeyTrigger('H')) { AddHP(10.0f); }
+    if (Input::GetKeyTrigger('J')) { AddHP(-10.0f); }
+    if (Input::GetKeyTrigger('K')) { OnEnemyEnteredHole(); }
+    if (Input::GetKeyTrigger('L')) { OnEnemyKilled(); }
+#endif
 }
 
 // 描画処理
@@ -54,7 +64,7 @@ void HP::Draw()
     int max = static_cast<int>(s_MaxHP);
     
     std::wstring text = L"HP: " + std::to_wstring(hp) + L" / " + std::to_wstring(max);
-    Renderer::DrawTextW(text, 10.0f, 30.0f);
+    Renderer::DrawText(text, 10.0f, 30.0f);
 }
 
 // --------------------------------------------------------------------------------
