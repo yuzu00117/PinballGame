@@ -2,7 +2,7 @@
 //#include "renderer.h"
 //#include "explosion.h"
 //#include "camera.h"
-//#include "manager.h"
+//#include "GameManager.h"
 //
 //void Explosion::Init()
 //{
@@ -110,7 +110,7 @@
 //
 //    // カメラのビュー行列取得
 //    Camera* camera = nullptr;
-//    for (auto obj : Manager::GetGameObjects()) {
+//    for (auto obj : GameManager::GetGameObjects()) {
 //        camera = dynamic_cast<Camera*>(obj);
 //        if (camera) break;
 //    }

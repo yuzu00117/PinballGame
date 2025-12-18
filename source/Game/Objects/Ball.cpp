@@ -2,7 +2,7 @@
 #include "renderer.h"
 #include "ball.h"
 #include "camera.h"
-#include "manager.h"
+#include "GameManager.h"
 #include "input.h"
 #include <Windows.h>
 

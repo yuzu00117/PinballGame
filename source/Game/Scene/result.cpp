@@ -19,7 +19,7 @@ void Result::Update(float deltaTime) {
 void Result::Draw() {
     // 結果画面表示例
     Renderer::DrawText(L"--- Result ---", 100, 200);
-    // スコアを表示する場合は Manager か別クラスから取得して渡す
+    // スコアを表示する場合は GameManager か別クラスから取得して渡す
     // 例: Renderer::DrawText(scoreText, 100, 240);
     Renderer::DrawText(L"Press Enter to Return to Title", 100, 280);
 }

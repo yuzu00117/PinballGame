@@ -1,5 +1,5 @@
 #include "main.h"
-#include "manager.h"
+#include "GameManager.h"
 #include "TimeSystem.h"
 #include <thread>
 
@@ -51,7 +51,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
 
 
-	Manager::Init();
+	GameManager::Init();
 	TimeSystem::Init();
 
 	ShowWindow(g_Window, nCmdShow);
@@ -73,16 +73,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			float deltaTime = TimeSystem::DeltaTime();
 
 			// マネージャ更新
-			Manager::Update(deltaTime);
+			GameManager::Update(deltaTime);
 
 			// 描画
-			Manager::Draw();
+			GameManager::Draw();
 		}
 	}
 
 	UnregisterClass(CLASS_NAME, wcex.hInstance);
 
-	Manager::Uninit();
+	GameManager::Uninit();
 
 	CoUninitialize();
 
