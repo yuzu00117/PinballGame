@@ -18,8 +18,8 @@ void Bumper::Init()
     m_ModelRenderer->Load("asset\\model\\BumperTest.obj");
 
     // シェーダー作成
-    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\unlitTextureVS.cso");
-    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\unlitTexturePS.cso");
+    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\BaseLitVS.cso");
+    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\BaseLitPS.cso");
 }
 
 // 終了処理

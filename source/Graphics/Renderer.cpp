@@ -42,6 +42,7 @@ static ID3D11VertexShader*	s_DebugLineVS	= nullptr;
 static ID3D11PixelShader*	s_DebugLinePS	= nullptr;
 static ID3D11InputLayout*	s_DebugLineIL	= nullptr;
 
+// 現在のワールド行列
 XMFLOAT4X4 Renderer::m_CurrentWorld = {
 	1,0,0,0,
 	0,1,0,0,
@@ -49,15 +50,19 @@ XMFLOAT4X4 Renderer::m_CurrentWorld = {
 	0,0,0,1
 };
 
+// 定数バッファ構造体
+struct CBWorld
+{
+	DirectX::XMFLOAT4X4 World;
+	DirectX::XMFLOAT4X4 WorldInvTranspose;
+};
 
+// 初期化処理
 void Renderer::Init()
 {
 	HRESULT hr = S_OK;
 
-
-
-
-	// デバイス、スワップチェーン作成
+	// --- デバイス、スワップチェーン作成 ---
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 1;
 	swapChainDesc.BufferDesc.Width = SCREEN_WIDTH;
@@ -85,19 +90,13 @@ void Renderer::Init()
 										&m_FeatureLevel,
 										&m_DeviceContext );
 
-
-
-
-
-
-	// レンダーターゲットビュー作成
+	// --- レンダーターゲットビュー作成 ---
 	ID3D11Texture2D* renderTarget{};
 	m_SwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), ( LPVOID* )&renderTarget );
 	m_Device->CreateRenderTargetView( renderTarget, NULL, &m_RenderTargetView );
 	renderTarget->Release();
 
-
-	// デプスステンシルバッファ作成
+	// --- デプスステンシルバッファ作成 ---
 	ID3D11Texture2D* depthStencile{};
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = swapChainDesc.BufferDesc.Width;
@@ -112,7 +111,7 @@ void Renderer::Init()
 	textureDesc.MiscFlags = 0;
 	m_Device->CreateTexture2D(&textureDesc, NULL, &depthStencile);
 
-	// デプスステンシルビュー作成
+	// --- デプスステンシルビュー作成 ---
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
 	depthStencilViewDesc.Format = textureDesc.Format;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -123,11 +122,7 @@ void Renderer::Init()
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
-
-
-
-
-	// ビューポート設定
+	// --- ビューポート設定 ---
 	D3D11_VIEWPORT viewport;
 	viewport.Width = (FLOAT)SCREEN_WIDTH;
 	viewport.Height = (FLOAT)SCREEN_HEIGHT;
@@ -137,9 +132,7 @@ void Renderer::Init()
 	viewport.TopLeftY = 0;
 	m_DeviceContext->RSSetViewports( 1, &viewport );
 
-
-
-	// ラスタライザステート設定
+	// --- ラスタライザステート設定 ---
 	D3D11_RASTERIZER_DESC rasterizerDesc{};
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID; 
 	rasterizerDesc.CullMode = D3D11_CULL_BACK; 
@@ -151,10 +144,7 @@ void Renderer::Init()
 
 	m_DeviceContext->RSSetState( rs );
 
-
-
-
-	// ブレンドステート設定
+	// --- ブレンドステート設定 ---
 	D3D11_BLEND_DESC blendDesc{};
 	blendDesc.AlphaToCoverageEnable = FALSE;
 	blendDesc.IndependentBlendEnable = FALSE;
@@ -175,11 +165,7 @@ void Renderer::Init()
 	float blendFactor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, 0xffffffff );
 
-
-
-
-
-	// デプスステンシルステート設定
+	// --- デプスステンシルステート設定 ---
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = TRUE;
 	depthStencilDesc.DepthWriteMask	= D3D11_DEPTH_WRITE_MASK_ALL;
@@ -194,10 +180,7 @@ void Renderer::Init()
 
 	m_DeviceContext->OMSetDepthStencilState( m_DepthStateEnable, NULL );
 
-
-
-
-	// サンプラーステート設定
+	// --- サンプラーステート設定 ---
 	D3D11_SAMPLER_DESC samplerDesc{};
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -211,23 +194,27 @@ void Renderer::Init()
 
 	m_DeviceContext->PSSetSamplers( 0, 1, &samplerState );
 
-
-
-	// 定数バッファ生成
+	// --- 定数バッファ生成 ---
 	D3D11_BUFFER_DESC bufferDesc{};
-	bufferDesc.ByteWidth = sizeof(XMFLOAT4X4);
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = sizeof(float);
 
+	// ワールド、ビュー、プロジェクション行列用
+	// World
+	bufferDesc.ByteWidth = sizeof(CBWorld);
 	m_Device->CreateBuffer( &bufferDesc, NULL, &m_WorldBuffer );
 	m_DeviceContext->VSSetConstantBuffers( 0, 1, &m_WorldBuffer);
 
+	// View
+	bufferDesc.ByteWidth = sizeof(DirectX::XMFLOAT4X4);
 	m_Device->CreateBuffer( &bufferDesc, NULL, &m_ViewBuffer );
 	m_DeviceContext->VSSetConstantBuffers( 1, 1, &m_ViewBuffer );
 
+	// Projection
+	bufferDesc.ByteWidth = sizeof(DirectX::XMFLOAT4X4);
 	m_Device->CreateBuffer( &bufferDesc, NULL, &m_ProjectionBuffer );
 	m_DeviceContext->VSSetConstantBuffers( 2, 1, &m_ProjectionBuffer );
 
@@ -383,13 +370,19 @@ void Renderer::SetWorldViewProjection2D()
 
 void Renderer::SetWorldMatrix(XMMATRIX WorldMatrix)
 {
-	// 元の行列をそのまま保持
+	// 現在のワールド行列を保存
 	XMStoreFloat4x4(&m_CurrentWorld, WorldMatrix);
 
+	CBWorld cb{};
+
 	// シェーダーに渡す用に転置行列を計算
-	XMFLOAT4X4 worldf;
-	XMStoreFloat4x4(&worldf, XMMatrixTranspose(WorldMatrix));
-	m_DeviceContext->UpdateSubresource(m_WorldBuffer, 0, NULL, &worldf, 0, 0);
+	XMStoreFloat4x4(&cb.World, XMMatrixTranspose(WorldMatrix));
+
+	// 法線用転置逆行列を計算
+	XMMATRIX invWorld = XMMatrixInverse(nullptr, WorldMatrix);
+	XMStoreFloat4x4(&cb.WorldInvTranspose, XMMatrixTranspose(invWorld));
+
+	m_DeviceContext->UpdateSubresource(m_WorldBuffer, 0, NULL, &cb, 0, 0);
 }
 
 void Renderer::SetViewMatrix(XMMATRIX ViewMatrix)

@@ -69,9 +69,9 @@ private:
     
     // シェーダーパス
     static constexpr const char* VertexShaderPath =   // 頂点シェーダのパス
-        "shader\\bin\\unlitTextureVS.cso";   
+        "shader\\bin\\BaseLitVS.cso";   
     static constexpr const char* PixelShaderPath  =   // ピクセルシェーダのパス
-        "shader\\bin\\unlitTexturePS.cso";  
+        "shader\\bin\\BaseLitPS.cso";  
     
     // ----------------------------------------------------------------------
     // 変数定義
