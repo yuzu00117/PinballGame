@@ -4,24 +4,25 @@
 #include <vector>
 #include "GameObject.h"
 
-// ŠeƒV[ƒ“‚Åg‚¤ƒIƒuƒWƒFƒNƒg‚Ìƒwƒbƒ_[
-#include "title.h"
-#include "camera.h"
-#include "field.h"
+// å„ã‚·ãƒ¼ãƒ³ã§ä½¿ã†ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒ˜ãƒƒãƒ€ãƒ¼
+#include "Title.h"
+#include "Camera.h"
+#include "Field.h"
 #include "Ball.h"
-#include "polygon.h"
-#include "result.h"
-#include "score.h"
-#include "soundManager.h"
+#include "Polygon.h"
+#include "Result.h"
+#include "Score.h"
+#include "SoundManager.h"
+#include "HP.h"
 
-/// ƒV[ƒ“—ñ‹“Œ^
+/// ã‚·ãƒ¼ãƒ³åˆ—æŒ™å‹
 enum class Scene {
     Title,
     Game,
     Result
 };
 
-/// w’èƒV[ƒ“‚Ì GameObject* ‚ğ¶¬‚µ‚Ä•Ô‚·iinline À‘•j
+/// æŒ‡å®šã‚·ãƒ¼ãƒ³ã® GameObject* ã‚’ç”Ÿæˆã—ã¦è¿”ã™ï¼ˆinline å®Ÿè£…ï¼‰
 inline std::vector<GameObject*> CreateSceneObjects(Scene scene) {
     std::vector<GameObject*> objs;
     switch (scene) {
@@ -33,8 +34,9 @@ inline std::vector<GameObject*> CreateSceneObjects(Scene scene) {
         objs.push_back(new Field());
         objs.push_back(new Ball());
         objs.push_back(new Polygon2D());
-        objs.push_back(new Score()); // ƒXƒRƒA•\¦‚ğ’Ç‰Á
-        objs.push_back(new SoundManager()); // ‰¹ºŠÇ—‚ğ’Ç‰Á
+        objs.push_back(new Score());
+        objs.push_back(new HP());
+        objs.push_back(new SoundManager());
         break;
     case Scene::Result:
         objs.push_back(new Result());

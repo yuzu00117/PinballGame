@@ -1,5 +1,6 @@
 #include "EnemyBase.h"
 #include "Input.h"
+#include "HP.h"
 
 // コンポーネント
 #include "BoxCollider.h"
@@ -112,7 +113,11 @@ void EnemyBase::OnTriggerEnter(const CollisionInfo& info)
     // --- ボールと衝突したときの処理 ---
     if (auto* ball = dynamic_cast<Ball*>(otherObj))
     {
-        m_HP -= 1; // ボールと衝突したらHPを1減らす
+        // エネミーのHPを減らす
+        m_HP -= 1; // 1ダメージ
+
+        // エネミー撃破時のHP回復処理を呼び出す
+        HP::OnEnemyKilled();
     }
 
     // --- ホールに入ったときの処理 ---
@@ -120,6 +125,9 @@ void EnemyBase::OnTriggerEnter(const CollisionInfo& info)
     {
         // ホールに入ったら即座に死亡扱いにする
         m_IsDead = true;
+
+        // ホールペナルティ処理を呼び出す
+        HP::OnEnemyEnteredHole();
     }
 }
 

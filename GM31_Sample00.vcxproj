@@ -258,7 +258,7 @@
     <ClInclude Include="source\Game\Objects\Flipper.h" />
     <ClInclude Include="source\Game\Objects\Hole.h" />
     <ClInclude Include="source\Game\Scene\result.h" />
-    <ClInclude Include="source\Game\Scene\scene.h" />
+    <ClInclude Include="source\Game\Scene\Scene.h" />
     <ClInclude Include="source\Game\Scene\title.h" />
     <ClInclude Include="source\Game\score.h" />
     <ClInclude Include="source\Graphics\AnimationModel.h" />
