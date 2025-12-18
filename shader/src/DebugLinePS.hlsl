@@ -1,4 +1,4 @@
-#include "common.hlsl"
+#include "common.hlsli"
 
 struct PS_IN_LINE { float4 Position : SV_Position; float4 Color : COLOR; };
 
