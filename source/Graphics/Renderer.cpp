@@ -42,11 +42,19 @@ static ID3D11VertexShader*	s_DebugLineVS	= nullptr;
 static ID3D11PixelShader*	s_DebugLinePS	= nullptr;
 static ID3D11InputLayout*	s_DebugLineIL	= nullptr;
 
+// 現在のワールド行列
 XMFLOAT4X4 Renderer::m_CurrentWorld = {
 	1,0,0,0,
 	0,1,0,0,
 	0,0,1,0,
 	0,0,0,1
+};
+
+// 定数バッファ構造体
+struct CBWorld
+{
+	DirectX::XMFLOAT4X4 World;
+	DirectX::XMFLOAT4X4 WorldInvTranspose;
 };
 
 // 初期化処理
@@ -188,19 +196,25 @@ void Renderer::Init()
 
 	// --- 定数バッファ生成 ---
 	D3D11_BUFFER_DESC bufferDesc{};
-	bufferDesc.ByteWidth = sizeof(XMFLOAT4X4);
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = sizeof(float);
 
+	// ワールド、ビュー、プロジェクション行列用
+	// World
+	bufferDesc.ByteWidth = sizeof(CBWorld);
 	m_Device->CreateBuffer( &bufferDesc, NULL, &m_WorldBuffer );
 	m_DeviceContext->VSSetConstantBuffers( 0, 1, &m_WorldBuffer);
 
+	// View
+	bufferDesc.ByteWidth = sizeof(DirectX::XMFLOAT4X4);
 	m_Device->CreateBuffer( &bufferDesc, NULL, &m_ViewBuffer );
 	m_DeviceContext->VSSetConstantBuffers( 1, 1, &m_ViewBuffer );
 
+	// Projection
+	bufferDesc.ByteWidth = sizeof(DirectX::XMFLOAT4X4);
 	m_Device->CreateBuffer( &bufferDesc, NULL, &m_ProjectionBuffer );
 	m_DeviceContext->VSSetConstantBuffers( 2, 1, &m_ProjectionBuffer );
 
@@ -356,13 +370,19 @@ void Renderer::SetWorldViewProjection2D()
 
 void Renderer::SetWorldMatrix(XMMATRIX WorldMatrix)
 {
-	// 元の行列をそのまま保持
+	// 現在のワールド行列を保存
 	XMStoreFloat4x4(&m_CurrentWorld, WorldMatrix);
 
+	CBWorld cb{};
+
 	// シェーダーに渡す用に転置行列を計算
-	XMFLOAT4X4 worldf;
-	XMStoreFloat4x4(&worldf, XMMatrixTranspose(WorldMatrix));
-	m_DeviceContext->UpdateSubresource(m_WorldBuffer, 0, NULL, &worldf, 0, 0);
+	XMStoreFloat4x4(&cb.World, XMMatrixTranspose(WorldMatrix));
+
+	// 法線用転置逆行列を計算
+	XMMATRIX invWorld = XMMatrixInverse(nullptr, WorldMatrix);
+	XMStoreFloat4x4(&cb.WorldInvTranspose, XMMatrixTranspose(invWorld));
+
+	m_DeviceContext->UpdateSubresource(m_WorldBuffer, 0, NULL, &cb, 0, 0);
 }
 
 void Renderer::SetViewMatrix(XMMATRIX ViewMatrix)

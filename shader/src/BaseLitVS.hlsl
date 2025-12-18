@@ -9,7 +9,8 @@ cbuffer CBWorld      : register(b0)
 {
     float4x4 gWorld;
     float4x4 gWorldInvTranspose;
-}
+};
+
 cbuffer CBView       : register(b1) { float4x4 gView; }
 cbuffer CBProjection : register(b2) { float4x4 gProj; }
 

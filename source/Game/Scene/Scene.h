@@ -28,7 +28,6 @@ inline std::vector<GameObject*> CreateSceneObjects(Scene scene) {
     switch (scene) {
     case Scene::Title:
         objs.push_back(new Title());
-        break;
     case Scene::Game:
         objs.push_back(new Camera());
         objs.push_back(new Field());
