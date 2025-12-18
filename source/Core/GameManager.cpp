@@ -1,5 +1,5 @@
 ﻿#include "main.h"
-#include "manager.h"
+#include "GameManager.h"
 #include "renderer.h"
 #include "scene.h"
 #include "DebugSettings.h"
@@ -14,10 +14,10 @@
 #include <unordered_set>
 
 // 静的メンバ変数の定義
-Manager::Scene Manager::m_CurrentScene = Manager::Scene::Title;  // 初期シーンはタイトル
-std::vector<GameObject*> Manager::m_SceneGameObjects;            // 現在のシーンのGameObjectリスト
-std::set<Manager::ColliderPair> Manager::m_PreviousPairs;        // 前フレームの衝突ペア情報
-std::set<Manager::ColliderPair> Manager::m_PreviousTriggerPairs; // 前フレームのトリガーペア情報
+GameManager::Scene GameManager::m_CurrentScene = GameManager::Scene::Title;  // 初期シーンはタイトル
+std::vector<GameObject*> GameManager::m_SceneGameObjects;                  // 現在のシーンのGameObjectリスト
+std::set<GameManager::ColliderPair> GameManager::m_PreviousPairs;          // 前フレームの衝突ペア情報
+std::set<GameManager::ColliderPair> GameManager::m_PreviousTriggerPairs;   // 前フレームのトリガーペア情報
 
 // デバッグ用コライダー描画フラグ
 bool g_EnableColliderDebugDraw = false; // デフォルトは無効
@@ -25,7 +25,7 @@ bool g_EnableColliderDebugDraw = false; // デフォルトは無効
 // ----------------------------------------------------------------------
 // 初期化処理
 // ----------------------------------------------------------------------
-void Manager::Init() 
+void GameManager::Init() 
 {
     // レンダラー初期化
     Renderer::Init();
@@ -45,7 +45,7 @@ void Manager::Init()
 // ----------------------------------------------------------------------
 // 終了処理
 // ----------------------------------------------------------------------
-void Manager::Uninit() {
+void GameManager::Uninit() {
 
 	// 現在のシーンのゲームオブジェクトを解放
     for (GameObject* gameObject : m_SceneGameObjects) {
@@ -64,7 +64,7 @@ void Manager::Uninit() {
 // ----------------------------------------------------------------------
 // 更新処理
 // ----------------------------------------------------------------------
-void Manager::Update(float deltaTime)
+void GameManager::Update(float deltaTime)
 {
     // 入力状態の更新
     Input::Update();
@@ -111,7 +111,7 @@ void Manager::Update(float deltaTime)
 // ----------------------------------------------------------------------
 // 描画処理
 // ----------------------------------------------------------------------
-void Manager::Draw()
+void GameManager::Draw()
 {
 	Renderer::Begin(); // レンダリング開始
 
@@ -126,7 +126,7 @@ void Manager::Draw()
 // ----------------------------------------------------------------------
 // シーン変更処理
 // ----------------------------------------------------------------------
-void Manager::ChangeScene(Scene newScene)
+void GameManager::ChangeScene(Scene newScene)
 {
     // 旧シーン解放
     for (GameObject* gameObject : m_SceneGameObjects) {
@@ -149,7 +149,7 @@ void Manager::ChangeScene(Scene newScene)
 // ----------------------------------------------------------------------
 // コライダー同士の当たり判定処理
 // ----------------------------------------------------------------------
-void Manager::CheckCollisions()
+void GameManager::CheckCollisions()
 {
     std::vector<Collider*> colliders;
     colliders.reserve(m_SceneGameObjects.size());

@@ -74,7 +74,7 @@
     <ClCompile Include="source\Core\main.cpp">
       <Filter>ソース ファイル\Core</Filter>
     </ClCompile>
-    <ClCompile Include="source\Core\manager.cpp">
+    <ClCompile Include="source\Core\GameManager.cpp">
       <Filter>ソース ファイル\Core</Filter>
     </ClCompile>
     <ClCompile Include="source\Game\Objects\Ball.cpp">
@@ -172,7 +172,7 @@
     <ClInclude Include="source\Core\main.h">
       <Filter>ソース ファイル\Core</Filter>
     </ClInclude>
-    <ClInclude Include="source\Core\manager.h">
+    <ClInclude Include="source\Core\GameManager.h">
       <Filter>ソース ファイル\Core</Filter>
     </ClInclude>
     <ClInclude Include="source\Core\Transform.h">

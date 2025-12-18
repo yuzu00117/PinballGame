@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include "main.h"
 #include "renderer.h"
-#include "manager.h"
+#include "GameManager.h"
 #include "Ball.h"
 #include "Input.h"
 
@@ -10,7 +10,7 @@ namespace
 {
     Ball* FindBall()
     {
-        for (auto obj : Manager::GetGameObjects())
+        for (auto obj : GameManager::GetGameObjects())
         {
             if (auto ball = dynamic_cast<Ball*>(obj))
             {

@@ -21,7 +21,7 @@ void Title::Update(float deltaTime)
 
 void Title::Draw()
 {
-    // Manager::Draw() 内で Begin()/End() しているため、
+    // GameManager::Draw() 内で Begin()/End() しているため、
     // ここではテキスト描画のみ行う
     // 仮に Renderer::DrawText を使う場合の例：
     Renderer::DrawText(L"=== My Game ===", 100, 200);
