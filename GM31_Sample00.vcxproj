@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -211,6 +211,7 @@
     <ClCompile Include="source\Core\manager.cpp" />
     <ClCompile Include="source\Core\TimeSystem.cpp" />
     <ClCompile Include="source\Game\explosion.cpp" />
+    <ClCompile Include="source\Game\HP.cpp" />
     <ClCompile Include="source\Game\Objects\Ball.cpp" />
     <ClCompile Include="source\Game\Objects\Bumper.cpp" />
     <ClCompile Include="source\Game\Objects\EnemyBase.cpp" />
@@ -247,6 +248,7 @@
     <ClInclude Include="source\Core\Transform.h" />
     <ClInclude Include="source\Game\DebugSettings.h" />
     <ClInclude Include="source\Game\explosion.h" />
+    <ClInclude Include="source\Game\HP.h" />
     <ClInclude Include="source\Game\Objects\Ball.h" />
     <ClInclude Include="source\Game\Objects\Bumper.h" />
     <ClInclude Include="source\Game\Objects\EnemyBase.h" />
@@ -256,7 +258,7 @@
     <ClInclude Include="source\Game\Objects\Flipper.h" />
     <ClInclude Include="source\Game\Objects\Hole.h" />
     <ClInclude Include="source\Game\Scene\result.h" />
-    <ClInclude Include="source\Game\Scene\scene.h" />
+    <ClInclude Include="source\Game\Scene\Scene.h" />
     <ClInclude Include="source\Game\Scene\title.h" />
     <ClInclude Include="source\Game\score.h" />
     <ClInclude Include="source\Graphics\AnimationModel.h" />

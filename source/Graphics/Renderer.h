@@ -73,7 +73,7 @@ private:
 	static ID3D11BlendState* m_BlendStateATC;
 
 
-	// ’Ç‰ÁFDirect2D^DirectWrite —pƒƒ“ƒo
+	// è¿½åŠ ï¼šDirect2Dï¼DirectWrite ç”¨ãƒ¡ãƒ³ãƒ
 	static ID2D1Factory* m_D2DFactory;
 	static ID2D1RenderTarget* m_D2DRT;
 	static IDWriteFactory* m_DWriteFactory;
@@ -84,7 +84,7 @@ private:
 
 public:
 	// ------------------------------------------------------------------------------
-	// ŠÖ”’è‹`
+	// é–¢æ•°å®šç¾©
 	// ------------------------------------------------------------------------------
 	static void Init();
 	static void Uninit();
@@ -108,14 +108,14 @@ public:
 	static void CreateVertexShader(ID3D11VertexShader** VertexShader, ID3D11InputLayout** VertexLayout, const char* FileName);
 	static void CreatePixelShader(ID3D11PixelShader** PixelShader, const char* FileName);
 
-	// ’Ç‰ÁFƒeƒLƒXƒg•`‰æ
+	// è¿½åŠ ï¼šãƒ†ã‚­ã‚¹ãƒˆæç”»
 	static void DrawText(const std::wstring& text, float x, float y);
 
-	// ƒfƒoƒbƒOü
+	// ãƒ‡ãƒãƒƒã‚°ç·š
 	static void DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount);
 
 	// ------------------------------------------------------------------------------
-	// •Ï”’è‹`
+	// å¤‰æ•°å®šç¾©
 	// ------------------------------------------------------------------------------
-	static XMFLOAT4X4 m_CurrentWorld; // Œ»İ‚Ìƒ[ƒ‹ƒhs—ñ
+	static XMFLOAT4X4 m_CurrentWorld; // ç¾åœ¨ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—
 };
