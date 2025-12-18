@@ -1,15 +1,16 @@
 ﻿#include "main.h"
 #include "GameManager.h"
-#include "renderer.h"
-#include "scene.h"
+#include "Renderer.h"
+#include "Scene.h"
 #include "DebugSettings.h"
 #include "Collider.h"
 #include "ColliderGroup.h"
 #include "RigidBody.h"
 
 // システム関連
-#include "audio.h"
-#include "input.h"
+#include "Audio.h"
+#include "Input.h"
+#include "HP.h"
 #include <windows.h>
 #include <unordered_set>
 
@@ -77,6 +78,22 @@ void GameManager::Update(float deltaTime)
     // コライダー同士の当たり判定処理
     CheckCollisions();
 
+    // --- ゲームオーバー判定 ---
+    // TODO: 現在の仕様だと、HPが0以下になった瞬間にシーンが切り替わってしまい、
+    //       何が起こったのか分かりづらいので、ゲームオーバー演出を追加するなどの改善が必要。
+    if (m_CurrentScene == Scene::Game)
+    {
+        // 連続でゲームオーバー処理が走らないためにフラグを用意
+        static bool isGameOver = false;
+
+        // 死亡判定がtrueの場合、ゲームオーバー処理を実行
+        if (!isGameOver && HP::IsDead())
+        {
+            isGameOver = true;
+            ChangeScene(Scene::Result);
+        }
+    }
+
 #if defined(_DEBUG)
     // デバッグ用コライダー描画フラグ切り替え
     static bool prevDebugDraw = false;
@@ -85,8 +102,8 @@ void GameManager::Update(float deltaTime)
         g_EnableColliderDebugDraw = !g_EnableColliderDebugDraw;
     }
     prevDebugDraw = currDebugDraw;
-#endif // NDEBUG
-        
+
+    // デバッグ用シーン切り替え（Enterキー）
     // Enter キー（VK_RETURN）が押されていたら、現在のシーンに応じて次のシーンへ
 	// 押下チェック
 	static bool prevEnter = false;
@@ -106,6 +123,7 @@ void GameManager::Update(float deltaTime)
         }
     }
 	prevEnter = currEnter; // 前回の状態を更新
+#endif // NDEBUG
 }
 
 // ----------------------------------------------------------------------
