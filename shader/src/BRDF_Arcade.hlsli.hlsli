@@ -12,7 +12,7 @@ float3 BRDF_Arcade(float3 N, float3 V, float3 L, float3 radiance, MaterialParams
     float NdotL = saturate(dot(N, L));
     float3 H = SafeNormalize(L + V);
 
-    // ‚´‚Á‚­‚èƒXƒyƒLƒ…ƒ‰Froughness¨shininess •ÏŠ·iD‚İ‚Å’²®j
+    // ã–ã£ãã‚Šã‚¹ãƒšã‚­ãƒ¥ãƒ©ï¼šroughnessâ†’shininess å¤‰æ›ï¼ˆå¥½ã¿ã§èª¿æ•´ï¼‰
     float shininess = lerp(128.0f, 8.0f, saturate(m.roughness));
     float spec = pow(saturate(dot(N, H)), shininess);
 

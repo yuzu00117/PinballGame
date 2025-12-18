@@ -120,8 +120,8 @@ private:
 	// ----------------------------------------------------------------------
 	// 定数定義
 	// ----------------------------------------------------------------------
-	static constexpr const char* kDefaultVSPath = "shader\\bin\\unlitTextureVS.cso"; 	// デフォルト頂点シェーダーパス
-	static constexpr const char* kDefaultPSPath = "shader\\bin\\unlitTexturePS.cso"; 	// デフォルトピクセルシェーダーパス
+	static constexpr const char* kDefaultVSPath = "shader\\bin\\BaseLitVS.cso"; 	// デフォルト頂点シェーダーパス
+	static constexpr const char* kDefaultPSPath = "shader\\bin\\BaseLitPS.cso"; 	// デフォルトピクセルシェーダーパス
 
 	// ----------------------------------------------------------------------
 	// 変数定義

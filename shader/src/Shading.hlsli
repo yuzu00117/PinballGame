@@ -3,7 +3,7 @@
 #include "Lighting.hlsli"
 #include "Material.hlsli"
 
-// ‚Ç‚¿‚ç‚©‚ğ include ‚·‚éiPS‘¤‚ÅØ‘Öj
+// ã©ã¡ã‚‰ã‹ã‚’ include ã™ã‚‹ï¼ˆPSå´ã§åˆ‡æ›¿ï¼‰
 float3 ApplyRim(float3 color, float3 N, float3 V, MaterialParams m)
 {
     float rim = 1.0f - saturate(dot(SafeNormalize(N), SafeNormalize(V)));

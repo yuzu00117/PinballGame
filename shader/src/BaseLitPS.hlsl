@@ -1,166 +1,66 @@
 // BaseLitPS.hlsl
-// –Ú“IFDirectional/Point/Spot ‚ğ‡¬‚µ‚Ä BaseColor ‚Åƒ‰ƒCƒeƒBƒ“ƒOiNormalMap/Rim‚È‚µj
+// ã‚¨ãƒ³ã‚¸ãƒ³å´ï¼ˆRenderer.cppï¼‰ã®å‰æ:
+//  - PS ç”¨ CB ã‚¹ãƒ­ãƒƒãƒˆ: b3(Material), b4(Light)
+// LIGHT ã¯å¹³è¡Œå…‰æºï¼ˆDirectionalï¼‰ã®ã¿ã€‚
 
-// ---- Common ----
-float3 SafeNormalize(float3 v)
-{
-    float len2 = dot(v, v);
-    if (len2 < 1e-8f) return float3(0, 0, 1);
-    return v * rsqrt(len2);
-}
+#include "Common.hlsli"
 
-// ---- Lights ----
-struct DirectionalLight
+Texture2D gBaseMap : register(t0);
+SamplerState gSampLinear : register(s0);
+
+struct MATERIAL
 {
-    float3 directionWS; // Œõ‚ªi‚Ş•ûŒüi—áF‰ºŒü‚«‚È‚ç 0,-1,0j
-    float  intensity;
-    float3 color;
-    float  pad0;
+    float4 Ambient;
+    float4 Diffuse;
+    float4 Specular;
+    float4 Emission;
+    float  Shininess;
+    int    TextureEnable;
+    float2 Dummy;
 };
 
-struct PointLight
+struct LIGHT
 {
-    float3 positionWS;
-    float  range;
-    float3 color;
-    float  intensity;
+    int    Enable;
+    int3   Dummy;
+    float4 Direction;
+    float4 Diffuse;
+    float4 Ambient;
 };
 
-struct SpotLight
-{
-    float3 positionWS;
-    float  range;
-    float3 directionWS; // Œõ‚ªi‚Ş•ûŒü
-    float  innerCos;    // cos(innerAngle)
-    float  outerCos;    // cos(outerAngle)
-    float3 color;
-    float  intensity;
-};
+cbuffer CBMaterial : register(b3) { MATERIAL gMat; }
+cbuffer CBLight    : register(b4) { LIGHT    gLight; }
 
-float AttenuationDistance(float dist, float range)
-{
-    float x = saturate(1.0f - dist / max(range, 1e-4f));
-    return x * x;
-}
-
-float AttenuationSpot(float3 lightToPointDir, float3 spotDirWS, float innerCos, float outerCos)
-{
-    float cd = dot(SafeNormalize(lightToPointDir), SafeNormalize(spotDirWS));
-    return smoothstep(outerCos, innerCos, cd);
-}
-
-struct LightSample
-{
-    float3 L;        // “_¨ƒ‰ƒCƒg•ûŒüi³‹K‰»j
-    float3 radiance; // F*‹­“x*Œ¸Š
-};
-
-LightSample SampleDirectional(DirectionalLight lt)
-{
-    LightSample s;
-    s.L = SafeNormalize(-lt.directionWS);
-    s.radiance = lt.color * lt.intensity;
-    return s;
-}
-
-LightSample SamplePoint(PointLight lt, float3 Pws)
-{
-    LightSample s;
-    float3 toL = lt.positionWS - Pws;
-    float dist = length(toL);
-    s.L = (dist > 1e-4f) ? (toL / dist) : float3(0,1,0);
-    float att = AttenuationDistance(dist, lt.range);
-    s.radiance = lt.color * lt.intensity * att;
-    return s;
-}
-
-LightSample SampleSpot(SpotLight lt, float3 Pws)
-{
-    LightSample s;
-    float3 toL = lt.positionWS - Pws;
-    float dist = length(toL);
-    s.L = (dist > 1e-4f) ? (toL / dist) : float3(0,1,0);
-
-    float attD = AttenuationDistance(dist, lt.range);
-
-    // ƒ‰ƒCƒg¨“_ •ûŒü‚ÅƒXƒ|ƒbƒgŠp•]‰¿
-    float3 lightToPointDir = SafeNormalize(Pws - lt.positionWS);
-    float attS = AttenuationSpot(lightToPointDir, lt.directionWS, lt.innerCos, lt.outerCos);
-
-    s.radiance = lt.color * lt.intensity * attD * attS;
-    return s;
-}
-
-// ---- Material ----
-cbuffer CBMaterial : register(b2)
-{
-    float3 gBaseColor;
-    float  gRoughness; // ¡‚Í–¢g—pi«—ˆ—pj
-    float  gMetallic;  // ¡‚Í–¢g—pi«—ˆ—pj
-    float3 gEmissive;  // ¡‚Í–¢g—pi«—ˆ—pj
-};
-
-// ---- Scene / Lights ----
-cbuffer CBScene : register(b1)
-{
-    float3 gCameraPosWS;
-    int    gNumPoint;
-    int    gNumSpot;
-    float2 padScene;
-};
-
-cbuffer CBLights : register(b3)
-{
-    DirectionalLight gDir;
-    PointLight gPoint[16];
-    SpotLight  gSpot[16];
-};
-
-// ---- IO ----
 struct PSIn
 {
-    float4 posH   : SV_POSITION;
-    float3 posWS  : TEXCOORD0;
-    float3 nrmWS  : TEXCOORD1;
-    float2 uv     : TEXCOORD2; // ¡‚Í–¢g—pi«—ˆƒeƒNƒXƒ`ƒƒ—pj
+    float4 posH  : SV_POSITION;
+    float3 posWS : TEXCOORD0;
+    float3 nrmWS : TEXCOORD1;
+    float4 col   : TEXCOORD2;
+    float2 uv    : TEXCOORD3;
 };
-
-// ---- BRDFiÅ¬FLambertj----
-float3 ShadeLambert(float3 N, float3 L, float3 radiance, float3 baseColor)
-{
-    float ndl = saturate(dot(SafeNormalize(N), SafeNormalize(L)));
-    return baseColor * ndl * radiance;
-}
 
 float4 main(PSIn i) : SV_TARGET
 {
-    float3 P = i.posWS;
     float3 N = SafeNormalize(i.nrmWS);
-    float3 V = SafeNormalize(gCameraPosWS - P); // ¡‚Í–¢g—pi«—ˆƒXƒyƒLƒ…ƒ‰—pj
 
-    float3 col = 0;
+    float3 L = SafeNormalize(-gLight.Direction.xyz);
+    float ndl = saturate(dot(N, L));
 
-    // Directional
+    // ãƒ†ã‚¯ã‚¹ãƒãƒ£è‰²ã‚’å–å¾—
+    float4 tex = 1.0f.xxxx;
+    if (gMat.TextureEnable != 0)
     {
-        LightSample s = SampleDirectional(gDir);
-        col += ShadeLambert(N, s.L, s.radiance, gBaseColor);
+        tex = gBaseMap.Sample(gSampLinear, i.uv);
     }
 
-    // Point
-    [loop]
-    for (int p = 0; p < gNumPoint; ++p)
-    {
-        LightSample s = SamplePoint(gPoint[p], P);
-        col += ShadeLambert(N, s.L, s.radiance, gBaseColor);
-    }
+    // BaseColor: (Material Diffuse) * (Vertex Color) * (Texture)
+    float3 baseColor = gMat.Diffuse.rgb * i.col.rgb * tex.rgb;
 
-    // Spot
-    [loop]
-    for (int sidx = 0; sidx < gNumSpot; ++sidx)
-    {
-        LightSample s = SampleSpot(gSpot[sidx], P);
-        col += ShadeLambert(N, s.L, s.radiance, gBaseColor);
-    }
+    float3 ambient = gMat.Ambient.rgb * gLight.Ambient.rgb;
+    float3 diffuse = baseColor * (gLight.Diffuse.rgb * ndl);
+
+    float3 col = ambient + diffuse;
 
     return float4(col, 1.0f);
 }

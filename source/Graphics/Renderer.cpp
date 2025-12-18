@@ -49,15 +49,12 @@ XMFLOAT4X4 Renderer::m_CurrentWorld = {
 	0,0,0,1
 };
 
-
+// 初期化処理
 void Renderer::Init()
 {
 	HRESULT hr = S_OK;
 
-
-
-
-	// デバイス、スワップチェーン作成
+	// --- デバイス、スワップチェーン作成 ---
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 1;
 	swapChainDesc.BufferDesc.Width = SCREEN_WIDTH;
@@ -85,19 +82,13 @@ void Renderer::Init()
 										&m_FeatureLevel,
 										&m_DeviceContext );
 
-
-
-
-
-
-	// レンダーターゲットビュー作成
+	// --- レンダーターゲットビュー作成 ---
 	ID3D11Texture2D* renderTarget{};
 	m_SwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), ( LPVOID* )&renderTarget );
 	m_Device->CreateRenderTargetView( renderTarget, NULL, &m_RenderTargetView );
 	renderTarget->Release();
 
-
-	// デプスステンシルバッファ作成
+	// --- デプスステンシルバッファ作成 ---
 	ID3D11Texture2D* depthStencile{};
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = swapChainDesc.BufferDesc.Width;
@@ -112,7 +103,7 @@ void Renderer::Init()
 	textureDesc.MiscFlags = 0;
 	m_Device->CreateTexture2D(&textureDesc, NULL, &depthStencile);
 
-	// デプスステンシルビュー作成
+	// --- デプスステンシルビュー作成 ---
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
 	depthStencilViewDesc.Format = textureDesc.Format;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -123,11 +114,7 @@ void Renderer::Init()
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
-
-
-
-
-	// ビューポート設定
+	// --- ビューポート設定 ---
 	D3D11_VIEWPORT viewport;
 	viewport.Width = (FLOAT)SCREEN_WIDTH;
 	viewport.Height = (FLOAT)SCREEN_HEIGHT;
@@ -137,9 +124,7 @@ void Renderer::Init()
 	viewport.TopLeftY = 0;
 	m_DeviceContext->RSSetViewports( 1, &viewport );
 
-
-
-	// ラスタライザステート設定
+	// --- ラスタライザステート設定 ---
 	D3D11_RASTERIZER_DESC rasterizerDesc{};
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID; 
 	rasterizerDesc.CullMode = D3D11_CULL_BACK; 
@@ -151,10 +136,7 @@ void Renderer::Init()
 
 	m_DeviceContext->RSSetState( rs );
 
-
-
-
-	// ブレンドステート設定
+	// --- ブレンドステート設定 ---
 	D3D11_BLEND_DESC blendDesc{};
 	blendDesc.AlphaToCoverageEnable = FALSE;
 	blendDesc.IndependentBlendEnable = FALSE;
@@ -175,11 +157,7 @@ void Renderer::Init()
 	float blendFactor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, 0xffffffff );
 
-
-
-
-
-	// デプスステンシルステート設定
+	// --- デプスステンシルステート設定 ---
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = TRUE;
 	depthStencilDesc.DepthWriteMask	= D3D11_DEPTH_WRITE_MASK_ALL;
@@ -194,10 +172,7 @@ void Renderer::Init()
 
 	m_DeviceContext->OMSetDepthStencilState( m_DepthStateEnable, NULL );
 
-
-
-
-	// サンプラーステート設定
+	// --- サンプラーステート設定 ---
 	D3D11_SAMPLER_DESC samplerDesc{};
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -211,9 +186,7 @@ void Renderer::Init()
 
 	m_DeviceContext->PSSetSamplers( 0, 1, &samplerState );
 
-
-
-	// 定数バッファ生成
+	// --- 定数バッファ生成 ---
 	D3D11_BUFFER_DESC bufferDesc{};
 	bufferDesc.ByteWidth = sizeof(XMFLOAT4X4);
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;

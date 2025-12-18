@@ -1,26 +1,33 @@
 // BaseLitVS.hlsl
-// –Ú“IFposWS / normalWS / uv ‚ğPS‚Ö“n‚·iNormalMap–³‚µj
+// ã‚¨ãƒ³ã‚¸ãƒ³å´ï¼ˆRenderer.cppï¼‰ã®å‰æ:
+//  - InputLayout: POSITION, NORMAL, COLOR, TEXCOORD
+//  - VS ç”¨ CB ã‚¹ãƒ­ãƒƒãƒˆ: b0(World), b1(View), b2(Proj)
+// è¡Œåˆ—ã¯ Renderer::SetWorld/View/ProjectionMatrix ã§è»¢ç½®ï¼ˆTRANSPOSEï¼‰ã—ã¦ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã•ã‚Œã‚‹ãŸã‚ã€
+// è¡Œãƒ™ã‚¯ãƒˆãƒ«å½¢å¼ï¼ˆrow-vector styleï¼‰ã¨ã—ã¦ mul(v, M) ã‚’ä½¿ç”¨ã™ã‚‹ã€‚
 
-cbuffer CBObject : register(b0)
+cbuffer CBWorld      : register(b0)
 {
     float4x4 gWorld;
-    float4x4 gView;
-    float4x4 gProj;
-};
+    float4x4 gWorldInvTranspose;
+}
+cbuffer CBView       : register(b1) { float4x4 gView; }
+cbuffer CBProjection : register(b2) { float4x4 gProj; }
 
 struct VSIn
 {
     float3 posL : POSITION;
     float3 nrmL : NORMAL;
+    float4 col  : COLOR;
     float2 uv   : TEXCOORD0;
 };
 
 struct VSOut
 {
-    float4 posH   : SV_POSITION;
-    float3 posWS  : TEXCOORD0;
-    float3 nrmWS  : TEXCOORD1;
-    float2 uv     : TEXCOORD2;
+    float4 posH  : SV_POSITION;
+    float3 posWS : TEXCOORD0;
+    float3 nrmWS : TEXCOORD1;
+    float4 col   : TEXCOORD2;
+    float2 uv    : TEXCOORD3;
 };
 
 VSOut main(VSIn v)
@@ -30,12 +37,12 @@ VSOut main(VSIn v)
     float4 posW = mul(float4(v.posL, 1.0f), gWorld);
     o.posWS = posW.xyz;
 
-    // –@ü‚Í w=0 ‚ÅWorld‚Öi¦”ñˆê—lƒXƒP[ƒ‹‚ª‚ ‚é‚È‚ç‹t“]’u‚ª•K—vj
-    o.nrmWS = mul(float4(v.nrmL, 0.0f), gWorld).xyz;
+    o.nrmWS = mul(float4(v.nrmL, 0.0f), gWorldInvTranspose).xyz;
 
     float4 posV = mul(posW, gView);
     o.posH = mul(posV, gProj);
 
-    o.uv = v.uv;
+    o.col = v.col;
+    o.uv  = v.uv;
     return o;
 }

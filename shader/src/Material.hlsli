@@ -2,18 +2,18 @@
 
 struct MaterialParams
 {
-    float3 baseColor;   // ’è”FiƒeƒNƒXƒ`ƒƒ‚ª‚ ‚é‚È‚çæZj
+    float3 baseColor;   // å®šæ•°è‰²ï¼ˆãƒ†ã‚¯ã‚¹ãƒãƒ£ãŒã‚ã‚‹ãªã‚‰ä¹—ç®—ï¼‰
     float  roughness;   // 0..1
     float  metallic;    // 0..1
-    float3 emissive;    // ”­Œõi”CˆÓj
-    float  rimPower;    // ƒŠƒ€‚Ì‰s‚³i‘å‚«‚¢‚Ù‚Ç×‚¢j
-    float3 rimColor;    // ƒŠƒ€F
-    float  rimIntensity;// ƒŠƒ€‹­‚³
-    float  toonSteps;   // ƒgƒD[ƒ“’i”i—á: 3,4j
-    float  toonSmooth;  // ‹«ŠEƒXƒ€[ƒYi—á: 0.02j
+    float3 emissive;    // ç™ºå…‰ï¼ˆä»»æ„ï¼‰
+    float  rimPower;    // ãƒªãƒ ã®é‹­ã•ï¼ˆå¤§ãã„ã»ã©ç´°ã„ï¼‰
+    float3 rimColor;    // ãƒªãƒ è‰²
+    float  rimIntensity;// ãƒªãƒ å¼·ã•
+    float  toonSteps;   // ãƒˆã‚¥ãƒ¼ãƒ³æ®µæ•°ï¼ˆä¾‹: 3,4ï¼‰
+    float  toonSmooth;  // å¢ƒç•Œã‚¹ãƒ ãƒ¼ã‚ºï¼ˆä¾‹: 0.02ï¼‰
 };
 
-// ƒ}ƒXƒN1–‡‚ÉƒpƒbƒN‚·‚é‚È‚çFR=Roughness, G=Metallic, B=AO, A=EmissiveMask ‚È‚Ç
+// ãƒã‚¹ã‚¯1æšã«ãƒ‘ãƒƒã‚¯ã™ã‚‹ãªã‚‰ï¼šR=Roughness, G=Metallic, B=AO, A=EmissiveMask ãªã©
 struct MaterialMasks
 {
     float roughness;

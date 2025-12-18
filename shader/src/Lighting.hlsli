@@ -4,7 +4,7 @@
 
 struct DirectionalLight
 {
-    float3 directionWS; // uŒõ‚ªi‚Ş•ûŒüv(—á: ‘¾—zŒõ‚ª‰º‚ÉŒü‚©‚¤‚È‚ç 0,-1,0)
+    float3 directionWS; // ã€Œå…‰ãŒé€²ã‚€æ–¹å‘ã€(ä¾‹: å¤ªé™½å…‰ãŒä¸‹ã«å‘ã‹ã†ãªã‚‰ 0,-1,0)
     float  intensity;
     float3 color;
     float  pad0;
@@ -13,7 +13,7 @@ struct DirectionalLight
 struct PointLight
 {
     float3 positionWS;
-    float  range;       // —LŒø‹——£
+    float  range;       // æœ‰åŠ¹è·é›¢
     float3 color;
     float  intensity;
 };
@@ -22,37 +22,37 @@ struct SpotLight
 {
     float3 positionWS;
     float  range;
-    float3 directionWS; // uŒõ‚ªi‚Ş•ûŒüv
+    float3 directionWS; // ã€Œå…‰ãŒé€²ã‚€æ–¹å‘ã€
     float  innerCos;    // cos(innerAngle)
     float  outerCos;    // cos(outerAngle)
     float3 color;
     float  intensity;
 };
 
-// Œ¸ŠiƒVƒ“ƒvƒ‹‚Éˆµ‚¢‚â‚·‚¢Œ`j
+// æ¸›è¡°ï¼ˆã‚·ãƒ³ãƒ—ãƒ«ã«æ‰±ã„ã‚„ã™ã„å½¢ï¼‰
 float AttenuationDistance(float dist, float range)
 {
-    // rangeŠO‚Í0
+    // rangeå¤–ã¯0
     float x = saturate(1.0f - dist / max(range, 1e-4f));
-    // ‚»‚ê‚Á‚Û‚¢—‚¿•ûi’²®‚µ‚â‚·‚¢j
+    // ãã‚Œã£ã½ã„è½ã¡æ–¹ï¼ˆèª¿æ•´ã—ã‚„ã™ã„ï¼‰
     return x * x;
 }
 
 float AttenuationSpot(float3 LdirWS, float3 spotDirWS, float innerCos, float outerCos)
 {
-    // spotDirWS‚ÍuŒõ‚ªi‚Ş•ûŒüvBLdirWS‚Íu“_¨Œõv‚Å‚Í‚È‚­u“_¨ƒ‰ƒCƒgv“™‚Å•„†‚ª•Ï‚í‚é‚Ì‚Å“ˆê‚·‚é
-    // ‚±‚±‚Å‚Í LtoP = normalize(P - lightPos) ‚ğg‚¤‘O’ñ‚ÅAŒõ²‚Æ“¯•ûŒü‚ğ + ‚É‚·‚é
+    // spotDirWSã¯ã€Œå…‰ãŒé€²ã‚€æ–¹å‘ã€ã€‚LdirWSã¯ã€Œç‚¹â†’å…‰ã€ã§ã¯ãªãã€Œç‚¹â†’ãƒ©ã‚¤ãƒˆã€ç­‰ã§ç¬¦å·ãŒå¤‰ã‚ã‚‹ã®ã§çµ±ä¸€ã™ã‚‹
+    // ã“ã“ã§ã¯ LtoP = normalize(P - lightPos) ã‚’ä½¿ã†å‰æã§ã€å…‰è»¸ã¨åŒæ–¹å‘ã‚’ + ã«ã™ã‚‹
     float cd = dot(SafeNormalize(LdirWS), SafeNormalize(spotDirWS));
     return smoothstep(outerCos, innerCos, cd);
 }
 
 struct LightSample
 {
-    float3 L;        // “_‚©‚çƒ‰ƒCƒg•ûŒüi³‹K‰»j
-    float3 radiance; // F*‹­“x*Œ¸Š
+    float3 L;        // ç‚¹ã‹ã‚‰ãƒ©ã‚¤ãƒˆæ–¹å‘ï¼ˆæ­£è¦åŒ–ï¼‰
+    float3 radiance; // è‰²*å¼·åº¦*æ¸›è¡°
 };
 
-// Directional: L ‚Íu“_¨ƒ‰ƒCƒgv‚Å‚Í‚È‚­u“_¨ŒõŒ¹•ûŒüv(= -directionWS) ‚Æ‚µ‚Äˆµ‚¤‚Æ¬—‚ªŒ¸‚é
+// Directional: L ã¯ã€Œç‚¹â†’ãƒ©ã‚¤ãƒˆã€ã§ã¯ãªãã€Œç‚¹â†’å…‰æºæ–¹å‘ã€(= -directionWS) ã¨ã—ã¦æ‰±ã†ã¨æ··ä¹±ãŒæ¸›ã‚‹
 LightSample SampleDirectional(DirectionalLight lt)
 {
     LightSample s;
@@ -81,7 +81,7 @@ LightSample SampleSpot(SpotLight lt, float3 Pws)
 
     float attD = AttenuationDistance(dist, lt.range);
 
-    // ƒXƒ|ƒbƒgŠpFŒõ²‚ÆAƒ‰ƒCƒg¨“_•ûŒü‚Å•]‰¿‚·‚é‚Ì‚ªˆê”Ê“I
+    // ã‚¹ãƒãƒƒãƒˆè§’ï¼šå…‰è»¸ã¨ã€ãƒ©ã‚¤ãƒˆâ†’ç‚¹æ–¹å‘ã§è©•ä¾¡ã™ã‚‹ã®ãŒä¸€èˆ¬çš„
     float3 lightToPointDir = SafeNormalize(Pws - lt.positionWS);
     float attS = AttenuationSpot(lightToPointDir, SafeNormalize(lt.directionWS), lt.innerCos, lt.outerCos);
 

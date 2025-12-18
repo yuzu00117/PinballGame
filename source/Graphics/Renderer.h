@@ -7,8 +7,12 @@
 #include <dwrite.h>
 #include <string>
 
-
-
+// ------------------------------------------------------------------------------
+// 構造体定義
+// ------------------------------------------------------------------------------
+/// <summary>
+/// 頂点構造体
+/// </summary> 
 struct VERTEX_3D
 {
 	XMFLOAT3 Position;
@@ -17,8 +21,9 @@ struct VERTEX_3D
 	XMFLOAT2 TexCoord;
 };
 
-
-
+/// <summary>
+/// マテリアル構造体
+/// </summary>
 struct MATERIAL
 {
 	XMFLOAT4	Ambient;
@@ -30,8 +35,9 @@ struct MATERIAL
 	float		Dummy[2];
 };
 
-
-
+/// <summary>
+/// ライト構造体
+/// </summary>
 struct LIGHT
 {
 	BOOL		Enable;
@@ -41,6 +47,9 @@ struct LIGHT
 	XMFLOAT4	Ambient;
 };
 
+/// <summary>
+/// デバッグ線用頂点構造体
+/// </summary>
 struct DebugLineVertex
 {
 	DirectX::XMFLOAT3 Position;

@@ -77,9 +77,9 @@ private:
     float m_ArmHeight = kDefaultArmHeight;                          // アーム高さ
     
     static constexpr const char* VertexShaderPath =                 // 頂点シェーダのパス
-        "shader\\bin\\unlitTextureVS.cso";   
+        "shader\\bin\\BaseLitVS.cso";   
     static constexpr const char* PixelShaderPath  =                 // ピクセルシェーダのパス
-        "shader\\bin\\unlitTexturePS.cso";   
+        "shader\\bin\\BaseLitPS.cso";   
     
     BYTE GetActiveKey() const;                                      // 動作キー取得
 };  
