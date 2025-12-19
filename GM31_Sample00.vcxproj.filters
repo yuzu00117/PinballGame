@@ -42,19 +42,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shader\src\common.hlsl">
-      <Filter>shader</Filter>
-    </FxCompile>
     <FxCompile Include="shader\src\DebugLinePS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
     <FxCompile Include="shader\src\DebugLineVS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="shader\src\unlitTexturePS.hlsl">
+    <FxCompile Include="shader\src\BaseLitPS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
-    <FxCompile Include="shader\src\unlitTextureVS.hlsl">
+    <FxCompile Include="shader\src\BaseLitVS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
   </ItemGroup>
@@ -278,6 +275,24 @@
   <ItemGroup>
     <None Include="source\Core\DirectXTex.inl">
       <Filter>ソース ファイル\Core</Filter>
+    </None>
+    <None Include="shader\src\BRDF_Toon.hlsli">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\src\Common.hlsli">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\src\Lighting.hlsli">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\src\Material.hlsli">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\src\Shading.hlsli">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\src\BRDF_Arcade.hlsli">
+      <Filter>shader</Filter>
     </None>
   </ItemGroup>
 </Project>

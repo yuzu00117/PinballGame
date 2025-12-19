@@ -272,7 +272,7 @@
     <ClInclude Include="source\Physics\SphereCollider.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\src\BRDF_Arcade.hlsli.hlsli" />
+    <None Include="shader\src\BRDF_Arcade.hlsli" />
     <None Include="shader\src\BRDF_Toon.hlsli" />
     <None Include="shader\src\Common.hlsli" />
     <None Include="shader\src\Lighting.hlsli" />
