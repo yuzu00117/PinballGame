@@ -25,9 +25,9 @@ public:
     void Update(float deltaTime) override;
 
     /// <summary>
-    /// 何フレームごとにすぽーんするかを設定
+    /// スポーン間隔を設定（秒）
     /// </summary>
-    void SetSpawnInterval(int frames) { m_SpawnInterval = frames; }
+    void SetSpawnInterval(float intervalSec) { m_SpawnIntervalSec = intervalSec; }
 
     /// <summary>
     /// スポーン位置の範囲を設定（XY平面）
@@ -62,26 +62,26 @@ private:
     // ----------------------------------------------------------------------
     // 定数定義
     // ----------------------------------------------------------------------
-    static constexpr int   kDefaultSpawnInterval = 60;    // デフォルトスポーン間隔（フレーム数）
-    static constexpr float kDefaultSpawnXMin     = -5.0f; // デフォルトスポーン位置X最小値
-    static constexpr float kDefaultSpawnXMax     = 5.0f;  // デフォルトスポーン位置X最大値
-    static constexpr float kDefaultSpawnZ        = 5.0f;  // デフォルトスポーン位置Z
+    static constexpr float kDefaultSpawnIntervalSec = 1.0f;  // デフォルトスポーン間隔（秒）
+    static constexpr float kDefaultSpawnXMin        = -5.0f; // デフォルトスポーン位置X最小値
+    static constexpr float kDefaultSpawnXMax        = 5.0f;  // デフォルトスポーン位置X最大値
+    static constexpr float kDefaultSpawnZ           = 5.0f;  // デフォルトスポーン位置Z
     
     // シェーダーパス
-    static constexpr const char* VertexShaderPath =   // 頂点シェーダのパス
+    static constexpr const char* VertexShaderPath =          // 頂点シェーダのパス
         "shader\\bin\\BaseLitVS.cso";   
-    static constexpr const char* PixelShaderPath  =   // ピクセルシェーダのパス
+    static constexpr const char* PixelShaderPath  =          // ピクセルシェーダのパス
         "shader\\bin\\BaseLitPS.cso";  
     
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
-    int   m_SpawnInterval = kDefaultSpawnInterval;        // スポーン間隔（フレーム数）
-    int   m_SpawnTimer    = 0;                            // スポーンタイマー
-    float m_SpawnXMin     = kDefaultSpawnXMin;            // スポーン位置X最小値
-    float m_SpawnXMax     = kDefaultSpawnXMax;            // スポーン位置X最大値
-    float m_SpawnZ        = kDefaultSpawnZ;               // スポーン位置Z
-    std::vector<Hole*> m_TargetHoles;                     // ターゲットHoleリスト
+    float m_SpawnIntervalSec = kDefaultSpawnIntervalSec;     // スポーン間隔（秒）
+    float m_SpawnTimer       = 0;                            // スポーンタイマー
+    float m_SpawnXMin        = kDefaultSpawnXMin;            // スポーン位置X最小値
+    float m_SpawnXMax        = kDefaultSpawnXMax;            // スポーン位置X最大値
+    float m_SpawnZ           = kDefaultSpawnZ;               // スポーン位置Z
+    std::vector<Hole*>         m_TargetHoles;                // ターゲットHoleリスト
     
-    MeshRenderer*      m_MeshRenderer   = nullptr;        // メッシュレンダラーコンポーネント
+    MeshRenderer*              m_MeshRenderer   = nullptr;   // メッシュレンダラーコンポーネント
 };
