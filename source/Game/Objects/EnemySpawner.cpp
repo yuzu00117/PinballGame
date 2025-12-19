@@ -11,7 +11,7 @@ void EnemySpawner::Init()
     GameObject::Init();
     
     // 最初のスポーンまでのタイマー
-    m_SpawnTimer = m_SpawnInterval;
+    m_SpawnTimer = m_SpawnIntervalSec;
 
     // ----------------------------------------------------------------------
     // MeshRendererコンポーネントの追加
@@ -36,12 +36,14 @@ void EnemySpawner::Update(float deltaTime)
         return;
     }
 
-    // 1フレームごとにスポーンタイマーをカウントダウン
-    if (--m_SpawnTimer <= 0) {
-        // タイマーが0以下になったらエネミーをスポーン
+    // スポーンタイマーをカウントダウン
+    m_SpawnTimer -= deltaTime;
+
+    // タイマーが0以下になったらエネミーをスポーン
+    if (m_SpawnTimer <= 0)
+    {
         SpawnEnemy();
-        // タイマーをリセット
-        m_SpawnTimer = m_SpawnInterval;
+        m_SpawnTimer = m_SpawnIntervalSec; // タイマーをリセット
     }
 }
 

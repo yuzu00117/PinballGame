@@ -83,8 +83,7 @@ void EnemyBase::Update(float deltaTime)
     GameObject::Update(deltaTime);
 
     // ターゲット方向へ移動する
-    m_Velocity = GetDirToTarget() * m_Speed;
-    m_Transform.Position += m_Velocity;
+    m_Transform.Position += GetDirToTarget() * (m_Speed * deltaTime);
 
     // アニメーションの更新
     // 状態に応じてアニメーションを切り替える場合はここで実装

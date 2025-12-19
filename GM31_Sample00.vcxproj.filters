@@ -141,10 +141,10 @@
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
     <ClCompile Include="source\Core\TimeSystem.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Core</Filter>
     </ClCompile>
     <ClCompile Include="source\Game\HP.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -259,17 +259,17 @@
     <ClInclude Include="source\Game\Objects\EnemyStraight.h">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="source\Audio\SoundID.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Core\TimeSystem.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Game\HP.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="source\Game\Scene\Scene.h">
       <Filter>ソース ファイル\Game\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Audio\SoundID.h">
+      <Filter>ソース ファイル\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Core\TimeSystem.h">
+      <Filter>ソース ファイル\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\HP.h">
+      <Filter>ソース ファイル\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
