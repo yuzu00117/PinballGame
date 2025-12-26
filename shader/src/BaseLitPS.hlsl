@@ -47,15 +47,20 @@ float4 main(PSIn i) : SV_TARGET
     float3 L = SafeNormalize(-gLight.Direction.xyz);
     float ndl = saturate(dot(N, L));
 
+    float3 baseColor = gMat.Diffuse.rgb * i.col.rgb;
+
     // テクスチャ色を取得
-    float4 tex = 1.0f.xxxx;
     if (gMat.TextureEnable != 0)
     {
-        tex = gBaseMap.Sample(gSampLinear, i.uv);
+        float3 tex = gBaseMap.Sample(gSampLinear, i.uv).rgb;
+        baseColor *= tex;
     }
 
-    // BaseColor: (Material Diffuse) * (Vertex Color) * (Texture)
-    float3 baseColor = gMat.Diffuse.rgb * i.col.rgb * tex.rgb;
+    // ライティング無効時は環境光のみ返す
+    if (gLight.Enable == 0)
+    {
+        return float4(baseColor * gMat.Ambient.rgb, 1.0f);
+    }
 
     float3 ambient = gMat.Ambient.rgb * gLight.Ambient.rgb;
     float3 diffuse = baseColor * (gLight.Diffuse.rgb * ndl);
