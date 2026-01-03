@@ -30,6 +30,17 @@ void Flipper::Init()
     // 親オブジェクトは回転軸のみ
     m_Transform.Rotation.y = m_DefaultAngle;
 
+    // 角速度初期化
+    m_AngularVelDegPerSec = 0.0f;
+
+    // ----------------------------------------------------------------------
+    // メンバ変数初期化
+    // ----------------------------------------------------------------------
+    // 角度関連
+    m_DefaultAngle = 0.0f;
+    m_ActiveAngle  = 0.0f;
+    m_AngularVelDegPerSec = 0.0f;
+
     // ----------------------------------------------------------------------
     // アーム用子オブジェクトの生成
     // ----------------------------------------------------------------------
@@ -68,6 +79,9 @@ void Flipper::Init()
 // 更新処理
 void Flipper::Update(float deltaTime)
 {
+    // 更新前の角度を保存
+    const float prevDeg = m_Transform.Rotation.y;
+
     // キー入力取得
     const BYTE key     = GetActiveKey();
     const bool isPress = Input::GetKeyPress(key);
@@ -100,6 +114,16 @@ void Flipper::Update(float deltaTime)
 
     // 回転適用
     m_Transform.Rotation.y = currentDeg;
+
+    // 角速度計算
+    if (deltaTime > 0.0f)
+    {
+        m_AngularVelDegPerSec = (m_Transform.Rotation.y - prevDeg) / deltaTime;
+    }
+    else
+    {
+        m_AngularVelDegPerSec = 0.0f;
+    }
 
     // 親のUpdateを呼ぶ
     GameObject::Update(deltaTime);
@@ -148,6 +172,10 @@ void Flipper::OnCollisionStay(const CollisionInfo& info)
     const BYTE key     = GetActiveKey();
     const bool isPress = Input::GetKeyPress(key);
     if (!isPress) return;
+
+    // 最低限の角速度に達していないときは無視
+    const float angVel = fabsf(m_AngularVelDegPerSec);
+    if (angVel < kMinKickAngularVelDegPerSec) return;
 
     // --------------------------------------------------
     // 1) まずはめり込み解消（少しだけ押し戻す）

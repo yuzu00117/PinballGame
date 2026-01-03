@@ -52,21 +52,26 @@ private:
     // ----------------------------------------------------------------------
     // 定数定義
     // ----------------------------------------------------------------------
+    // アーム関連
     static constexpr float kDefaultArmLength = 6.0f;                // デフォルトアーム長さ
     static constexpr float kDefaultArmThickness = 1.5f;             // デフォルトアーム厚さ
     static constexpr float kDefaultArmHeight = 2.0f;                // デフォルトアーム高さ
+
+    // フリッパー動作関連
     static constexpr float kFlipperRotateSpeedDegPerSec = 360.0f;   // フリッパー回転速度（度/秒）
     static constexpr float kFlipperHorizontalSpeed = 50.0f;         // フリッパーがボールを弾くときの水平速度調整値
     static constexpr float kFlipperUpSpeed = 2.5f;                  // フリッパーがボールを弾くときの上方向速度調整値
+    static constexpr float kMinKickAngularVelDegPerSec = 30.0f;    // ボールを弾くときの最小角速度（度/秒）
 
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
     // 角度関連
-    float m_DefaultAngle = 0.0f;                                    // 休み位置
-    float m_ActiveAngle  = 0.0f;                                    // 動作位置
+    float m_DefaultAngle;                                           // 休み位置
+    float m_ActiveAngle;                                            // 動作位置
+    float m_AngularVelDegPerSec;                                    // 角速度（度/秒）
 
-    Side m_Side;                                                    // 左右の区別用構造体変数
+    const Side m_Side;                                              // 左右の区別用構造体変数
 
     // アーム用子オブジェクト
     GameObject* m_ArmObject = nullptr;                              // アーム用子オブジェクトポインタ
