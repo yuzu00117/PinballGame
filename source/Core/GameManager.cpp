@@ -102,8 +102,9 @@ void GameManager::Update(float deltaTime)
         g_EnableColliderDebugDraw = !g_EnableColliderDebugDraw;
     }
     prevDebugDraw = currDebugDraw;
+#endif // NDEBUG
 
-    // デバッグ用シーン切り替え（Enterキー）
+    // シーン切り替え処理
     // Enter キー（VK_RETURN）が押されていたら、現在のシーンに応じて次のシーンへ
 	// 押下チェック
 	static bool prevEnter = false;
@@ -114,16 +115,17 @@ void GameManager::Update(float deltaTime)
         case Scene::Title:
             ChangeScene(Scene::Game);
             break;
+#if defined(_DEBUG)
         case Scene::Game:
             ChangeScene(Scene::Result);
             break;
+#endif // _DEBUG
         case Scene::Result:
             ChangeScene(Scene::Title);
             break;
         }
     }
 	prevEnter = currEnter; // 前回の状態を更新
-#endif // NDEBUG
 }
 
 // ----------------------------------------------------------------------
