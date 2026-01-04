@@ -20,10 +20,10 @@ void Field::Init()
     // ----------------------------------------------------------------------
     // 床メッシュの作成
     m_Floor = AddComponent<MeshRenderer>();
-    m_Floor->LoadShader(VertexShaderPath, PixelShaderPath);
-    m_Floor->SetTexture(TexturePath);
+    m_Floor->LoadShader(kVertexShaderPath, kPixelShaderPath);
+    m_Floor->SetTexture(kFieldTexturePath);
     m_Floor->CreateUnitPlane();
-    m_Floor->SetLocalScale(HalfWidth * 2.0f, 1.0f, HalfHeight * 2.0f);
+    m_Floor->SetLocalScale(kHalfWidth * 2.0f, 1.0f, kHalfHeight * 2.0f);
 
     // 床コライダーの作成
     m_ColliderGroup = AddComponent<ColliderGroup>();
@@ -32,13 +32,13 @@ void Field::Init()
 
         // 位置を微調整して床の上面に合わせる
         floorCollider->Center = { 0.0f, -0.25f, 0.0f };
-        floorCollider->Size = { HalfWidth * 2.0f, 0.5f, HalfHeight * 2.0f };
+        floorCollider->Size = { kHalfWidth * 2.0f, 0.5f, kHalfHeight * 2.0f };
     }
 
     // ----------------------------------------------------------------------
     // 壁の作成
     // ----------------------------------------------------------------------
-    const float yCenter = WallHeight * 0.5f;
+    const float yCenter = kWallHeight * 0.5f;
 
     auto MakeWall = [&](const Vector3& position, const Vector3& scale)
     {
@@ -49,7 +49,8 @@ void Field::Init()
 
         // 見た目の設定
         auto wallMesh = wallObj->AddComponent<MeshRenderer>();
-        wallMesh->LoadShader(VertexShaderPath, PixelShaderPath);    // シェーダーの設定
+        wallMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);    // シェーダーの設定
+        wallMesh->SetTexture(kWallTexturePath);                      // テクスチャの設定
         wallMesh->CreateUnitBox();                                  // メッシュの作成
         wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);      // 色の設定
         // wallMesh->SetTexture(TexturePath);                       // テクスチャの設定
@@ -61,14 +62,14 @@ void Field::Init()
     };
 
     // 壁の作成
-    MakeWall({ 0.0f, yCenter,  HalfHeight + WallThick * 0.5f }, 
-             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // 前
-    MakeWall({ 0.0f, yCenter, -HalfHeight - WallThick * 0.5f }, 
-             { HalfWidth * 2.0f + WallThick * 2.0f, WallHeight, WallThick }); // 後
-    MakeWall({ -HalfWidth - WallThick * 0.5f, yCenter, 0.0f }, 
-             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 左
-    MakeWall({ HalfWidth + WallThick * 0.5f, yCenter, 0.0f }, 
-             { WallThick, WallHeight, HalfHeight * 2.0f + WallThick * 2.0f }); // 右
+    MakeWall({ 0.0f, yCenter,  kHalfHeight + kWallThick * 0.5f }, 
+             { kHalfWidth * 2.0f + kWallThick * 2.0f, kWallHeight, kWallThick }); // 前
+    MakeWall({ 0.0f, yCenter, -kHalfHeight - kWallThick * 0.5f }, 
+             { kHalfWidth * 2.0f + kWallThick * 2.0f, kWallHeight, kWallThick }); // 後
+    MakeWall({ -kHalfWidth - kWallThick * 0.5f, yCenter, 0.0f }, 
+             { kWallThick, kWallHeight, kHalfHeight * 2.0f + kWallThick * 2.0f }); // 左
+    MakeWall({ kHalfWidth + kWallThick * 0.5f, yCenter, 0.0f }, 
+             { kWallThick, kWallHeight, kHalfHeight * 2.0f + kWallThick * 2.0f }); // 右
 
     // ----------------------------------------------------------------------
     // 斜めガイド（左右インレーンガイド）
@@ -79,12 +80,12 @@ void Field::Init()
     {
         GameObject* guideObj = CreateChild();
         guideObj->m_Transform.Position = position;
-        guideObj->m_Transform.Scale = { 1.0f, WallHeight, 4.0f };   // 細長いガイド
+        guideObj->m_Transform.Scale = { 1.0f, kWallHeight, 4.0f };   // 細長いガイド
         guideObj->m_Transform.Rotation.y = rotY;
 
         // 見た目
         auto mesh = guideObj->AddComponent<MeshRenderer>();
-        mesh->LoadShader(VertexShaderPath, PixelShaderPath);
+        mesh->LoadShader(kVertexShaderPath, kPixelShaderPath);
         mesh->CreateUnitBox();
         mesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);  // 壁より少し明るめ
 
@@ -94,9 +95,9 @@ void Field::Init()
     };
 
     // ガイドの位置
-    const float guideZ = -HalfHeight + 3.9f;
-    const float guideY = WallHeight * 0.5f;
-    const float guideX = HalfWidth - 1.5f;     // 外壁との隙間をなくすため少し内側
+    const float guideZ = -kHalfHeight + 3.9f;
+    const float guideY = kWallHeight * 0.5f;
+    const float guideX = kHalfWidth - 1.5f;     // 外壁との隙間をなくすため少し内側
 
     // 左ガイド（内側へ  +30°）
     MakeGuide({ -guideX, guideY, guideZ }, 120.0f);
@@ -108,9 +109,9 @@ void Field::Init()
     // ----------------------------------------------------------------------
     // フリッパーの作成
     // ----------------------------------------------------------------------
-    const float flipperZ = -HalfHeight + 3.0f;  // 奥行き位置
+    const float flipperZ = -kHalfHeight + 3.0f;  // 奥行き位置
     const float flipperY = 0.5f;                // 高さ位置
-    const float flipperX = HalfWidth - 2.5f;    // 左右位置
+    const float flipperX = kHalfWidth - 2.5f;    // 左右位置
 
     // 左フリッパー
     {
@@ -129,7 +130,7 @@ void Field::Init()
     // ホール（穴）の作成
     // ----------------------------------------------------------------------
     const float holeY = 1.0f;               // 高さ位置
-    const float holeZ = -HalfHeight - 0.2f; // 手前側に配置
+    const float holeZ = -kHalfHeight - 0.2f; // 手前側に配置
     
     auto hole = CreateChild<Hole>();
     {
@@ -148,9 +149,9 @@ void Field::Init()
         spawner->m_Transform.Position = { 0.0f, 0.5f, 0.0f };
         
         // フィールド上部からスポーンするように設定
-        const float spawnZ = HalfHeight - 2.0f;
-        const float spawnXMin = -HalfWidth + 1.0f;
-        const float spawnXMax = HalfWidth - 1.0f;
+        const float spawnZ = kHalfHeight - 2.0f;
+        const float spawnXMin = -kHalfWidth + 1.0f;
+        const float spawnXMax = kHalfWidth - 1.0f;
 
         spawner->SetSpawnArea(spawnXMin, spawnXMax, spawnZ);
 
