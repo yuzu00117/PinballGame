@@ -49,8 +49,8 @@ void Field::Init()
 
         // 見た目の設定
         auto wallMesh = wallObj->AddComponent<MeshRenderer>();
-        wallMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);    // シェーダーの設定
-        wallMesh->SetTexture(kWallTexturePath);                      // テクスチャの設定
+        wallMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);  // シェーダーの設定
+        wallMesh->SetTexture(kWallTexturePath);                     // テクスチャの設定
         wallMesh->CreateUnitBox();                                  // メッシュの作成
         wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);      // 色の設定
         // wallMesh->SetTexture(TexturePath);                       // テクスチャの設定
@@ -84,10 +84,11 @@ void Field::Init()
         guideObj->m_Transform.Rotation.y = rotY;
 
         // 見た目
-        auto mesh = guideObj->AddComponent<MeshRenderer>();
-        mesh->LoadShader(kVertexShaderPath, kPixelShaderPath);
-        mesh->CreateUnitBox();
-        mesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);  // 壁より少し明るめ
+        auto guideMesh = guideObj->AddComponent<MeshRenderer>();
+        guideMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);
+        guideMesh->SetTexture(kWallTexturePath);
+        guideMesh->CreateUnitBox();
+        guideMesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);  // 壁より少し明るめ
 
         // 当たり判定
         auto colGroup = guideObj->AddComponent<ColliderGroup>();
