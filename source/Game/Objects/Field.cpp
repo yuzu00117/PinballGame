@@ -1,4 +1,4 @@
-#include "main.h"
+﻿#include "main.h"
 #include "renderer.h"
 #include "field.h"
 
@@ -7,11 +7,45 @@
 #include "ColliderGroup.h"
 #include "BoxCollider.h"
 
-// フィールドのオブジェクト
+// フィールドオブジェクト
 #include "Flipper.h"
 #include "Bumper.h"
 #include "Hole.h"
 #include "EnemySpawner.h"
+
+FieldLayout Field::MakeStage01Layout()
+{
+    FieldLayout layout;
+
+    const float flipperZ = -kHalfHeight + 3.0f;
+    const float flipperY = 0.5f;
+    const float flipperX = kHalfWidth - 2.5f;
+
+    layout.flippers.push_back({ Flipper::Side::Left, { -flipperX, flipperY, flipperZ } });
+    layout.flippers.push_back({ Flipper::Side::Right, { flipperX, flipperY, flipperZ } });
+
+    const float bumperX = 0.0f;
+    const float bumperY = 0.5f;
+    const float bumperZ = 0.0f;
+
+    layout.bumpers.push_back({ { bumperX, bumperY, bumperZ } });
+
+    const float holeY = 1.0f;
+    const float holeZ = -kHalfHeight - 0.2f;
+
+    layout.holes.push_back({ "main", { 0.0f, holeY, holeZ }, { 3.0f, 1.5f, 1.0f } });
+
+    SpawnerDesc spawner;
+    spawner.position = { 0.0f, 0.5f, 0.0f };
+    spawner.spawnZ = kHalfHeight - 2.0f;
+    spawner.spawnXMin = -kHalfWidth + 1.0f;
+    spawner.spawnXMax = kHalfWidth - 1.0f;
+    spawner.targetHoleIds = { "main" };
+
+    layout.spawners.push_back(spawner);
+
+    return layout;
+}
 
 // 初期化処理
 void Field::Init()
@@ -50,33 +84,34 @@ void Field::Init()
 
         // 見た目の設定
         auto wallMesh = wallObj->AddComponent<MeshRenderer>();
-        wallMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);  // シェーダーの設定
-        wallMesh->SetTexture(kWallTexturePath);                     // テクスチャの設定
-        wallMesh->CreateUnitBox();                                  // メッシュの作成
-        wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);      // 色の設定
-        // wallMesh->SetTexture(TexturePath);                       // テクスチャの設定
+        wallMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);
+        wallMesh->SetTexture(kWallTexturePath);
+        wallMesh->CreateUnitBox();
+        wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);
+        // wallMesh->SetTexture(TexturePath);
 
-        // 当たり判定の設定
-        // CenterとSizeはTransformから自動計算されるので設定不要
+        // Colliders (Center/Size are derived from Transform)
         auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
         auto boxCollider = wallColliderGroup->AddCollider<BoxCollider>();
     };
 
     // 壁の作成
-    MakeWall({ 0.0f, yCenter,  kHalfHeight + kWallThick * 0.5f }, 
-             { kHalfWidth * 2.0f + kWallThick * 2.0f, kWallHeight, kWallThick }); // 前
-    MakeWall({ 0.0f, yCenter, -kHalfHeight - kWallThick * 0.5f }, 
-             { kHalfWidth * 2.0f + kWallThick * 2.0f, kWallHeight, kWallThick }); // 後
-    MakeWall({ -kHalfWidth - kWallThick * 0.5f, yCenter, 0.0f }, 
+    MakeWall({ 0.0f, yCenter,  kHalfHeight + kWallThick * 0.5f },
+             { kHalfWidth * 2.0f + kWallThick * 2.0f, kWallHeight, kWallThick }); // 奥
+    MakeWall({ 0.0f, yCenter, -kHalfHeight - kWallThick * 0.5f },
+             { kHalfWidth * 2.0f + kWallThick * 2.0f, kWallHeight, kWallThick }); // 手前
+    MakeWall({ -kHalfWidth - kWallThick * 0.5f, yCenter, 0.0f },
              { kWallThick, kWallHeight, kHalfHeight * 2.0f + kWallThick * 2.0f }); // 左
-    MakeWall({ kHalfWidth + kWallThick * 0.5f, yCenter, 0.0f }, 
+
+    MakeWall({ kHalfWidth + kWallThick * 0.5f, yCenter, 0.0f },
              { kWallThick, kWallHeight, kHalfHeight * 2.0f + kWallThick * 2.0f }); // 右
 
     // ----------------------------------------------------------------------
     // 斜めガイド（左右インレーンガイド）
-    // TODO: 将来は、左右下の空いている部分をなくすために、三角形のモデルを描画し、
-    //       当たり判定はBoxでやるなど修正を行う
+    // TODO: 本来は、左右下の空き部分をなくすために、三角形のメッシュを描画し、
+    //       当たり判定はBoxで丸めるなど修正を行う
     // ----------------------------------------------------------------------
+
     auto MakeGuide = [&](const Vector3& position, float rotY)
     {
         GameObject* guideObj = CreateChild();
@@ -85,12 +120,12 @@ void Field::Init()
         guideObj->m_Transform.Rotation.y = rotY;
 
         // 見た目
+
         auto guideMesh = guideObj->AddComponent<MeshRenderer>();
         guideMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);
         guideMesh->SetTexture(kWallTexturePath);
         guideMesh->CreateUnitBox();
         guideMesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);  // 壁より少し明るめ
-
         // 当たり判定
         auto colGroup = guideObj->AddComponent<ColliderGroup>();
         colGroup->AddCollider<BoxCollider>();  // Transform から自動反映
@@ -101,79 +136,20 @@ void Field::Init()
     const float guideY = kWallHeight * 0.5f;
     const float guideX = kHalfWidth - 1.5f;     // 外壁との隙間をなくすため少し内側
 
-    // 左ガイド（内側へ  +30°）
+    // 左ガイド（内側へ +30°）
     MakeGuide({ -guideX, guideY, guideZ }, 120.0f);
 
-    // 右ガイド（内側へ  -30°）
+    // 右ガイド（内側へ -30°）
     MakeGuide({ +guideX, guideY, guideZ }, -120.0f);
 
 
     // ----------------------------------------------------------------------
-    // フリッパーの作成
+    // フィールドオブジェクトの作成
     // ----------------------------------------------------------------------
-    const float flipperZ = -kHalfHeight + 3.0f;  // 奥行き位置
-    const float flipperY = 0.5f;                // 高さ位置
-    const float flipperX = kHalfWidth - 2.5f;    // 左右位置
+    FieldLayout layout = MakeStage01Layout();
+    FieldBuilder builder;
+    m_Level = builder.Build(*this, layout);
 
-    // 左フリッパー
-    {
-        auto leftFlipper = CreateChild<Flipper>(Flipper::Side::Left);
-        leftFlipper->m_Transform.Position = { -flipperX, flipperY, flipperZ };
-        leftFlipper->Init();
-    }
-    // 右フリッパー
-    {
-        auto rightFlipper = CreateChild<Flipper>(Flipper::Side::Right);
-        rightFlipper->m_Transform.Position = { flipperX, flipperY, flipperZ };
-        rightFlipper->Init();
-    }
-
-    // ----------------------------------------------------------------------
-    // バンパーの作成
-    // ----------------------------------------------------------------------
-    const float bumperX = 0.0f;               // 左右位置
-    const float bumperY = 0.5f;               // 高さ位置
-    const float bumperZ = 0.0f;               // 奥行き位置
-
-    {
-        auto bumper = CreateChild<Bumper>();
-        bumper->m_Transform.Position = { bumperX, bumperY, bumperZ };
-        bumper->Init();
-    }
-
-    // ----------------------------------------------------------------------
-    // ホール（穴）の作成
-    // ----------------------------------------------------------------------
-    const float holeY = 1.0f;               // 高さ位置
-    const float holeZ = -kHalfHeight - 0.2f; // 手前側に配置
-    
-    auto hole = CreateChild<Hole>();
-    {
-        hole->m_Transform.Position = {0.0f, holeY, holeZ};
-        hole->m_Transform.Scale = {3.0f, 1.5f, 1.0f}; // 少し大きめに
-        hole->Init();
-    }
-
-    // ----------------------------------------------------------------------
-    // エネミースポナーの作成
-    // ----------------------------------------------------------------------
-    {
-        auto spawner = CreateChild<EnemySpawner>();
-
-        // 位置設定
-        spawner->m_Transform.Position = { 0.0f, 0.5f, 0.0f };
-        
-        // フィールド上部からスポーンするように設定
-        const float spawnZ = kHalfHeight - 2.0f;
-        const float spawnXMin = -kHalfWidth + 1.0f;
-        const float spawnXMax = kHalfWidth - 1.0f;
-
-        spawner->SetSpawnArea(spawnXMin, spawnXMax, spawnZ);
-
-        // ホールをターゲットに登録
-        spawner->AddTargetHole(hole);
-        spawner->Init();
-    }
 }
 
 void Field::Uninit()
@@ -194,3 +170,5 @@ void Field::Draw()
     GameObject::Draw();
 
 }
+
+

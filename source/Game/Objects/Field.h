@@ -2,6 +2,7 @@
 
 #include "gameobject.h"
 #include "vector3.h"
+#include "FieldBuilder.h"
 
 // 前方宣言
 class MeshRenderer;
@@ -33,10 +34,13 @@ private:
     static constexpr const wchar_t* kWallTexturePath  = L"asset\\texture\\Wall2.png";  // テクスチャのパス
     static constexpr const char*    kVertexShaderPath = "shader\\bin\\BaseLitVS.cso"; // 頂点シェーダのパス
     static constexpr const char*    kPixelShaderPath  = "shader\\bin\\BaseLitPS.cso"; // ピクセルシェーダのパス
-    
+
+    static FieldLayout MakeStage01Layout();
+
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
     MeshRenderer* m_Floor = nullptr;
     ColliderGroup* m_ColliderGroup = nullptr;
+    LevelObjects m_Level;
 };
