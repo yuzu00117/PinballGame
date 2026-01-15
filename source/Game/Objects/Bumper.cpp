@@ -1,48 +1,48 @@
 #include "Bumper.h"
 #include "Input.h"
 
-// ƒRƒ“ƒ|[ƒlƒ“ƒg
+// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 #include "SphereCollider.h"
 #include "ColliderGroup.h"
 #include "ModelRenderer.h"
 #include "RigidBody.h"
 
-// ‰Šú‰»ˆ—
+// åˆæœŸåŒ–å‡¦ç†
 void Bumper::Init()
 {
     // ----------------------------------------------------------------------
-    // ModelRendererƒRƒ“ƒ|[ƒlƒ“ƒg’Ç‰Á
+    // ModelRendererã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆè¿½åŠ 
     // ----------------------------------------------------------------------
     m_ModelRenderer = AddComponent<ModelRenderer>();
     m_ModelRenderer->Load("asset//model//BumperTest.obj");
 
     // ----------------------------------------------------------------------
-    // SphereColliderƒRƒ“ƒ|[ƒlƒ“ƒg’Ç‰Á
+    // SphereColliderã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆè¿½åŠ 
     // ----------------------------------------------------------------------
     auto colliderGroup = AddComponent<ColliderGroup>();
     SphereCollider* sphereCollider = colliderGroup->AddCollider<SphereCollider>();
-    sphereCollider->m_radius = kDefaultColliderRadius; // ”¼Œa‚ğİ’è
+    sphereCollider->m_radius = kDefaultColliderRadius; // åŠå¾„ã‚’è¨­å®š
 }
 
-// XVˆ—
+// æ›´æ–°å‡¦ç†
 void Bumper::Update(float deltaTime)
 {
 
 }
 
-// •`‰æˆ—
+// æç”»å‡¦ç†
 void Bumper::Draw()
 {
     GameObject::Draw();
 }
 
-// I—¹ˆ—
+// çµ‚äº†å‡¦ç†
 void Bumper::Uninit()
 {
     m_ModelRenderer = nullptr;
 }
 
-// Õ“ËƒR[ƒ‹ƒoƒbƒN
+// è¡çªã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯
 void Bumper::OnCollisionStay(const CollisionInfo& info)
 {
 }

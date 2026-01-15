@@ -3,23 +3,23 @@
 #include "GameObject.h"
 #include "Vector3.h"
 
-// ‘O•ûéŒ¾
+// å‰æ–¹å®£è¨€
 class CollliderGroup;
 class ModelRenderer;
 
 /// <summary>
-/// ƒsƒ“ƒ{[ƒ‹‚Ìƒoƒ“ƒp[ƒNƒ‰ƒX
-/// TODO: Œ»İ‚ÌÀ‘•‚Å‚ÍA‚Ç‚ÌˆÊ’u‚Å”½Ë‚µ‚Ä‚à“¯‚¶—Í‚Å’e‚­d—l‚É‚È‚Á‚Ä‚¢‚é‚½‚ßA
-///       «—ˆ“I‚Éu“–‚½‚Á‚½ˆÊ’u‚Å’e‚­—Í‚ª•Ï‚í‚év‚æ‚¤‚É‰ü—Ç‚µ‚½‚¢
+/// ãƒ”ãƒ³ãƒœãƒ¼ãƒ«ã®ãƒãƒ³ãƒ‘ãƒ¼ã‚¯ãƒ©ã‚¹
+/// TODO: ç¾åœ¨ã®å®Ÿè£…ã§ã¯ã€ã©ã®ä½ç½®ã§åå°„ã—ã¦ã‚‚åŒã˜åŠ›ã§å¼¾ãä»•æ§˜ã«ãªã£ã¦ã„ã‚‹ãŸã‚ã€
+///       å°†æ¥çš„ã«ã€Œå½“ãŸã£ãŸä½ç½®ã§å¼¾ãåŠ›ãŒå¤‰ã‚ã‚‹ã€ã‚ˆã†ã«æ”¹è‰¯ã—ãŸã„
 /// </summary>
 class Bumper : public GameObject
 {
 public:
     // ----------------------------------------------------------------------
-    // ŠÖ”’è‹`
+    // é–¢æ•°å®šç¾©
     // ----------------------------------------------------------------------
     /// <summary>
-    /// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+    /// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«ãƒ¡ã‚½ãƒƒãƒ‰
     /// </summary>
     void Init() override;
     void Update(float deltaTime) override;
@@ -27,26 +27,29 @@ public:
     void Uninit() override;
 
     /// <summary>
-    /// Õ“ËƒR[ƒ‹ƒoƒbƒN
-    /// ƒoƒ“ƒp[‚Åƒ{[ƒ‹‚ğ’e‚­‚½‚ß‚ÌŠÈˆÕÀ‘•
+    /// è¡çªã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯
+    /// ãƒãƒ³ãƒ‘ãƒ¼ã§ãƒœãƒ¼ãƒ«ã‚’å¼¾ããŸã‚ã®ç°¡æ˜“å®Ÿè£…
     /// </summary>
+    void OnCollisionEnter(const CollisionInfo& info) override;
     void OnCollisionStay(const CollisionInfo& info) override;
 
 private:
+    static constexpr float kBumperHorizontalSpeed = 25.0f;          // ãƒœãƒ¼ãƒ«ã‚’å¼¾ãæ°´å¹³é€Ÿåº¦
+    static constexpr float kBumperUpSpeed = 1.5f;                   // ãƒœãƒ¼ãƒ«ã‚’å¼¾ãä¸Šæ–¹å‘é€Ÿåº¦
     // ----------------------------------------------------------------------
-    // ’è”’è‹`
+    // å®šæ•°å®šç¾©
     // ----------------------------------------------------------------------
-    static constexpr float kDefaultColliderRadius = 1.0f;           // ƒfƒtƒHƒ‹ƒg‚ÌƒRƒ‰ƒCƒ_[”¼Œa
+    static constexpr float kDefaultColliderRadius = 1.0f;           // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼åŠå¾„
 
     // ----------------------------------------------------------------------
-    // •Ï”’è‹`
+    // å¤‰æ•°å®šç¾©
     // ----------------------------------------------------------------------
-    // ƒRƒ“ƒ|[ƒlƒ“ƒg
-    ModelRenderer* m_ModelRenderer = nullptr;                       // ƒ‚ƒfƒ‹ƒŒƒ“ƒ_ƒ‰[
+    // ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+    ModelRenderer* m_ModelRenderer = nullptr;                       // ãƒ¢ãƒ‡ãƒ«ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼
 
-    // ƒVƒF[ƒ_[
-    static constexpr const char* VertexShaderPath =                 // ’¸“_ƒVƒF[ƒ_‚ÌƒpƒX
+    // ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼
+    static constexpr const char* VertexShaderPath =                 // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ‘ã‚¹
         "shader\\bin\\BaseLitVS.cso";   
-    static constexpr const char* PixelShaderPath  =                 // ƒsƒNƒZƒ‹ƒVƒF[ƒ_‚ÌƒpƒX
+    static constexpr const char* PixelShaderPath  =                 // ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ã®ãƒ‘ã‚¹
         "shader\\bin\\BaseLitPS.cso";
 };  
