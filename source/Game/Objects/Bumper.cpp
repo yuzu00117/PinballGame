@@ -1,88 +1,91 @@
-#include "main.h"
-#include "renderer.h"
 #include "Bumper.h"
-#include "modelRenderer.h"
-#include <math.h>
 
-// XZ•½–Ê‚Ì“àÏ
-static inline float DotXZ(const Vector3& a, const Vector3& b)
-{
-    return a.x * b.x + a.z * b.z;
-}
+// ã‚·ã‚¹ãƒ†ãƒ é–¢é€£
+#include "Input.h"
 
-// --- GameObject ---
+// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+#include "SphereCollider.h"
+#include "ColliderGroup.h"
+#include "ModelRenderer.h"
+#include "RigidBody.h"
+#include "Ball.h"
+
+// åˆæœŸåŒ–å‡¦ç†
 void Bumper::Init()
 {
-    // ƒ‚ƒfƒ‹“Ç‚İ‚İ
-    m_ModelRenderer = new ModelRenderer();
-    m_ModelRenderer->Load("asset\\model\\BumperTest.obj");
+    // ----------------------------------------------------------------------
+    // ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿è¨­å®š
+    // ----------------------------------------------------------------------
+    m_Transform.Scale = { 2.0f, 2.0f, 2.0f }; // ã‚¹ã‚±ãƒ¼ãƒ«ã‚’è¨­å®š
 
-    // ƒVƒF[ƒ_[ì¬
-    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\BaseLitVS.cso");
-    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\BaseLitPS.cso");
+
+    // ----------------------------------------------------------------------
+    // ModelRendererã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆè¿½åŠ 
+    // ----------------------------------------------------------------------
+    m_ModelRenderer = AddComponent<ModelRenderer>();
+    m_ModelRenderer->Load("asset//model//BumperTest.obj");
+
+    // ----------------------------------------------------------------------
+    // SphereColliderã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆè¿½åŠ 
+    // ----------------------------------------------------------------------
+    auto colliderGroup = AddComponent<ColliderGroup>();
+    SphereCollider* sphereCollider = colliderGroup->AddCollider<SphereCollider>();
+    sphereCollider->m_radius = kDefaultColliderRadius; // åŠå¾„ã‚’è¨­å®š
 }
 
-// I—¹ˆ—
-void Bumper::Uninit()
+// æ›´æ–°å‡¦ç†
+void Bumper::Update(float deltaTime)
 {
-    // ƒ‚ƒfƒ‹ƒŒƒ“ƒ_ƒ‰[‚Ì‰ğ•ú
-    delete m_ModelRenderer;
-    m_ModelRenderer = nullptr;
-
-    // ƒVƒF[ƒ_[‚Ì‰ğ•ú
-    m_VertexLayout->Release();
-    m_VertexShader->Release();
-    m_PixelShader->Release();
 }
 
-// XVˆ—
-void Bumper::Update(float deltaTime) {}
-
-// •`‰æˆ—
+// æç”»å‡¦ç†
 void Bumper::Draw()
 {
-    // “ü—ÍƒŒƒCƒAƒEƒgİ’è
-    Renderer::GetDeviceContext()->IASetInputLayout(m_VertexLayout);
-
-    // ƒVƒF[ƒ_[İ’è
-    Renderer::GetDeviceContext()->VSSetShader(m_VertexShader, nullptr, 0);
-    Renderer::GetDeviceContext()->PSSetShader(m_PixelShader, nullptr, 0);
-
-    // ƒ[ƒ‹ƒhs—ñiXY‰ñ“]‚Í‚È‚µBXZƒXƒP[ƒ‹‚Å”¼Œa‚É‡‚í‚¹A‚‚³‚Í0.4j
-    const float h = 0.4f;
-    XMMATRIX scale = XMMatrixScaling(m_Radius, h, m_Radius);
-    // °‚ª y=0 ‚È‚Ì‚ÅA”–‚¢‰~’Œ‚Ì’†S‚ğ y=h/2 ‚Éã‚°‚ÄŒ©Ø‚ê‚È‚¢‚æ‚¤‚É‚·‚é
-    XMMATRIX trans = XMMatrixTranslation(m_Center.x, h * 0.5f, m_Center.z);
-    XMMATRIX world = scale * trans;
-    Renderer::SetWorldMatrix(world);
-
-    m_ModelRenderer->Draw();
+    GameObject::Draw();
 }
 
-// --- Ball ---
-void Bumper::Resolve(Vector3& ballPosition, Vector3& ballVelocity, float ballRadius)
+// çµ‚äº†å‡¦ç†
+void Bumper::Uninit()
 {
-    // ƒ{[ƒ‹‚ÌXZ•½–Ê‚Å‚ÌÕ“Ë”»’è
-    Vector3 n = { ballPosition.x - m_Center.x, 0.0f, ballPosition.z - m_Center.z };
-    float d2 = DotXZ(n, n);
-    const float minD = ballRadius + m_Radius;
+    m_ModelRenderer = nullptr;
+}
 
-    if (d2 > 0.0f && d2 < minD * minD)
+// è¡çªã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯
+void Bumper::OnCollisionEnter(const CollisionInfo& info)
+{
+    // ----------------------------------------------------------------------
+    // ãƒœãƒ¼ãƒ«ã‚’å¼¾ãå‡¦ç†
+    // ----------------------------------------------------------------------
+    // æ—©æœŸãƒªã‚¿ãƒ¼ãƒ³
+    if (!info.self || !info.other) return;  // self, otherãŒä½•ã‚‚ãªã„
+    if (info.self->m_Owner != this) return; // selfãŒè‡ªåˆ†è‡ªèº«ã§ãªã„
+    if (!info.other->m_Owner) return;       // otherã®æ‰€æœ‰è€…ãŒã„ãªã„
+
+    // è¡çªç›¸æ‰‹ãŒãƒœãƒ¼ãƒ«ã‹ç¢ºèª
+    auto* ball = dynamic_cast<Ball*>(info.other->m_Owner);
+    if (!ball) return;
+
+    // ãƒœãƒ¼ãƒ«ã®RigidBodyã‚’å–å¾—
+    RigidBody* rb = ball->GetComponent<RigidBody>();
+    if (!rb) return;
+
+    // è¡çªæ–¹å‘ã‹ã‚‰ã€ãƒœãƒ¼ãƒ«ã‚’å¼¾ãé€Ÿåº¦ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—ã—ã¦è¨­å®š
+    Vector3 n = -info.normal;
+    n.y = 0.0f;
+
+    // æ–¹å‘ãŒã‚¼ãƒ­ãƒ™ã‚¯ãƒˆãƒ«ã®å ´åˆã®å¯¾ç­–
+    if (n.LengthSq() < 1e-6f)
     {
-        float d = sqrtf(d2);
-        if (d < 1e-6f) {
-            // –@üƒxƒNƒgƒ‹‚Ìİ’è
-            n = { 1.0f, 0.0f, 0.0f };
-            d = 1.0f;
-        }
-        Vector3 nh = { n.x / d, 0.0f, n.z / d };
-
-        // 1) ˆÊ’u•â³
-        ballPosition += nh * (minD - d);
-
-        // 2) ‘¬“x•â³
-        float vn = DotXZ(ballVelocity, nh);         // –@ü•ûŒü‚Ì‘¬“x¬•ª
-        // ”½”­ŒW”‚ğl—¶‚µ‚½‘¬“x•â³
-        ballVelocity = ballVelocity - nh * (1.0f + m_Restitution) * vn + nh * m_KickVelocity;
+        n = Vector3(1.0f, 0.0f, 0.0f);
     }
+    n = n.NormalizeSafe();
+
+    // ãƒœãƒ¼ãƒ«ã‚’å°‘ã—æŠ¼ã—å‡ºã™ï¼ˆã‚ã‚Šè¾¼ã¿å¯¾ç­–ï¼‰
+    const float kSeparateDist = 0.3f;
+    ball->m_Transform.Position += n * kSeparateDist;
+
+    // å¼¾ãé€Ÿåº¦ã‚’è¨­å®šã—ã¦å¼¾ã
+    Vector3 newVel = n * kBumperKickHorizontalSpeed;
+    newVel.y = kBumperKickVerticalSpeed;
+    rb->m_Velocity = newVel;
 }

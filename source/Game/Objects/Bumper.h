@@ -1,52 +1,49 @@
-#ifndef _BUMPER_H
-#define _BUMPER_H
+#pragma once
 
-#include "vector3.h"
-#include "gameobject.h"
+#include "GameObject.h"
+#include "Vector3.h"
+
+// å‰æ–¹å®£è¨€
+class CollliderGroup;
+class ModelRenderer;
 
 /// <summary>
-/// ƒsƒ“ƒ{[ƒ‹‚Ìƒoƒ“ƒp[ƒIƒuƒWƒFƒNƒg
-/// ƒ{[ƒ‹‚ª’µ‚Ë•Ô‚éƒIƒuƒWƒFƒNƒg
+/// ãƒ”ãƒ³ãƒœãƒ¼ãƒ«ã®ãƒãƒ³ãƒ‘ãƒ¼ã‚¯ãƒ©ã‚¹
+/// ãƒœãƒ¼ãƒ«ãŒè¡çªã—ãŸéš›ã«ãƒœãƒ¼ãƒ«ã‚’å¼¾ã
 /// </summary>
 class Bumper : public GameObject
 {
 public:
-    Bumper(const Vector3& c, float r, float rest = 1.1f, float kick = 1.0f)
-        : m_Center(c), m_Radius(r), m_Restitution(rest), m_KickVelocity(kick) {}
-
-    // --- ŠÖ”éŒ¾ ---
+    // ----------------------------------------------------------------------
+    // é–¢æ•°å®šç¾©
+    // ----------------------------------------------------------------------
+    /// <summary>
+    /// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«ãƒ¡ã‚½ãƒƒãƒ‰
+    /// </summary>
     void Init() override;
-    void Uninit() override;
     void Update(float deltaTime) override;
     void Draw() override;
+    void Uninit() override;
 
     /// <summary>
-    /// ƒ{[ƒ‹‚Æ‚ÌÕ“Ë
+    /// è¡çªã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯
     /// </summary>
-    void Resolve(Vector3& ballPosition, Vector3& ballVelocity, float ballRadius);
-
-    // --- ƒQƒbƒ^[ ---
-    const Vector3& GetCenter() const { return m_Center; }
-    float GetRadius() const { return m_Radius; }
+    void OnCollisionEnter(const CollisionInfo& info) override;
 
 private:
-	// --- ’è”’è‹` ---
-    static constexpr float DefaultBumperRadius = 1.0f;          // ƒfƒtƒHƒ‹ƒg‚Ìƒoƒ“ƒp[”¼Œa
-    static constexpr float DefaultBumperRestitution = 1.1f;     // ƒfƒtƒHƒ‹ƒg‚Ìƒoƒ“ƒp[”½”­ŒW”
-    static constexpr float DefaultBumperKickVelocity = 1.0f;    // ƒfƒtƒHƒ‹ƒg‚Ìƒoƒ“ƒp[ƒLƒbƒN‘¬“x
+    // ----------------------------------------------------------------------
+    // å®šæ•°å®šç¾©
+    // ----------------------------------------------------------------------
+    // ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼è¨­å®š
+    static constexpr float kDefaultColliderRadius = 2.0f;           // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼åŠå¾„
 
-    // --- •Ï”’è‹` ---
-    ID3D11Buffer*               m_VertexBuffer  = nullptr;
-    ID3D11InputLayout*          m_VertexLayout  = nullptr;
-    ID3D11VertexShader*         m_VertexShader  = nullptr;
-    ID3D11PixelShader*          m_PixelShader   = nullptr;
-    ID3D11ShaderResourceView*   m_Texture       = nullptr;
-    class ModelRenderer*        m_ModelRenderer = nullptr;
+    // ãƒãƒ³ãƒ‘ãƒ¼ãŒãƒœãƒ¼ãƒ«ã‚’å¼¾ãé€Ÿåº¦
+    static constexpr float kBumperKickHorizontalSpeed = 25.0f;      // ãƒãƒ³ãƒ‘ãƒ¼ãŒæ°´å¹³ã«å¼¾ãé€Ÿåº¦
+    static constexpr float kBumperKickVerticalSpeed = 15.0f;        // ãƒãƒ³ãƒ‘ãƒ¼ãŒå‚ç›´ã«å¼¾ãé€Ÿåº¦
 
-    Vector3 m_Center{};                                         // ƒoƒ“ƒp[‚Ì’†SˆÊ’u
-    float m_Radius = DefaultBumperRadius;                       // ƒoƒ“ƒp[‚Ì”¼Œa
-    float m_Restitution = DefaultBumperRestitution;             // ƒoƒ“ƒp[‚Ì”½”­ŒW”
-    float m_KickVelocity = DefaultBumperKickVelocity;           // ƒoƒ“ƒp[‚ÌƒLƒbƒN‘¬“x
+    // ----------------------------------------------------------------------
+    // å¤‰æ•°å®šç¾©
+    // ----------------------------------------------------------------------
+    // ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®ãƒã‚¤ãƒ³ã‚¿
+    ModelRenderer* m_ModelRenderer = nullptr;                       // ãƒ¢ãƒ‡ãƒ«ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼
 };
-
-#endif // _BUMPER_H
