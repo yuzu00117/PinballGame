@@ -9,8 +9,7 @@ class ModelRenderer;
 
 /// <summary>
 /// ピンボールのバンパークラス
-/// TODO: 現在の実装では、どの位置で反射しても同じ力で弾く仕様になっているため、
-///       将来的に「当たった位置で弾く力が変わる」ように改良したい
+/// ボールが衝突した際にボールを弾く
 /// </summary>
 class Bumper : public GameObject
 {
@@ -28,23 +27,24 @@ public:
 
     /// <summary>
     /// 衝突コールバック
-    /// バンパーでボールを弾くための簡易実装
     /// </summary>
     void OnCollisionEnter(const CollisionInfo& info) override;
-    void OnCollisionStay(const CollisionInfo& info) override;
 
 private:
-    static constexpr float kBumperHorizontalSpeed = 25.0f;          // ボールを弾く水平速度
-    static constexpr float kBumperUpSpeed = 1.5f;                   // ボールを弾く上方向速度
     // ----------------------------------------------------------------------
     // 定数定義
     // ----------------------------------------------------------------------
+    // コライダー設定
     static constexpr float kDefaultColliderRadius = 1.0f;           // デフォルトのコライダー半径
+
+    // バンパーがボールを弾く速度
+    static constexpr float kBumperKickHorizontalSpeed = 25.0f;      // バンパーが水平に弾く速度
+    static constexpr float kBumperKickVerticalSpeed = 15.0f;        // バンパーが垂直に弾く速度
 
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------
-    // コンポーネント
+    // コンポーネントのポインタ
     ModelRenderer* m_ModelRenderer = nullptr;                       // モデルレンダラー
 
     // シェーダー
