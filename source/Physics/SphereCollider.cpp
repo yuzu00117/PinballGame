@@ -42,14 +42,14 @@ static bool SphereVsSphere(SphereCollider* a, SphereCollider* b,
     // A視点
     outA.self = a;
     outA.other = b;
-    outA.normal = normalA;
+    outA.normal = -normalA;
     outA.penetration = penetration;
     outA.contactPoint = contact;
 
     // B視点
     outB.self = b;
     outB.other = a;
-    outB.normal = -normalA;
+    outB.normal = normalA;
     outB.penetration = penetration;
     outB.contactPoint = contact;
 
