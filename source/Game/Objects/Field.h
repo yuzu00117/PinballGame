@@ -13,23 +13,30 @@ class ColliderGroup;
 class Field : public GameObject
 {
 public:
-    // --- 関数定義 ---
+    // ----------------------------------------------------------------------
+    // 関数定義
+    // ----------------------------------------------------------------------
     void Init() override;
     void Uninit() override;
     void Update(float deltaTime) override;
     void Draw() override;
 
 private:
-    // --- 定数定義 ---
-    static constexpr float HalfWidth  = 9.5f;                                       // フィールドの幅の半分
-    static constexpr float HalfHeight = 14.5f;                                      // フィールドの高さの半分
-    static constexpr float WallThick  = 1.0f;                                       // 壁の厚さ
-    static constexpr float WallHeight = 2.0f;                                       // 壁の高さ
-    static constexpr const wchar_t* TexturePath = L"asset\\texture\\field004.jpg";  // テクスチャのパス
-    static constexpr const char* VertexShaderPath = "shader\\bin\\BaseLitVS.cso";   // 頂点シェーダのパス
-    static constexpr const char* PixelShaderPath  = "shader\\bin\\BaseLitPS.cso";   // ピクセルシェーダのパス
+    // ----------------------------------------------------------------------
+    // 定数定義
+    // ----------------------------------------------------------------------
+    static constexpr float          kHalfWidth  = 9.5f;                               // フィールドの幅の半分
+    static constexpr float          kHalfHeight = 14.5f;                              // フィールドの高さの半分
+    static constexpr float          kWallThick  = 1.0f;                               // 壁の厚さ
+    static constexpr float          kWallHeight = 2.0f;                               // 壁の高さ
+    static constexpr const wchar_t* kFieldTexturePath = L"asset\\texture\\Field.png"; // テクスチャのパス
+    static constexpr const wchar_t* kWallTexturePath  = L"asset\\texture\\Wall2.png";  // テクスチャのパス
+    static constexpr const char*    kVertexShaderPath = "shader\\bin\\BaseLitVS.cso"; // 頂点シェーダのパス
+    static constexpr const char*    kPixelShaderPath  = "shader\\bin\\BaseLitPS.cso"; // ピクセルシェーダのパス
     
-    // --- 変数定義 ---
+    // ----------------------------------------------------------------------
+    // 変数定義
+    // ----------------------------------------------------------------------
     MeshRenderer* m_Floor = nullptr;
     ColliderGroup* m_ColliderGroup = nullptr;
 };

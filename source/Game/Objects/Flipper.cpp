@@ -59,7 +59,7 @@ void Flipper::Init()
     auto meshRenderer = m_ArmObject->AddComponent<MeshRenderer>();
     meshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);    // シェーダーの設定
     meshRenderer->CreateUnitBox();
-    meshRenderer->m_Color = XMFLOAT4(0.9f, 0.9f, 0.95f, 1.0f);
+    meshRenderer->m_Color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 
     // ----------------------------------------------------------------------
     // ボックスコライダー追加

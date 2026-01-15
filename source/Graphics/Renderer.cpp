@@ -239,8 +239,8 @@ void Renderer::Init()
 	// ÉâÉCÉgèâä˙âª
 	LIGHT light{};
 	light.Enable = true;
-	light.Direction = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
-	light.Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	light.Direction = XMFLOAT4(0.3f, -1.0f, 0.3f, 0.0f);
+	light.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	light.Diffuse = XMFLOAT4(1.5f, 1.5f, 1.5f, 1.0f);
 	SetLight(light);
 
