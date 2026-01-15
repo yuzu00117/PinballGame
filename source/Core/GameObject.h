@@ -14,31 +14,36 @@
 // 前方宣言
 class Collider;
 
-/// <summary>
 /// ゲームオブジェクトの基底クラス
-/// </summary>
+/// - Transform 情報を持ち、複数の Component と子オブジェクトを所有できる
+/// - 破棄は Destroy() を呼び出し、実際の削除はシーンマネージャーが行う
+/// - 継承先では、必要に応じて各関数を override する
 class GameObject  
 {
 public:
-    // ------------------------------------------------------------------------------
-    // 関数定義
-    // ------------------------------------------------------------------------------
-    /// <summary>
-    /// デフォルトコンストラクタ・デストラクタ
-    /// </summary>
+    /// 仮想デストラクタ（派生クラスを安全に破棄するため）
     virtual ~GameObject() = default;
 
-    /// <summary>
-    /// ライフサイクルメソッド
-    /// </summary>
+    // ----------------------------------------------------------------------
+    // ライフサイクルメソッド
+    // ----------------------------------------------------------------------
+    /// 初期化処理（子オブジェクト / Component の構築や初期設定を行う）
     virtual void Init() {}  
-    virtual void Uninit() {}  
+    /// 終了処理（明示的な解放が必要な場合に実装）
+    virtual void Uninit() {}
+    /// 更新処理（deltaTimeは秒単位）
     virtual void Update(float deltaTime);
+    /// 描画処理
     virtual void Draw();
 
-    /// <summary>
-    /// 任意のComponentを追加する
-    /// </summary>
+    // ----------------------------------------------------------------------
+    // Component管理
+    // ----------------------------------------------------------------------
+    /// Componentを追加する
+    /// - 所有権：GameObjectが保持（unique_ptrで所有）
+    /// - 戻り値：非所有ポインタ（所有はGameObject側が持つ）
+    /// - 副作用：追加直後に comp->Init() が呼び出される
+    /// 注意：Init内で AddComponent する場合、順序依存に注意
     template <typename T, typename... Args>
     T *AddComponent(Args &&...args)
     {
@@ -47,26 +52,23 @@ public:
         auto comp = std::make_unique<T>(std::forward<Args>(args)...);
         T *ptr = comp.get();
 
-        // GameObjectとの連携を設定
+        // GameObjectとの連携を設定（Ownerは常に設定）
         comp->m_Owner = this;
 
-        // Collider / MeshRenderer / AnimationModel のときだけ Transform をリンク
-        // TODO: Transformが必要なコンポーネントは、各コンポーネントのInitでTransformをリンクするように適宜修正
-        // Collider
+        // Transformのリンク
+        // TODO: Transformが必要なコンポーネントは、各コンポーネント側のInitでリンクする方式へ整理する
         if constexpr (std::is_base_of<Collider, T>::value)
             comp->m_Transform = &m_Transform;
-        // MeshRenderer
         if constexpr (std::is_base_of<MeshRenderer, T>::value)
             comp->m_Transform = &m_Transform;
 
-        comp->Init(); // 初期化呼び出し
+        comp->Init();
         m_Components.push_back(std::move(comp));
         return ptr;
     }
 
-    /// <summary>
     /// 指定タイプのComponentを取得する（例：GetComponent<BoxCollider>()）
-    /// </summary>
+    /// 戻り値：見つからない場合は nullptr
     template <typename T>
     T *GetComponent()
     {
@@ -75,15 +77,16 @@ public:
                 return ptr;
         return nullptr;
     }
-
-    /// <summary>
+    
+    // ----------------------------------------------------------------------
+    // 子オブジェクト管理
+    // ----------------------------------------------------------------------
     /// 子オブジェクトを追加する（基本版）
-    /// </summary>
+    /// 戻り値：非所有ポインタ（所有は親GameObject側が持つ） 
     GameObject* CreateChild();
 
-    /// <summary>
-    /// 子オブジェクトを追加する（派生クラス対応版）
-    /// </summary>
+    /// 子オブジェクトを追加する（派生クラス版）
+    /// 戻り値：非所有ポインタ（所有は親GameObject側が持つ）
     template <class T, class... Args>
     T* CreateChild(Args&&... args) {
         static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
@@ -94,55 +97,47 @@ public:
         return ptr;
     }
 
-    /// <summary>
     /// 既存のGameObjectを子オブジェクトとしてアタッチする
-    /// </summary>
     void AttachChild(std::unique_ptr<GameObject> child);
 
-    /// <summary>
-    /// すべての子オブジェクトをデタッチする
-    /// </summary>
+    /// すべての子オブジェクトを破棄する（親子関係も解除）
+    // TODO: Detach という名前は適切でないかも？
     void DetachAllChildren();
 
-    /// <summary>
-    /// 衝突イベントコールバック
-    /// </summary>
+    // ----------------------------------------------------------------------
+    // 衝突イベントコールバック
+    // ----------------------------------------------------------------------
+    /// 衝突イベント（当たり判定）
     virtual void OnCollisionEnter(const CollisionInfo& info) {}
     virtual void OnCollisionStay(const CollisionInfo& info) {}
     virtual void OnCollisionExit(const CollisionInfo& info) {}
-    // / トリガー用イベントコールバック
+    /// トリガーイベント（接触判定）
     virtual void OnTriggerEnter(const CollisionInfo& info) {}
     virtual void OnTriggerStay(const CollisionInfo& info) {}
     virtual void OnTriggerExit(const CollisionInfo& info) {}
 
-    /// <summary>
-    /// 子オブジェクトも含めて全てのコライダーを収集する
-    /// </summary>
+    /// 子オブジェクトも含めてすべての Collider を収集する
     void CollectCollidersRecursive(std::vector<Collider*>& outColliders);
 
-    /// <summary>
-    /// オブジェクトを削除する
-    /// </summary>
+    // ----------------------------------------------------------------------
+    // 生存管理
+    // ----------------------------------------------------------------------
+    /// オブジェクトを削除予定にする（即時削除ではない）
     void Destroy() { m_IsDead = true; }
 
-    /// <summary>
-    /// オブジェクトが削除予定かどうかを返す
-    /// </summary>
+    /// 削除予定かどうか
     bool IsDead() const { return m_IsDead; }
 
-    // ------------------------------------------------------------------------------
-    // 変数定義
-    // ------------------------------------------------------------------------------
+public:
+    // Transform情報
     Transform m_Transform;                                  // オブジェクトのTransform情報
 
 protected:
-    // -------------------------------------------------------------------------------
-    // 変数定義
-    // -------------------------------------------------------------------------------
-    GameObject* m_Parent = nullptr;                         // 親オブジェクトへのポインタ
+    // 所有権・参照関係
+    GameObject* m_Parent = nullptr;                         // 非所有：親への参照
     
-    std::vector<std::unique_ptr<Component>> m_Components;   // 所属するコンポーネントのリスト
-    std::vector<std::unique_ptr<GameObject>> m_Children;    // 子オブジェクトのリスト
+    std::vector<std::unique_ptr<Component>> m_Components;   // 所有：Component群
+    std::vector<std::unique_ptr<GameObject>> m_Children;    // 所有：子オブジェクト群
 
-    bool m_IsDead = false;                                  // オブジェクト削除フラグ
+    bool m_IsDead = false;                                  // 削除フラグ
 };

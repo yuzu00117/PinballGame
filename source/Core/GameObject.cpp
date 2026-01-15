@@ -1,18 +1,29 @@
 #include "gameobject.h"
+
+// コンポーネント関連
 #include "ColliderGroup.h"
 #include "Collider.h"
 
 // ------------------------------------------------------------------------------
 // 更新処理
 // ------------------------------------------------------------------------------
+// - Component / 子オブジェクトを更新する
+// - Update後に、Destroyフラグが立っている子オブジェクトを削除する（この時点で実体が破棄される）
 void GameObject::Update(float deltaTime)
 {
-    // コンポーネントの更新
-    for (auto& Component : m_Components) Component->Update(deltaTime);
-    // 子オブジェクトの更新
-    for (auto& Child : m_Children) Child->Update(deltaTime);
+    // Component 更新
+    for (auto& Component : m_Components)
+    {
+        Component->Update(deltaTime);
+    }
+    
+    // 子オブジェクト 更新
+    for (auto& Child : m_Children)
+    {
+        Child->Update(deltaTime);
+    }
 
-    // Destroyフラグが立っている子オブジェクトを削除
+    // Destroyフラグが立っている子オブジェクトを削除（unique_ptrなので実体も破棄される）
     m_Children.erase(
         std::remove_if(
             m_Children.begin(),
@@ -26,16 +37,23 @@ void GameObject::Update(float deltaTime)
 // ------------------------------------------------------------------------------
 // 描画処理
 // ------------------------------------------------------------------------------
+// - Component / 子オブジェクトを描画する
+// - デバッグ設定が有効な場合のみ、Collider を DebugDraw する
 void GameObject::Draw()
 {
-    // コンポーネントの描画
+    // Component 描画
     for (auto &Component : m_Components)
+    {
         Component->Draw();
-    // 子オブジェクトの描画
-    for (auto &Child : m_Children)
-        Child->Draw();
+    }
 
-    // デバッグ用コライダー描画
+    // 子オブジェクト 描画
+    for (auto &Child : m_Children)
+    {
+        Child->Draw();
+    }
+
+    // デバッグ用：Collider 描画（有効な場合のみ）
     if (g_EnableColliderDebugDraw)
     {
         for (auto &component : m_Components)
@@ -49,19 +67,24 @@ void GameObject::Draw()
 }
 
 // ------------------------------------------------------------------------------
-// 子オブジェクトを追加する
+// 子オブジェクトを追加する（基本版）
 // ------------------------------------------------------------------------------
+// 戻り値は非所有ポインタ（所有権は親GameObject側が保持：m_Childrenのunique_ptr）
+// 生成直後に AttachChild により親子関係（m_Parent / Transformの親）が構築される
 GameObject* GameObject::CreateChild()
 {
     auto child = std::make_unique<GameObject>();
-    GameObject *ptr = child.get();
-    AttachChild(std::move(child));
+    GameObject *ptr = child.get(); // 非所有参照
+    AttachChild(std::move(child)); // 所有権を親へ譲渡
     return ptr;
 }
 
 // ------------------------------------------------------------------------------
 // 子オブジェクトをアタッチする
 // ------------------------------------------------------------------------------
+// child の所有権を受け取り、親子関係を設定する
+// - m_Parent を設定
+// - m_Transform の親を設定（親Transformに追従する）
 void GameObject::AttachChild(std::unique_ptr<GameObject> child)
 {
     child->m_Parent = this;
@@ -70,27 +93,34 @@ void GameObject::AttachChild(std::unique_ptr<GameObject> child)
 }
 
 // ------------------------------------------------------------------------------
-// 子オブジェクトをデタッチする
+// 子オブジェクトをデタッチする（親子関係も解除）
 // ------------------------------------------------------------------------------
+// NOTE: "Detach" という語感とは異なり、この実装は「所有を外へ渡す」のではなく
+//       親子関係を解除したあとに、m_Children.clear() で全破棄している点に注意
 void GameObject::DetachAllChildren()
 {
+    // 破棄前に親子関係（Transform / Parent参照）を解除しておく
     for (auto &Child : m_Children)
     {
         Child->m_Transform.ClearParent();
         Child->m_Parent = nullptr;
     }
+    // unique_ptr を破棄＝子オブジェクトもすべて破棄される
     m_Children.clear();
 }
 
 // ------------------------------------------------------------------------------
-// 再帰的に自分と子オブジェクトのコライダーを取得
+// 子オブジェクトも含めてすべての Collider を収集する
 // ------------------------------------------------------------------------------
+// - ColliderGroup は中に Collider を保持するため、グループ内をフラットに展開して追加する
+// - それ以外の Collider はそのまま追加する
+// - 子オブジェクトも再帰的に収集する
 void GameObject::CollectCollidersRecursive(std::vector<Collider*>& outColliders)
 {
-    // 自分のコンポーネント
+    // 自分の Component から収集
     for (auto& component : m_Components)
     {
-        // ColliderGroupの場合は中身をフラットに追加
+        // ColliderGroup は中身の Collider を展開して追加
         if (auto* colliderGroup = dynamic_cast<ColliderGroup*>(component.get()))
         {
             for (auto& collider : colliderGroup->colliders)
@@ -101,14 +131,14 @@ void GameObject::CollectCollidersRecursive(std::vector<Collider*>& outColliders)
                 }
             }
         }
-        // それ以外のColliderの場合はそのまま追加
+        // それ以外の単体 Collider はそのまま追加
         else if (auto* collider = dynamic_cast<Collider*>(component.get()))
         {
             outColliders.push_back(collider);
         }
     }
 
-    // 子オブジェクトのコライダーも再帰的に取得
+    // 子オブジェクトも再帰的に収集
     for (auto& child : m_Children)
     {
         child->CollectCollidersRecursive(outColliders);

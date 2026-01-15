@@ -90,7 +90,7 @@ void Field::Init()
         wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);
         // wallMesh->SetTexture(TexturePath);
 
-        // Colliders (Center/Size are derived from Transform)
+        // 当たり判定（Center/Size は Transform から算出される想定）
         auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
         auto boxCollider = wallColliderGroup->AddCollider<BoxCollider>();
     };
@@ -112,12 +112,12 @@ void Field::Init()
     //       当たり判定はBoxで丸めるなど修正を行う
     // ----------------------------------------------------------------------
 
-    auto MakeGuide = [&](const Vector3& position, float rotY)
+    auto MakeGuide = [&](const Vector3& position, float rotYDeg)
     {
         GameObject* guideObj = CreateChild();
         guideObj->m_Transform.Position = position;
         guideObj->m_Transform.Scale = { 1.0f, kWallHeight, 4.0f };   // 細長いガイド
-        guideObj->m_Transform.Rotation.y = rotY;
+        guideObj->m_Transform.Rotation.y = rotYDeg;
 
         // 見た目
 
@@ -136,10 +136,10 @@ void Field::Init()
     const float guideY = kWallHeight * 0.5f;
     const float guideX = kHalfWidth - 1.5f;     // 外壁との隙間をなくすため少し内側
 
-    // 左ガイド（内側へ +30°）
+    // 左ガイド（内側へ向ける）
     MakeGuide({ -guideX, guideY, guideZ }, 120.0f);
 
-    // 右ガイド（内側へ -30°）
+    // 右ガイド（内側へ向ける）
     MakeGuide({ +guideX, guideY, guideZ }, -120.0f);
 
 
@@ -154,19 +154,20 @@ void Field::Init()
 
 void Field::Uninit()
 {
+    // コンポーネントの参照をクリア
     m_Floor = nullptr;
     m_ColliderGroup = nullptr;
 }
 
 void Field::Update(float deltaTime)
 {
-    // フィールド固有の更新処理
+    // 現状は基底クラスの処理のみ（フィールド固有は必要に応じて追加）
     GameObject::Update(deltaTime);
 }
 
 void Field::Draw()
 {
-    // フィールド固有の描画処理
+    // 現状は基底クラスの処理のみ（フィールド固有は必要に応じて追加）
     GameObject::Draw();
 
 }
