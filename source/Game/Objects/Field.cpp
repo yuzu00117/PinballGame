@@ -9,6 +9,7 @@
 
 // フィールドのオブジェクト
 #include "Flipper.h"
+#include "Bumper.h"
 #include "Hole.h"
 #include "EnemySpawner.h"
 
@@ -125,7 +126,20 @@ void Field::Init()
         auto rightFlipper = CreateChild<Flipper>(Flipper::Side::Right);
         rightFlipper->m_Transform.Position = { flipperX, flipperY, flipperZ };
         rightFlipper->Init();
-    }    
+    }
+
+    // ----------------------------------------------------------------------
+    // バンパーの作成
+    // ----------------------------------------------------------------------
+    const float bumperX = 0.0f;               // 左右位置
+    const float bumperY = 0.5f;               // 高さ位置
+    const float bumperZ = 0.0f;               // 奥行き位置
+
+    {
+        auto bumper = CreateChild<Bumper>();
+        bumper->m_Transform.Position = { bumperX, bumperY, bumperZ };
+        bumper->Init();
+    }
 
     // ----------------------------------------------------------------------
     // ホール（穴）の作成

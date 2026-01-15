@@ -1,52 +1,52 @@
-#ifndef _BUMPER_H
-#define _BUMPER_H
+#pragma once
 
-#include "vector3.h"
-#include "gameobject.h"
+#include "GameObject.h"
+#include "Vector3.h"
+
+// 前方宣言
+class CollliderGroup;
+class ModelRenderer;
 
 /// <summary>
-/// ピンボールのバンパーオブジェクト
-/// ボールが跳ね返るオブジェクト
+/// ピンボールのバンパークラス
+/// TODO: 現在の実装では、どの位置で反射しても同じ力で弾く仕様になっているため、
+///       将来的に「当たった位置で弾く力が変わる」ように改良したい
 /// </summary>
 class Bumper : public GameObject
 {
 public:
-    Bumper(const Vector3& c, float r, float rest = 1.1f, float kick = 1.0f)
-        : m_Center(c), m_Radius(r), m_Restitution(rest), m_KickVelocity(kick) {}
-
-    // --- 関数宣言 ---
+    // ----------------------------------------------------------------------
+    // 関数定義
+    // ----------------------------------------------------------------------
+    /// <summary>
+    /// ライフサイクルメソッド
+    /// </summary>
     void Init() override;
-    void Uninit() override;
     void Update(float deltaTime) override;
     void Draw() override;
+    void Uninit() override;
 
     /// <summary>
-    /// ボールとの衝突
+    /// 衝突コールバック
+    /// バンパーでボールを弾くための簡易実装
     /// </summary>
-    void Resolve(Vector3& ballPosition, Vector3& ballVelocity, float ballRadius);
-
-    // --- ゲッター ---
-    const Vector3& GetCenter() const { return m_Center; }
-    float GetRadius() const { return m_Radius; }
+    void OnCollisionStay(const CollisionInfo& info) override;
 
 private:
-	// --- 定数定義 ---
-    static constexpr float DefaultBumperRadius = 1.0f;          // デフォルトのバンパー半径
-    static constexpr float DefaultBumperRestitution = 1.1f;     // デフォルトのバンパー反発係数
-    static constexpr float DefaultBumperKickVelocity = 1.0f;    // デフォルトのバンパーキック速度
+    // ----------------------------------------------------------------------
+    // 定数定義
+    // ----------------------------------------------------------------------
+    static constexpr float kDefaultColliderRadius = 1.0f;           // デフォルトのコライダー半径
 
-    // --- 変数定義 ---
-    ID3D11Buffer*               m_VertexBuffer  = nullptr;
-    ID3D11InputLayout*          m_VertexLayout  = nullptr;
-    ID3D11VertexShader*         m_VertexShader  = nullptr;
-    ID3D11PixelShader*          m_PixelShader   = nullptr;
-    ID3D11ShaderResourceView*   m_Texture       = nullptr;
-    class ModelRenderer*        m_ModelRenderer = nullptr;
+    // ----------------------------------------------------------------------
+    // 変数定義
+    // ----------------------------------------------------------------------
+    // コンポーネント
+    ModelRenderer* m_ModelRenderer = nullptr;                       // モデルレンダラー
 
-    Vector3 m_Center{};                                         // バンパーの中心位置
-    float m_Radius = DefaultBumperRadius;                       // バンパーの半径
-    float m_Restitution = DefaultBumperRestitution;             // バンパーの反発係数
-    float m_KickVelocity = DefaultBumperKickVelocity;           // バンパーのキック速度
-};
-
-#endif // _BUMPER_H
+    // シェーダー
+    static constexpr const char* VertexShaderPath =                 // 頂点シェーダのパス
+        "shader\\bin\\BaseLitVS.cso";   
+    static constexpr const char* PixelShaderPath  =                 // ピクセルシェーダのパス
+        "shader\\bin\\BaseLitPS.cso";
+};  
