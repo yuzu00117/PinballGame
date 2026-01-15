@@ -14,36 +14,37 @@
 
 struct FlipperDesc
 {
-    Flipper::Side side;
-    Vector3 position;
+    Flipper::Side side; // 左右
+    Vector3 position;   // 配置位置
 };
 
 struct BumperDesc
 {
-    Vector3 position;
+    Vector3 position; // 配置位置
 };
 
 struct HoleDesc
 {
-    std::string id;
-    Vector3 position;
-    Vector3 scale;
+    std::string id; // 識別用ID
+    Vector3 position; // 配置位置
+    Vector3 scale;    // サイズ
 };
 
 struct SpawnerDesc
 {
-    Vector3 position;
-    float spawnXMin = 0.0f;
-    float spawnXMax = 0.0f;
-    float spawnZ = 0.0f;
-    std::vector<std::string> targetHoleIds;
+    Vector3 position;                    // スポナー配置位置
+    float spawnXMin = 0.0f;             // 生成範囲X最小
+    float spawnXMax = 0.0f;             // 生成範囲X最大
+    float spawnZ = 0.0f;                // 生成位置Z
+    std::vector<std::string> targetHoleIds; // 目標HoleのID一覧
 };
 
 struct FieldLayout
 {
-    std::vector<FlipperDesc> flippers;
-    std::vector<BumperDesc> bumpers;
-    std::vector<HoleDesc> holes;
-    std::vector<SpawnerDesc> spawners;
+    std::vector<FlipperDesc> flippers; // フリッパー一覧
+    std::vector<BumperDesc> bumpers;   // バンパー一覧
+    std::vector<HoleDesc> holes;       // ホール一覧
+    std::vector<SpawnerDesc> spawners; // スポナー一覧
 };
+
 

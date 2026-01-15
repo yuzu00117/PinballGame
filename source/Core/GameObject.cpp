@@ -1,5 +1,8 @@
 #include "gameobject.h"
 
+// システム関連
+#include <algorithm>
+
 // コンポーネント関連
 #include "ColliderGroup.h"
 #include "Collider.h"
@@ -8,22 +11,22 @@
 // 更新処理
 // ------------------------------------------------------------------------------
 // - Component / 子オブジェクトを更新する
-// - Update後に、Destroyフラグが立っている子オブジェクトを削除する（この時点で実体が破棄される）
+// - Update後に、Destroyフラグが立っている子オブジェクトを回収して破棄
 void GameObject::Update(float deltaTime)
 {
     // Component 更新
-    for (auto& Component : m_Components)
+    for (auto& component : m_Components)
     {
-        Component->Update(deltaTime);
+        component->Update(deltaTime);
     }
     
     // 子オブジェクト 更新
-    for (auto& Child : m_Children)
+    for (auto& child : m_Children)
     {
-        Child->Update(deltaTime);
+        child->Update(deltaTime);
     }
 
-    // Destroyフラグが立っている子オブジェクトを削除（unique_ptrなので実体も破棄される）
+    // Destroyフラグが立っている子オブジェクトを回収して破棄（unique_ptrなので実体も破棄される）
     m_Children.erase(
         std::remove_if(
             m_Children.begin(),
@@ -42,15 +45,15 @@ void GameObject::Update(float deltaTime)
 void GameObject::Draw()
 {
     // Component 描画
-    for (auto &Component : m_Components)
+    for (auto &component : m_Components)
     {
-        Component->Draw();
+        component->Draw();
     }
 
     // 子オブジェクト 描画
-    for (auto &Child : m_Children)
+    for (auto &child : m_Children)
     {
-        Child->Draw();
+        child->Draw();
     }
 
     // デバッグ用：Collider 描画（有効な場合のみ）
@@ -100,10 +103,10 @@ void GameObject::AttachChild(std::unique_ptr<GameObject> child)
 void GameObject::DetachAllChildren()
 {
     // 破棄前に親子関係（Transform / Parent参照）を解除しておく
-    for (auto &Child : m_Children)
+    for (auto &child : m_Children)
     {
-        Child->m_Transform.ClearParent();
-        Child->m_Parent = nullptr;
+        child->m_Transform.ClearParent();
+        child->m_Parent = nullptr;
     }
     // unique_ptr を破棄＝子オブジェクトもすべて破棄される
     m_Children.clear();

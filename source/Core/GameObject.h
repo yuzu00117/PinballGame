@@ -41,7 +41,7 @@ public:
     // ----------------------------------------------------------------------
     /// Componentを追加する
     /// - 所有権：GameObjectが保持（unique_ptrで所有）
-    /// - 戻り値：非所有ポインタ（所有はGameObject側が持つ）
+    /// - 戻り値：非所有ポインタ（this が生存し、当該Componentが保持されている限り有効）
     /// - 副作用：追加直後に comp->Init() が呼び出される
     /// 注意：Init内で AddComponent する場合、順序依存に注意
     template <typename T, typename... Args>
@@ -101,7 +101,7 @@ public:
     void AttachChild(std::unique_ptr<GameObject> child);
 
     /// すべての子オブジェクトを破棄する（親子関係も解除）
-    // TODO: Detach という名前は適切でないかも？
+    // TODO: 将来的に DestroyAllChildren / ClearChildren に改名
     void DetachAllChildren();
 
     // ----------------------------------------------------------------------

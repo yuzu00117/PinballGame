@@ -8,15 +8,11 @@
 class MeshRenderer;
 class ColliderGroup;
 
-/// <summary>
 /// ピンボールのフィールドオブジェクトクラス
-/// </summary>
 class Field : public GameObject
 {
 public:
-    /// <summary>
     /// ライフサイクルメソッド
-    /// </summary>
     void Init() override;
     void Uninit() override;
     void Update(float deltaTime) override;
@@ -25,6 +21,7 @@ public:
 private:
     /// <summary>
     /// ステージ01のフィールドレイアウトを作成
+    /// FieldBuilder に渡す初期配置定義を組み立てる
     /// </summary>
     static FieldLayout MakeStage01Layout();
     
@@ -47,8 +44,7 @@ private:
     // ----------------------------------------------------------------------
     // コンポーネントの参照ポインタ
     // ----------------------------------------------------------------------
-    MeshRenderer* m_Floor = nullptr;
-    ColliderGroup* m_ColliderGroup = nullptr;
-    
-    LevelObjects m_Level; // フィールド内のレベルオブジェクト群
+    MeshRenderer* m_Floor = nullptr;        // 床メッシュ描画用（非所有）
+    ColliderGroup* m_ColliderGroup = nullptr; // 床/壁の当たり判定（非所有）
+    LevelObjects m_Level; // フィールド内のレベルオブジェクト群（非所有参照の集合）
 };

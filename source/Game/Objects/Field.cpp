@@ -13,6 +13,11 @@
 #include "Hole.h"
 #include "EnemySpawner.h"
 
+// ----------------------------------------------------------------------
+// ステージ01の配置定義
+// ----------------------------------------------------------------------
+// - FieldBuilder に渡すための初期配置をまとめる
+// - 位置やサイズはフィールド寸法から算出する
 FieldLayout Field::MakeStage01Layout()
 {
     FieldLayout layout;
@@ -74,7 +79,7 @@ void Field::Init()
     // 壁の作成
     // ----------------------------------------------------------------------
     const float yCenter = kWallHeight * 0.5f;
-
+    // 1枚の壁を生成する簡易ヘルパー
     auto MakeWall = [&](const Vector3& position, const Vector3& scale)
     {
         // 子オブジェクトとして壁を作成
@@ -111,7 +116,7 @@ void Field::Init()
     // TODO: 本来は、左右下の空き部分をなくすために、三角形のメッシュを描画し、
     //       当たり判定はBoxで丸めるなど修正を行う
     // ----------------------------------------------------------------------
-
+    // 1本のガイドを生成する簡易ヘルパー
     auto MakeGuide = [&](const Vector3& position, float rotYDeg)
     {
         GameObject* guideObj = CreateChild();
@@ -141,11 +146,10 @@ void Field::Init()
 
     // 右ガイド（内側へ向ける）
     MakeGuide({ +guideX, guideY, guideZ }, -120.0f);
-
-
     // ----------------------------------------------------------------------
     // フィールドオブジェクトの作成
     // ----------------------------------------------------------------------
+    // - レイアウト定義に従って子オブジェクトを生成する
     FieldLayout layout = MakeStage01Layout();
     FieldBuilder builder;
     m_Level = builder.Build(*this, layout);
