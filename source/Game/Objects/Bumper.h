@@ -35,7 +35,7 @@ private:
     // 定数定義
     // ----------------------------------------------------------------------
     // コライダー設定
-    static constexpr float kDefaultColliderRadius = 1.0f;           // デフォルトのコライダー半径
+    static constexpr float kDefaultColliderRadius = 2.0f;           // デフォルトのコライダー半径
 
     // バンパーがボールを弾く速度
     static constexpr float kBumperKickHorizontalSpeed = 25.0f;      // バンパーが水平に弾く速度
@@ -46,10 +46,4 @@ private:
     // ----------------------------------------------------------------------
     // コンポーネントのポインタ
     ModelRenderer* m_ModelRenderer = nullptr;                       // モデルレンダラー
-
-    // シェーダー
-    static constexpr const char* VertexShaderPath =                 // 頂点シェーダのパス
-        "shader\\bin\\BaseLitVS.cso";   
-    static constexpr const char* PixelShaderPath  =                 // ピクセルシェーダのパス
-        "shader\\bin\\BaseLitPS.cso";
-};  
+};
