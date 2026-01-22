@@ -1,4 +1,4 @@
-﻿
+﻿// modelRenderer.cpp
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdarg.h>
@@ -15,269 +15,274 @@ using namespace DirectX;
 #if _DEBUG
 static void DebugLogFmt(const char* fmt, ...)
 {
-	char buffer[512];
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(buffer, sizeof(buffer), fmt, args);
-	va_end(args);
-	OutputDebugStringA(buffer);
+    char buffer[512];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+    OutputDebugStringA(buffer);
 }
 #endif
 
 static void NormalizePathSeparators(char* path)
 {
-	for (char* p = path; *p; ++p)
-	{
-		if (*p == '/')
-		{
-			*p = '\\';
-		}
-	}
+    for (char* p = path; *p; ++p)
+    {
+        if (*p == '/')
+        {
+            *p = '\\';
+        }
+    }
 }
 
-// 静的メンバ変数の初期化
-std::unordered_map<std::string, MODEL *> ModelRenderer::m_ModelPool;
+// 静的メンバ変数の初期化（モデルプール）
+std::unordered_map<std::string, MODEL*> ModelRenderer::m_ModelPool;
 
-// ------------------------------------------------------------
-// ライフサイクルメソッド
-// ------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ライフサイクル
+// ------------------------------------------------------------------------------
+// - Owner の Transform を参照として保持する
+// - シェーダー未設定ならデフォルト（BaseLitVS/PS）をロードする
 void ModelRenderer::Init()
 {
-	// OwnerからTransformコンポーネントを取得
-	m_Transform = &m_Owner->m_Transform;
+    m_Transform = &m_Owner->m_Transform;
 
-	// 念の為アサーション
-	assert(m_Transform && "ModelRenderer::Init: Transform component not found in Owner GameObject");
+    assert(m_Transform && "ModelRenderer::Init: Transform component not found in Owner GameObject");
 
-	// まだシェーダーが設定されていなければデフォルトシェーダーを読み込む
-	if (!m_VertexShader || !m_PixelShader || !m_VertexLayout)
-	{
-		LoadShader(kDefaultVSPath, kDefaultPSPath);
-	}
+    if (!m_VertexShader || !m_PixelShader || !m_VertexLayout)
+    {
+        LoadShader(kDefaultVSPath, kDefaultPSPath);
+    }
 }
 
+// ------------------------------------------------------------------------------
+// 終了処理
+// ------------------------------------------------------------------------------
+// - シェーダー/入力レイアウトを解放する
+// - モデル自体はプール管理のためここでは解放しない
 void ModelRenderer::Uninit()
 {
-	// アサーション
-	assert(m_VertexShader && "ModelRenderer::Uninit: VertexShader is null");
-	assert(m_PixelShader && "ModelRenderer::Uninit: PixelShader is null");
-	assert(m_VertexLayout && "ModelRenderer::Uninit: VertexLayout is null");
+    assert(m_VertexShader && "ModelRenderer::Uninit: VertexShader is null");
+    assert(m_PixelShader && "ModelRenderer::Uninit: PixelShader is null");
+    assert(m_VertexLayout && "ModelRenderer::Uninit: VertexLayout is null");
 
-	// シェーダー解放
-	m_VertexShader->Release();
-	m_VertexShader = nullptr;
+    m_VertexShader->Release();
+    m_VertexShader = nullptr;
 
-	m_PixelShader->Release();
-	m_PixelShader = nullptr;
+    m_PixelShader->Release();
+    m_PixelShader = nullptr;
 
-	m_VertexLayout->Release();
-	m_VertexLayout = nullptr;
+    m_VertexLayout->Release();
+    m_VertexLayout = nullptr;
 
-	// モデルはプールで管理されているため解放しない
-	m_Model = nullptr;
+    m_Model = nullptr;
 }
 
-// ------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // シェーダー読み込み
-// ------------------------------------------------------------
-void ModelRenderer::LoadShader(const char *vsFilePath, const char *psFilePath)
+// ------------------------------------------------------------------------------
+// - VS/PS を作成し、入力レイアウトも同時に生成する
+void ModelRenderer::LoadShader(const char* vsFilePath, const char* psFilePath)
 {
-	Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, vsFilePath);
-	Renderer::CreatePixelShader(&m_PixelShader, psFilePath);
+    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, vsFilePath);
+    Renderer::CreatePixelShader(&m_PixelShader, psFilePath);
 }
 
-// ------------------------------------------------------------
-// モデル描画
-// ------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// 描画
+// ------------------------------------------------------------------------------
+// - WorldMatrix 設定 → VB/IB 設定 → サブセット単位で Material/Texture を設定して描画
 void ModelRenderer::Draw()
 {
-	// アサーション
-	assert(m_Model && "ModelRenderer::Draw: Model is null");
-	assert(m_Transform && "ModelRenderer::Draw: Transform is null");
+    assert(m_Model && "ModelRenderer::Draw: Model is null");
+    assert(m_Transform && "ModelRenderer::Draw: Transform is null");
 
-	auto* ctx = Renderer::GetDeviceContext();
+    auto* ctx = Renderer::GetDeviceContext();
 
-	// ワールド行列設定
-	XMMATRIX localScaleMatrix = XMMatrixScaling(m_LocalScale.x, m_LocalScale.y, m_LocalScale.z);
-	XMMATRIX worldMatrix = localScaleMatrix * m_Transform->GetWorldMatrix();
-	Renderer::SetWorldMatrix(worldMatrix);
+    XMMATRIX localScaleMatrix = XMMatrixScaling(m_LocalScale.x, m_LocalScale.y, m_LocalScale.z);
+    XMMATRIX worldMatrix = localScaleMatrix * m_Transform->GetWorldMatrix();
+    Renderer::SetWorldMatrix(worldMatrix);
 
-	// 頂点バッファ設定
-	UINT stride = sizeof(VERTEX_3D);
-	UINT offset = 0;
-	ctx->IASetVertexBuffers(0, 1, &m_Model->VertexBuffer, &stride, &offset);
+    UINT stride = sizeof(VERTEX_3D);
+    UINT offset = 0;
+    ctx->IASetVertexBuffers(0, 1, &m_Model->VertexBuffer, &stride, &offset);
 
-	// インデックスバッファ設定
-	ctx->IASetIndexBuffer(m_Model->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    ctx->IASetIndexBuffer(m_Model->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// プリミティブトポロジ設定
-	ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    if (m_VertexLayout) ctx->IASetInputLayout(m_VertexLayout);
+    if (m_VertexShader) ctx->VSSetShader(m_VertexShader, nullptr, 0);
+    if (m_PixelShader)  ctx->PSSetShader(m_PixelShader, nullptr, 0);
 
-	// シェーダー・レイアウト設定（設定されていれば）
-	if (m_VertexLayout) ctx->IASetInputLayout(m_VertexLayout);
-	if (m_VertexShader) ctx->VSSetShader(m_VertexShader, nullptr, 0);
-	if (m_PixelShader) ctx->PSSetShader(m_PixelShader, nullptr, 0);
+    for (unsigned int i = 0; i < m_Model->SubsetNum; i++)
+    {
+        Renderer::SetMaterial(m_Model->SubsetArray[i].Material.Material);
 
-	// サブセットごとにマテリアルとテクスチャを設定して描画
-	for (unsigned int i = 0; i < m_Model->SubsetNum; i++)
-	{
-		// マテリアル設定
-		Renderer::SetMaterial(m_Model->SubsetArray[i].Material.Material);
+        if (m_Model->SubsetArray[i].Material.Texture)
+        {
+            ctx->PSSetShaderResources(0, 1, &m_Model->SubsetArray[i].Material.Texture);
+        }
+        else
+        {
+            ID3D11ShaderResourceView* nullSrv = nullptr;
+            ctx->PSSetShaderResources(0, 1, &nullSrv);
+        }
 
-		// テクスチャ設定
-		if (m_Model->SubsetArray[i].Material.Texture)
-		{
-			ctx->PSSetShaderResources(0, 1, &m_Model->SubsetArray[i].Material.Texture);
-		}
-		else
-		{
-			ID3D11ShaderResourceView* nullSrv = nullptr;
-			ctx->PSSetShaderResources(0, 1, &nullSrv);
-		}
-
-		// ポリゴン描画
-		ctx->DrawIndexed(
-			m_Model->SubsetArray[i].IndexNum,
-			m_Model->SubsetArray[i].StartIndex,
-			0);
-	}
+        ctx->DrawIndexed(
+            m_Model->SubsetArray[i].IndexNum,
+            m_Model->SubsetArray[i].StartIndex,
+            0);
+    }
 }
 
-// ------------------------------------------------------------
-// モデルプール関連
-// -----------------------------------------------------------
+// ------------------------------------------------------------------------------
+// モデルプール
+// ------------------------------------------------------------------------------
 
 // モデルの事前読み込み
-void ModelRenderer::Preload(const char *FileName)
+// - 既にプールに存在する場合は何もしない
+void ModelRenderer::Preload(const char* FileName)
 {
-	if (m_ModelPool.count(FileName) > 0)
-	{
-		return;
-	}
+    if (m_ModelPool.count(FileName) > 0)
+    {
+        return;
+    }
 
-	MODEL *model = new MODEL;
-	LoadModel(FileName, model);
+    MODEL* model = new MODEL;
+    LoadModel(FileName, model);
 
-	m_ModelPool[FileName] = model;
+    m_ModelPool[FileName] = model;
 }
 
 // モデルプールの全解放
+// - Vertex/IndexBuffer
+// - SubsetArray
+// - Subset の Texture(SRV)
 void ModelRenderer::UnloadAll()
 {
-	for (std::pair<const std::string, MODEL *> pair : m_ModelPool)
-	{
-		pair.second->VertexBuffer->Release();
-		pair.second->IndexBuffer->Release();
+    for (std::pair<const std::string, MODEL*> pair : m_ModelPool)
+    {
+        pair.second->VertexBuffer->Release();
+        pair.second->IndexBuffer->Release();
 
-		for (unsigned int i = 0; i < pair.second->SubsetNum; i++)
-		{
-			if (pair.second->SubsetArray[i].Material.Texture)
-				pair.second->SubsetArray[i].Material.Texture->Release();
-		}
+        for (unsigned int i = 0; i < pair.second->SubsetNum; i++)
+        {
+            if (pair.second->SubsetArray[i].Material.Texture)
+                pair.second->SubsetArray[i].Material.Texture->Release();
+        }
 
-		delete[] pair.second->SubsetArray;
+        delete[] pair.second->SubsetArray;
+        delete pair.second;
+    }
 
-		delete pair.second;
-	}
-
-	m_ModelPool.clear();
+    m_ModelPool.clear();
 }
 
-// ------------------------------------------------------------
-// モデル読み込み
-// ------------------------------------------------------------
-void ModelRenderer::Load(const char *FileName)
+// ------------------------------------------------------------------------------
+// モデル読み込み（インスタンス操作）
+// ------------------------------------------------------------------------------
+// - 既にプールに存在する場合は参照を取得するだけ
+// - 存在しない場合はロードしてプールへ登録する
+void ModelRenderer::Load(const char* FileName)
 {
-	if (m_ModelPool.count(FileName) > 0)
-	{
-		m_Model = m_ModelPool[FileName];
-		return;
-	}
+    if (m_ModelPool.count(FileName) > 0)
+    {
+        m_Model = m_ModelPool[FileName];
+        return;
+    }
 
-	m_Model = new MODEL;
-	LoadModel(FileName, m_Model);
+    m_Model = new MODEL;
+    LoadModel(FileName, m_Model);
 
-	m_ModelPool[FileName] = m_Model;
+    m_ModelPool[FileName] = m_Model;
 }
 
-void ModelRenderer::LoadModel(const char *FileName, MODEL *Model)
+// ------------------------------------------------------------------------------
+// モデル読み込み（内部処理）
+// ------------------------------------------------------------------------------
+// - OBJ/MTL を読み込み、VB/IB を生成する
+// - サブセットごとにテクスチャをロードし SRV を作成する
+void ModelRenderer::LoadModel(const char* FileName, MODEL* Model)
 {
+    MODEL_OBJ modelObj;
+    LoadObj(FileName, &modelObj);
 
-	MODEL_OBJ modelObj;
-	LoadObj(FileName, &modelObj);
+    // 頂点バッファ生成
+    {
+        D3D11_BUFFER_DESC bd;
+        ZeroMemory(&bd, sizeof(bd));
+        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.ByteWidth = sizeof(VERTEX_3D) * modelObj.VertexNum;
+        bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        bd.CPUAccessFlags = 0;
 
-	// 頂点バッファ生成
-	{
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(bd));
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(VERTEX_3D) * modelObj.VertexNum;
-		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bd.CPUAccessFlags = 0;
+        D3D11_SUBRESOURCE_DATA sd;
+        ZeroMemory(&sd, sizeof(sd));
+        sd.pSysMem = modelObj.VertexArray;
 
-		D3D11_SUBRESOURCE_DATA sd;
-		ZeroMemory(&sd, sizeof(sd));
-		sd.pSysMem = modelObj.VertexArray;
+        Renderer::GetDevice()->CreateBuffer(&bd, &sd, &Model->VertexBuffer);
+    }
 
-		Renderer::GetDevice()->CreateBuffer(&bd, &sd, &Model->VertexBuffer);
-	}
+    // インデックスバッファ生成
+    {
+        D3D11_BUFFER_DESC bd;
+        ZeroMemory(&bd, sizeof(bd));
+        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.ByteWidth = sizeof(unsigned int) * modelObj.IndexNum;
+        bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        bd.CPUAccessFlags = 0;
 
-	// インデックスバッファ生成
-	{
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(bd));
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(unsigned int) * modelObj.IndexNum;
-		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		bd.CPUAccessFlags = 0;
+        D3D11_SUBRESOURCE_DATA sd;
+        ZeroMemory(&sd, sizeof(sd));
+        sd.pSysMem = modelObj.IndexArray;
 
-		D3D11_SUBRESOURCE_DATA sd;
-		ZeroMemory(&sd, sizeof(sd));
-		sd.pSysMem = modelObj.IndexArray;
+        Renderer::GetDevice()->CreateBuffer(&bd, &sd, &Model->IndexBuffer);
+    }
 
-		Renderer::GetDevice()->CreateBuffer(&bd, &sd, &Model->IndexBuffer);
-	}
+    // サブセット設定（Material/Texture）
+    {
+        Model->SubsetArray = new SUBSET[modelObj.SubsetNum];
+        Model->SubsetNum = modelObj.SubsetNum;
 
-	// サブセット設定
-	{
-		Model->SubsetArray = new SUBSET[modelObj.SubsetNum];
-		Model->SubsetNum = modelObj.SubsetNum;
+        for (unsigned int i = 0; i < modelObj.SubsetNum; i++)
+        {
+            Model->SubsetArray[i].StartIndex = modelObj.SubsetArray[i].StartIndex;
+            Model->SubsetArray[i].IndexNum = modelObj.SubsetArray[i].IndexNum;
 
-		for (unsigned int i = 0; i < modelObj.SubsetNum; i++)
-		{
-			Model->SubsetArray[i].StartIndex = modelObj.SubsetArray[i].StartIndex;
-			Model->SubsetArray[i].IndexNum = modelObj.SubsetArray[i].IndexNum;
+            Model->SubsetArray[i].Material.Material = modelObj.SubsetArray[i].Material.Material;
+            Model->SubsetArray[i].Material.Texture = nullptr;
 
-			Model->SubsetArray[i].Material.Material = modelObj.SubsetArray[i].Material.Material;
-			Model->SubsetArray[i].Material.Texture = nullptr;
+            // テクスチャ読み込み（TextureName が空ならスキップ）
+            const char* texName = modelObj.SubsetArray[i].Material.TextureName;
+            if (texName[0] != '\0')
+            {
+                TexMetadata metadata{};
+                ScratchImage image{};
+                wchar_t wc[256] = {};
+                mbstowcs(wc, texName, _countof(wc));
+                if (SUCCEEDED(LoadFromWICFile(wc, WIC_FLAGS_NONE, &metadata, image)))
+                {
+                    CreateShaderResourceView(
+                        Renderer::GetDevice(),
+                        image.GetImages(), image.GetImageCount(), metadata,
+                        &Model->SubsetArray[i].Material.Texture);
+                }
+            }
 
-			// テクスチャ読み込み（名前が空ならスキップ）
-			const char *texName = modelObj.SubsetArray[i].Material.TextureName;
-			if (texName[0] != '\0')
-			{
-				TexMetadata metadata{};
-				ScratchImage image{};
-				wchar_t wc[256] = {};
-				mbstowcs(wc, texName, _countof(wc));
-				if (SUCCEEDED(LoadFromWICFile(wc, WIC_FLAGS_NONE, &metadata, image)))
-				{
-					CreateShaderResourceView(
-						Renderer::GetDevice(),
-						image.GetImages(), image.GetImageCount(), metadata,
-						&Model->SubsetArray[i].Material.Texture);
-				}
-			}
+            // TextureEnable は SRV の有無で決める
+            Model->SubsetArray[i].Material.Material.TextureEnable =
+                (Model->SubsetArray[i].Material.Texture != nullptr);
+        }
+    }
 
-			// TextureEnable 設定
-			Model->SubsetArray[i].Material.Material.TextureEnable =
-				(Model->SubsetArray[i].Material.Texture != nullptr);
-		}
-	}
-
-	delete[] modelObj.VertexArray;
-	delete[] modelObj.IndexArray;
-	delete[] modelObj.SubsetArray;
+    delete[] modelObj.VertexArray;
+    delete[] modelObj.IndexArray;
+    delete[] modelObj.SubsetArray;
 }
+
+// 以降（LoadObj / LoadMaterial）は、元のコメントが既に同系統のため未変更でも整合します。
+// 必要なら同じ粒度で（"------------------------------------------------------------------"＋箇条書き）に統一もできます。
+
 
 // モデル読込////////////////////////////////////////////
 void ModelRenderer::LoadObj(const char *FileName, MODEL_OBJ *ModelObj)
