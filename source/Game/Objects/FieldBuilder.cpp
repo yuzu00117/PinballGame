@@ -45,7 +45,9 @@ LevelObjects FieldBuilder::Build(Field& field, const FieldLayout& layout)
 // ----------------------------------------------------------------------
 // Hole の生成
 // ----------------------------------------------------------------------
-// - Transform を配置し、id を登録する
+// - Field の子オブジェクトとして Hole を生成する
+// - Transform（Position / Scale）をレイアウト定義から設定する
+// - ID をキーとして登録する（重複不可）
 Hole* FieldBuilder::CreateHole(Field& field, const HoleDesc& desc, LevelObjects& out)
 {
     Hole* hole = field.CreateChild<Hole>();
@@ -64,7 +66,8 @@ Hole* FieldBuilder::CreateHole(Field& field, const HoleDesc& desc, LevelObjects&
 // ----------------------------------------------------------------------
 // Flipper の生成
 // ----------------------------------------------------------------------
-// - 生成後に配置位置を設定する
+// - side（左右）を指定して生成する
+// - Transform::Position を設定する
 Flipper* FieldBuilder::CreateFlipper(Field& field, const FlipperDesc& desc, LevelObjects& out)
 {
     Flipper* flipper = field.CreateChild<Flipper>(desc.side);
@@ -76,7 +79,7 @@ Flipper* FieldBuilder::CreateFlipper(Field& field, const FlipperDesc& desc, Leve
 // ----------------------------------------------------------------------
 // Bumper の生成
 // ----------------------------------------------------------------------
-// - 生成後に配置位置を設定する
+// - Transform::Position を設定する
 Bumper* FieldBuilder::CreateBumper(Field& field, const BumperDesc& desc, LevelObjects& out)
 {
     Bumper* bumper = field.CreateChild<Bumper>();
@@ -88,7 +91,8 @@ Bumper* FieldBuilder::CreateBumper(Field& field, const BumperDesc& desc, LevelOb
 // ----------------------------------------------------------------------
 // EnemySpawner の生成
 // ----------------------------------------------------------------------
-// - 生成後にスポーン範囲を設定する
+// - Transform::Position を設定する
+// - スポーン範囲を設定する
 EnemySpawner* FieldBuilder::CreateSpawner(Field& field, const SpawnerDesc& desc, LevelObjects& out)
 {
     EnemySpawner* spawner = field.CreateChild<EnemySpawner>();
@@ -101,7 +105,10 @@ EnemySpawner* FieldBuilder::CreateSpawner(Field& field, const SpawnerDesc& desc,
 // ----------------------------------------------------------------------
 // 参照関係の接続
 // ----------------------------------------------------------------------
-// - Spawner に TargetHole を関連付ける
+// - EnemySpawner に TargetHole を関連付ける
+// - レイアウト上の targetHoleIds を Hole ID マップから解決する
+// 注意：
+// - 不正な Hole ID が指定されている場合はアサートで停止する
 void FieldBuilder::WireUp(LevelObjects& out, const FieldLayout& layout)
 {
     assert(out.spawners.size() == layout.spawners.size());
@@ -128,7 +135,8 @@ void FieldBuilder::WireUp(LevelObjects& out, const FieldLayout& layout)
 // ----------------------------------------------------------------------
 // 生成済みオブジェクトの初期化
 // ----------------------------------------------------------------------
-// - GameObject::Init を明示的に呼ぶ
+// - すべての生成済み GameObject に対して Init を呼び出す
+// - Build 内でまとめて初期化することで、生成順依存を回避する
 void FieldBuilder::InitAll(LevelObjects& out)
 {
     for (const auto& pair : out.holesById)
@@ -151,5 +159,3 @@ void FieldBuilder::InitAll(LevelObjects& out)
         spawner->Init();
     }
 }
-
-
