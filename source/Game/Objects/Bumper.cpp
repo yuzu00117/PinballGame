@@ -16,14 +16,13 @@ void Bumper::Init()
     // ----------------------------------------------------------------------
     // オブジェクトのパラメータ設定
     // ----------------------------------------------------------------------
-    m_Transform.Scale = { 2.0f, 2.0f, 2.0f }; // スケールを設定
-
+    m_Transform.Scale = { kBumperDefaultSize, kBumperDefaultSize, kBumperDefaultSize }; // スケール設定
 
     // ----------------------------------------------------------------------
     // ModelRendererコンポーネント追加
     // ----------------------------------------------------------------------
     m_ModelRenderer = AddComponent<ModelRenderer>();
-    m_ModelRenderer->Load("asset//model//BumperTest.obj");
+    m_ModelRenderer->Load("asset//model//Bumper.obj");
 
     // ----------------------------------------------------------------------
     // SphereColliderコンポーネント追加
