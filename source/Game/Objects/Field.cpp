@@ -13,6 +13,12 @@
 #include "Hole.h"
 #include "EnemySpawner.h"
 
+//------------------------------------------------------------------------------
+// Field
+//------------------------------------------------------------------------------
+// - 床/壁などの環境を生成し、FieldBuilder によりフィールド内オブジェクトを構築する
+// - 子オブジェクトの所有権は GameObject 階層（親が子を所有）に従う
+
 // ----------------------------------------------------------------------
 // ステージ01の配置定義
 // ----------------------------------------------------------------------
@@ -52,9 +58,18 @@ FieldLayout Field::MakeStage01Layout()
     return layout;
 }
 
-// 初期化処理
+// ----------------------------------------------------------------------
+// 初期化
+// ----------------------------------------------------------------------
+// - 床/壁などの環境を生成する
+// - FieldLayout を作成し、FieldBuilder により子オブジェクトを生成する
+// 注意：FieldBuilder::Build は生成後に各オブジェクトの Init を呼び出す
 void Field::Init()
 {
+    // ----------------------------------------------------------------------
+    // 環境（床/壁/ガイド）の生成
+    // ----------------------------------------------------------------------
+
     // ----------------------------------------------------------------------
     // 床の作成
     // ----------------------------------------------------------------------
@@ -79,6 +94,7 @@ void Field::Init()
     // 壁の作成
     // ----------------------------------------------------------------------
     const float yCenter = kWallHeight * 0.5f;
+
     // 1枚の壁を生成する簡易ヘルパー
     auto MakeWall = [&](const Vector3& position, const Vector3& scale)
     {
@@ -93,11 +109,10 @@ void Field::Init()
         wallMesh->SetTexture(kWallTexturePath);
         wallMesh->CreateUnitBox();
         wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);
-        // wallMesh->SetTexture(TexturePath);
 
         // 当たり判定（Center/Size は Transform から算出される想定）
         auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
-        auto boxCollider = wallColliderGroup->AddCollider<BoxCollider>();
+        wallColliderGroup->AddCollider<BoxCollider>();
     };
 
     // 壁の作成
@@ -107,15 +122,15 @@ void Field::Init()
              { kHalfWidth * 2.0f + kWallThick * 2.0f, kWallHeight, kWallThick }); // 手前
     MakeWall({ -kHalfWidth - kWallThick * 0.5f, yCenter, 0.0f },
              { kWallThick, kWallHeight, kHalfHeight * 2.0f + kWallThick * 2.0f }); // 左
-
     MakeWall({ kHalfWidth + kWallThick * 0.5f, yCenter, 0.0f },
              { kWallThick, kWallHeight, kHalfHeight * 2.0f + kWallThick * 2.0f }); // 右
 
     // ----------------------------------------------------------------------
     // 斜めガイド（左右インレーンガイド）
     // TODO: 本来は、左右下の空き部分をなくすために、三角形のメッシュを描画し、
-    //       当たり判定はBoxで丸めるなど修正を行う
+    //       当たり判定は Box で丸めるなど修正を行う
     // ----------------------------------------------------------------------
+
     // 1本のガイドを生成する簡易ヘルパー
     auto MakeGuide = [&](const Vector3& position, float rotYDeg)
     {
@@ -125,15 +140,15 @@ void Field::Init()
         guideObj->m_Transform.Rotation.y = rotYDeg;
 
         // 見た目
-
         auto guideMesh = guideObj->AddComponent<MeshRenderer>();
         guideMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);
         guideMesh->SetTexture(kWallTexturePath);
         guideMesh->CreateUnitBox();
         guideMesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);  // 壁より少し明るめ
-        // 当たり判定
+
+        // 当たり判定（Transform から自動反映）
         auto colGroup = guideObj->AddComponent<ColliderGroup>();
-        colGroup->AddCollider<BoxCollider>();  // Transform から自動反映
+        colGroup->AddCollider<BoxCollider>();
     };
 
     // ガイドの位置
@@ -146,18 +161,22 @@ void Field::Init()
 
     // 右ガイド（内側へ向ける）
     MakeGuide({ +guideX, guideY, guideZ }, -120.0f);
+
     // ----------------------------------------------------------------------
-    // フィールドオブジェクトの作成
+    // フィールド内オブジェクトの作成
     // ----------------------------------------------------------------------
     // - レイアウト定義に従って子オブジェクトを生成する
+    // - Build 内で参照接続と Init を行う（Build 後に即プレイ可能な状態を想定）
     FieldLayout layout = MakeStage01Layout();
     FieldBuilder builder;
     m_Level = builder.Build(*this, layout);
-
 }
 
 void Field::Uninit()
 {
+    // ----------------------------------------------------------------------
+    // 終了処理
+    // ----------------------------------------------------------------------
     // コンポーネントの参照をクリア
     m_Floor = nullptr;
     m_ColliderGroup = nullptr;
@@ -165,15 +184,18 @@ void Field::Uninit()
 
 void Field::Update(float deltaTime)
 {
+    // ----------------------------------------------------------------------
+    // 更新処理
+    // ----------------------------------------------------------------------
     // 現状は基底クラスの処理のみ（フィールド固有は必要に応じて追加）
     GameObject::Update(deltaTime);
 }
 
 void Field::Draw()
 {
+    // ----------------------------------------------------------------------
+    // 描画処理
+    // ----------------------------------------------------------------------
     // 現状は基底クラスの処理のみ（フィールド固有は必要に応じて追加）
     GameObject::Draw();
-
 }
-
-
