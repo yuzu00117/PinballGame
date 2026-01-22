@@ -14,17 +14,17 @@
 // - 描画 : ModelRenderer
 // - 衝突 : ColliderGroup + SphereCollider
 //
-// 注意:
-// - GameObject と同様に、描画処理そのものは Component（ModelRenderer）に委譲する。
-// - 反発量（キック速度）は定数として管理し、調整ポイントを明確化する。
+// NOTE:
+// 描画処理は Component（ModelRenderer）に委譲する。
+// 反発量（キック速度）は定数として管理し、調整ポイントを明確化する。
 //------------------------------------------------------------------------------
 #pragma once
 
 #include "GameObject.h"
-#include "Vector3.h"
+#include "CollisionInfo.h"
 
 // 前方宣言
-class ColliderGroup;   // NOTE: 綴り修正（CollliderGroup -> ColliderGroup）
+class ColliderGroup;
 class ModelRenderer;
 
 /// バンパークラス
@@ -37,18 +37,22 @@ public:
     // ----------------------------------------------------------------------
     // ライフサイクルメソッド
     // ----------------------------------------------------------------------
-    /// 初期化処理（Component の追加、モデル/コライダーの初期設定を行う）
+    /// 初期化処理
+    /// - Component の追加、モデル/コライダーの初期設定を行う
+    /// - 副作用：AddComponent 直後に各 Component の Init() が呼ばれる
     void Init() override;
 
     /// 更新処理（deltaTime は秒単位）
-    /// - 必要に応じて演出用の状態（発光/アニメ等）を更新する想定
+    /// NOTE: 現状は演出等がないため何もしない。必要になったら状態更新を追加する。
     void Update(float deltaTime) override;
 
     /// 描画処理
     /// - 基本は GameObject::Draw()（Component 描画）に委譲する
     void Draw() override;
 
-    /// 終了処理（明示的な解放が必要な場合に実装）
+    /// 終了処理
+    /// NOTE: GameObject 側で Component は unique_ptr 破棄される。
+    ///       本クラスは非所有参照を nullptr へ戻すのみ。
     void Uninit() override;
 
     // ----------------------------------------------------------------------
@@ -63,16 +67,18 @@ private:
     // ----------------------------------------------------------------------
     // バンパー設定（調整パラメータ）
     // ----------------------------------------------------------------------
-    static constexpr float kDefaultSize = 1.6f;                 // バンパーのデフォルトサイズ（見た目/判定の基準）
-    static constexpr float kDefaultColliderRadius = 1.6f;       // SphereCollider の半径
+    static constexpr float kDefaultSize          = 1.6f;  // バンパーのデフォルトサイズ（見た目/判定の基準）
+    static constexpr float kDefaultColliderRadius = 1.6f; // SphereCollider の半径
 
     // 反発（キック）速度
-    // - 接触法線方向やゲーム設計に応じて適用方法は Bumper.cpp 側で決定する
-    static constexpr float kKickHorizontalSpeed = 25.0f;        // 水平方向のキック速度
-    static constexpr float kKickVerticalSpeed   = 15.0f;        // 垂直方向のキック速度
+    // - 接触法線方向やゲーム設計に応じて適用方法は cpp 側で決定する
+    static constexpr float kKickHorizontalSpeed  = 25.0f; // 水平方向のキック速度
+    static constexpr float kKickVerticalSpeed    = 15.0f; // 垂直方向のキック速度
 
     // ----------------------------------------------------------------------
     // コンポーネント参照（非所有）
     // ----------------------------------------------------------------------
-    ModelRenderer* m_ModelRenderer = nullptr;                   // 非所有：ModelRenderer（所有は GameObject::m_Components）
+    /// 非所有：ModelRenderer（所有は GameObject::m_Components）
+    /// - 有効期間：当該 Component が保持されている間のみ有効
+    ModelRenderer* m_ModelRenderer = nullptr;
 };
