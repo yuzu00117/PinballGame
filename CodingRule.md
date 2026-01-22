@@ -1,14 +1,35 @@
-| ‘ÎÛ           | ƒXƒ^ƒCƒ‹              | —á                                   |
+| å¯¾è±¡           | ã‚¹ã‚¿ã‚¤ãƒ«              | ä¾‹                                   |
 | ------------ | ----------------- | ----------------------------------- |
-| ƒNƒ‰ƒX / \‘¢‘Ì    | PascalCase        | `MeshRenderer`, `BoxCollider`       |
-| enum ‚ÌŒ^–¼     | PascalCase        | `ColliderType`                      |
-| enum ‚Ì’l      | PascalCase        | `ColliderType::Box`                 |
-| ŠÖ”–¼          | PascalCase        | `Init()`, `CreateUnitBox()`         |
-| ƒ[ƒJƒ‹•Ï”       | lowerCamelCase    | `worldMatrix`, `vertexCount`        |
-| ŠÖ”ˆø”         | lowerCamelCase    | `int vertexCount`                   |
-| ƒƒ“ƒo•Ï”        | `m_` + PascalCase | `m_VertexBuffer`, `m_Color`         |
-| static ƒƒ“ƒo•Ï” | `s_` + PascalCase | `s_ModelPool`                       |
-| ƒOƒ[ƒoƒ‹•Ï”      | Œ´‘¥‹Ö~i•K—v‚È‚ç `g_`j   | `g_Renderer`                        |
-| ’è”           | `k` + PascalCase  | `kMaxLights`, `kPi`                 |
-| ƒ}ƒNƒ          | ‘S‘å•¶š + ƒAƒ“ƒ_[ƒXƒRƒA    | `#define SAFE_RELEASE(p)`           |
-| ƒtƒ@ƒCƒ‹–¼        | PascalCase        | `MeshRenderer.h`, `BoxCollider.cpp` |
+| ã‚¯ãƒ©ã‚¹ / æ§‹é€ ä½“    | PascalCase        | `MeshRenderer`, `BoxCollider`       |
+| enum ã®å‹å     | PascalCase        | `ColliderType`                      |
+| enum ã®å€¤      | PascalCase        | `ColliderType::Box`                 |
+| é–¢æ•°å          | PascalCase        | `Init()`, `CreateUnitBox()`         |
+| ãƒ­ãƒ¼ã‚«ãƒ«å¤‰æ•°       | lowerCamelCase    | `worldMatrix`, `vertexCount`        |
+| é–¢æ•°å¼•æ•°         | lowerCamelCase    | `int vertexCount`                   |
+| ãƒ¡ãƒ³ãƒå¤‰æ•°        | `m_` + PascalCase | `m_VertexBuffer`, `m_Color`         |
+| static ãƒ¡ãƒ³ãƒå¤‰æ•° | `s_` + PascalCase | `s_ModelPool`                       |
+| ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°      | åŸå‰‡ç¦æ­¢ï¼ˆå¿…è¦ãªã‚‰ `g_`ï¼‰   | `g_Renderer`                        |
+| å®šæ•°           | `k` + PascalCase  | `kMaxLights`, `kPi`                 |
+| ãƒã‚¯ãƒ­          | å…¨å¤§æ–‡å­— + ã‚¢ãƒ³ãƒ€ãƒ¼ã‚¹ã‚³ã‚¢    | `#define SAFE_RELEASE(p)`           |
+| ãƒ•ã‚¡ã‚¤ãƒ«å        | PascalCase        | `MeshRenderer.h`, `BoxCollider.cpp` |
+
+
+## ã‚¢ãƒãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¡ãƒ³ãƒˆè¦ç´„
+
+æœ¬ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã§ã¯ã€**TodoTree æ‹¡å¼µã§æ¤œå‡ºå¯èƒ½ãªã‚¢ãƒãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¡ãƒ³ãƒˆ**ã¨ã—ã¦
+ä»¥ä¸‹ã®ã‚¿ã‚°ã®ã¿ã‚’ä½¿ç”¨ã™ã‚‹ã€‚
+
+* `TODO:`
+* `FIXME:`
+* `HACK:`
+* `BUG:`
+
+### ä½¿ã„åˆ†ã‘æŒ‡é‡
+
+| çŠ¶æ…‹       | ä½¿ç”¨ã‚¿ã‚°    |
+| -------- | ------- |
+| å°†æ¥å¯¾å¿œäºˆå®š   | `TODO`  |
+| å•é¡ŒãŒã‚ã‚‹ã¨èªè­˜ | `FIXME` |
+| æ„å›³çš„ãªæš«å®šå®Ÿè£… | `HACK`  |
+| å®Ÿå®³ã®ã‚ã‚‹ä¸å…·åˆ | `BUG`   |
+

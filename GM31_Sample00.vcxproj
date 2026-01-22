@@ -212,6 +212,7 @@
     <ClCompile Include="source\Game\Objects\EnemySpawner.cpp" />
     <ClCompile Include="source\Game\Objects\EnemyStraight.cpp" />
     <ClCompile Include="source\Game\Objects\Field.cpp" />
+    <ClCompile Include="source\Game\Objects\FieldBuilder.cpp" />
     <ClCompile Include="source\Game\Objects\Flipper.cpp" />
     <ClCompile Include="source\Game\Objects\Hole.cpp" />
     <ClCompile Include="source\Game\Scene\result.cpp" />
@@ -249,6 +250,8 @@
     <ClInclude Include="source\Game\Objects\EnemySpawner.h" />
     <ClInclude Include="source\Game\Objects\EnemyStraight.h" />
     <ClInclude Include="source\Game\Objects\Field.h" />
+    <ClInclude Include="source\Game\Objects\FieldBuilder.h" />
+    <ClInclude Include="source\Game\Objects\FieldLayout.h" />
     <ClInclude Include="source\Game\Objects\Flipper.h" />
     <ClInclude Include="source\Game\Objects\Hole.h" />
     <ClInclude Include="source\Game\Scene\result.h" />

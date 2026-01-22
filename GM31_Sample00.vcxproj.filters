@@ -83,6 +83,9 @@
     <ClCompile Include="source\Game\Objects\Field.cpp">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="source\Game\Objects\FieldBuilder.cpp">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClCompile>
     <ClCompile Include="source\Game\Objects\Flipper.cpp">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
@@ -182,6 +185,12 @@
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Objects\Field.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\Objects\FieldBuilder.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\Objects\FieldLayout.h">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Objects\Flipper.h">
