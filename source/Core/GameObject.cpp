@@ -1,4 +1,4 @@
-#include "gameobject.h"
+#include "GameObject.h"
 
 // システム関連
 #include <algorithm>
@@ -12,6 +12,8 @@
 // ------------------------------------------------------------------------------
 // - Component / 子オブジェクトを更新する
 // - Update後に、Destroyフラグが立っている子オブジェクトを回収して破棄
+// - 子オブジェクトの実体破棄は親（このGameObject）が行う（m_Childrenのunique_ptrが解放される）
+// NOTE: この回収では Uninit() は呼ばれない（必要なら別途明示的に呼ぶ設計にする）
 void GameObject::Update(float deltaTime)
 {
     // Component 更新
