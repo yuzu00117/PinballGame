@@ -1,10 +1,11 @@
-#include "main.h"
-#include "renderer.h"
-#include "ball.h"
-#include "camera.h"
-#include "GameManager.h"
-#include "input.h"
+#include "Ball.h"
+
+// システム関連
+#include <algorithm>
 #include <Windows.h>
+
+// 入力
+#include "input.h"
 
 // コンポーネント
 #include "ModelRenderer.h"
@@ -15,42 +16,45 @@
 // ----------------------------------------------------------------------
 // 初期化処理
 // ----------------------------------------------------------------------
+// - Transform の初期設定
+// - ModelRenderer / ColliderGroup(+SphereCollider) / RigidBody を構築
+// - ピンボール用の重力（テーブル傾き）を設定
 void Ball::Init()
 {
     // ----------------------------------------------------------------------
-    // Transformの初期設定
+    // Transform の初期設定
     // ----------------------------------------------------------------------
-    m_Transform.Position = { 8.0f, 1.0f, 7.0f };
+    m_Transform.Position = kDefaultBallPosition;
     m_Transform.Rotation = { 0.0f, 0.0f, 0.0f };
-    m_Transform.Scale = kDefaultBallScale;
+    m_Transform.Scale    = kDefaultBallScale;
 
     // ----------------------------------------------------------------------
-    // ModelRendererコンポーネントの追加
+    // ModelRenderer を追加
     // ----------------------------------------------------------------------
     m_ModelRenderer = AddComponent<ModelRenderer>();
     m_ModelRenderer->Load("asset//model//ball.obj");
 
     // ----------------------------------------------------------------------
-    // ColliderGroupコンポーネントの追加
+    // ColliderGroup + SphereCollider を追加
     // ----------------------------------------------------------------------
     m_ColliderGroup = AddComponent<ColliderGroup>();
 
     SphereCollider* sphereCollider = m_ColliderGroup->AddCollider<SphereCollider>();
-    sphereCollider->m_radius = m_BallRadius;        // 半径を設定
+    sphereCollider->m_radius = m_BallRadius;
 
     // ----------------------------------------------------------------------
-    // Rigidbodyコンポーネントの追加
+    // RigidBody を追加（物理設定）
     // ----------------------------------------------------------------------
     m_RigidBody = AddComponent<RigidBody>();
-    m_RigidBody->m_Restitution = m_BallBounce; // 反発係数を設定
-    m_RigidBody->m_UseGravity = true;          // 重力を有効化
-    m_RigidBody->m_IsKinematic = false;        // キネマティック無効化
+    m_RigidBody->m_Restitution  = m_BallBounce;
+    m_RigidBody->m_UseGravity   = true;
+    m_RigidBody->m_IsKinematic  = false;
 
+    // ----------------------------------------------------------------------
     // ピンボール用の重力設定
-    const float g = 10.0f; // 重力加速度s
-
-    // テーブルがZマイナス方向に傾いているイメージ
-    const float tiltDeg = 85.0f;
+    // ----------------------------------------------------------------------
+    const float g = 10.0f;           // 重力加速度
+    const float tiltDeg = 85.0f;     // テーブル傾き（度）
     const float rad = tiltDeg * XM_PI / 180.0f;
 
     const float gy = -g * std::cosf(rad); // Y成分
@@ -62,44 +66,35 @@ void Ball::Init()
 // ----------------------------------------------------------------------
 // 終了処理
 // ----------------------------------------------------------------------
+// - GameObject が Component を unique_ptr で所有しているため、ここでは参照を切るのみ
 void Ball::Uninit()
 {
-    // コンポーネントの解放
     m_ModelRenderer = nullptr;
     m_ColliderGroup = nullptr;
-    m_RigidBody = nullptr;
+    m_RigidBody     = nullptr;
 }
 
 // ----------------------------------------------------------------------
 // 更新処理
 // ----------------------------------------------------------------------
+// - デバッグ時のみキー入力で速度を直接加算する
+// - Component 更新は GameObject::Update に委譲
+// - ボールの高さ制限（Y）を適用し、制限方向の速度をカットする
 void Ball::Update(float deltaTime)
 {
 #if defined(_DEBUG)
-    // デバッグ用：キーでボールに力を加える処理（今のままでOK）
-    if (Input::GetKeyTrigger('W'))
-    {
-        m_RigidBody->m_Velocity.z += 12.0f;
-    }
-    if (Input::GetKeyTrigger('S'))
-    {
-        m_RigidBody->m_Velocity.z -= 12.0f;
-    }
-    if (Input::GetKeyTrigger('D'))
-    {
-        m_RigidBody->m_Velocity.x += 12.0f;
-    }
-    if (Input::GetKeyTrigger('A'))
-    {
-        m_RigidBody->m_Velocity.x -= 12.0f;
-    }
+    // NOTE: デバッグ用の直書き操作。物理挙動の検証用途として現状維持。
+    if (Input::GetKeyTrigger('W')) { m_RigidBody->m_Velocity.z += 12.0f; }
+    if (Input::GetKeyTrigger('S')) { m_RigidBody->m_Velocity.z -= 12.0f; }
+    if (Input::GetKeyTrigger('D')) { m_RigidBody->m_Velocity.x += 12.0f; }
+    if (Input::GetKeyTrigger('A')) { m_RigidBody->m_Velocity.x -= 12.0f; }
 #endif
 
-    // コンポーネントの更新
+    // Component 更新
     GameObject::Update(deltaTime);
 
     // ----------------------------------------------------------------------
-    // ボールの高さ制限
+    // 高さ制限（Y）
     // ----------------------------------------------------------------------
     Vector3& pos = m_Transform.Position;
 
@@ -109,7 +104,7 @@ void Ball::Update(float deltaTime)
         pos.y = kTableMinY;
 
         // 下向き速度はカット
-        if (m_RigidBody->m_Velocity.y < 0.0f)
+        if (m_RigidBody && m_RigidBody->m_Velocity.y < 0.0f)
         {
             m_RigidBody->m_Velocity.y = 0.0f;
         }
@@ -121,7 +116,7 @@ void Ball::Update(float deltaTime)
         pos.y = kTableMaxY;
 
         // 上向き速度はカット
-        if (m_RigidBody->m_Velocity.y > 0.0f)
+        if (m_RigidBody && m_RigidBody->m_Velocity.y > 0.0f)
         {
             m_RigidBody->m_Velocity.y = 0.0f;
         }
@@ -131,29 +126,23 @@ void Ball::Update(float deltaTime)
 // ----------------------------------------------------------------------
 // 描画処理
 // ----------------------------------------------------------------------
+// - 描画は Component に委譲（GameObject::Draw）
 void Ball::Draw()
 {
-    // コンポーネントの描画
     GameObject::Draw();
 }
 
 // ----------------------------------------------------------------------
 // ボールをリセットする
 // ----------------------------------------------------------------------
+// - 位置を初期位置へ戻す
+// - 速度をゼロ化する（Ball側 / RigidBody側）
+// NOTE: 現状は二重管理のため両方をクリアしている
 void Ball::ResetBall()
 {
-    // ----------------------------------------------------------------------
-    // 位置リセット（Init と同じ初期位置へ戻す）
-    // ----------------------------------------------------------------------
-    m_Transform.Position = { 8.0f, 1.0f, 7.0f };
+    m_Transform.Position = kDefaultBallPosition;
 
-    // ----------------------------------------------------------------------
-    // 速度リセット
-    // - Ball 側の速度
-    // - Rigidbody 側の速度（存在する場合）
-    // ----------------------------------------------------------------------
     m_Velocity = { 0.0f, 0.0f, 0.0f };
-
     if (m_RigidBody)
     {
         m_RigidBody->m_Velocity = { 0.0f, 0.0f, 0.0f };
