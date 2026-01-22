@@ -1,6 +1,7 @@
 ﻿
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <stdarg.h>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 
@@ -10,6 +11,29 @@
 #include "gameobject.h"
 
 using namespace DirectX;
+
+#if _DEBUG
+static void DebugLogFmt(const char* fmt, ...)
+{
+	char buffer[512];
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, args);
+	va_end(args);
+	OutputDebugStringA(buffer);
+}
+#endif
+
+static void NormalizePathSeparators(char* path)
+{
+	for (char* p = path; *p; ++p)
+	{
+		if (*p == '/')
+		{
+			*p = '\\';
+		}
+	}
+}
 
 // 静的メンバ変数の初期化
 std::unordered_map<std::string, MODEL *> ModelRenderer::m_ModelPool;
@@ -261,6 +285,7 @@ void ModelRenderer::LoadObj(const char *FileName, MODEL_OBJ *ModelObj)
 
 	char dir[MAX_PATH];
 	strcpy(dir, FileName);
+	NormalizePathSeparators(dir);
 	PathRemoveFileSpec(dir);
 
 	XMFLOAT3 *positionArray;
@@ -386,10 +411,16 @@ void ModelRenderer::LoadObj(const char *FileName, MODEL_OBJ *ModelObj)
 			// マテリアルファイル
 			fscanf(file, "%s", str);
 
-			char path[256];
-			strcpy(path, dir);
-			strcat(path, "\\");
-			strcat(path, str);
+			char rel[256];
+			strcpy(rel, str);
+			NormalizePathSeparators(rel);
+
+			char path[MAX_PATH];
+			PathCombine(path, dir, rel);
+
+#if _DEBUG
+			DebugLogFmt("[ModelRenderer] mtllib: %s\n", path);
+#endif
 
 			LoadMaterial(path, &materialArray, &materialNum);
 		}
@@ -428,6 +459,10 @@ void ModelRenderer::LoadObj(const char *FileName, MODEL_OBJ *ModelObj)
 			// マテリアル
 			fscanf(file, "%s", str);
 
+#if _DEBUG
+			DebugLogFmt("[ModelRenderer] usemtl: %s (materialNum=%u)\n", str, materialNum);
+#endif
+
 			if (sc != 0)
 				ModelObj->SubsetArray[sc - 1].IndexNum = ic - ModelObj->SubsetArray[sc - 1].StartIndex;
 
@@ -437,20 +472,26 @@ void ModelRenderer::LoadObj(const char *FileName, MODEL_OBJ *ModelObj)
 			ModelObj->SubsetArray[sc].Material = defaultMat;
 
 			// mtlが正しく読み込まれていればマテリアルを設定
-			for (unsigned int i = 0; i < materialNum; i++)
+			bool matched = false;
+		for (unsigned int i = 0; i < materialNum; i++)
+		{
+			if (strcmp(str, materialArray[i].Name) == 0)
 			{
-				if (strcmp(str, materialArray[i].Name) == 0)
-				{
-					ModelObj->SubsetArray[sc].Material.Material = materialArray[i].Material;
-					strcpy(ModelObj->SubsetArray[sc].Material.TextureName, materialArray[i].TextureName);
-					strcpy(ModelObj->SubsetArray[sc].Material.Name, materialArray[i].Name);
+				ModelObj->SubsetArray[sc].Material.Material = materialArray[i].Material;
+				strcpy(ModelObj->SubsetArray[sc].Material.TextureName, materialArray[i].TextureName);
+				strcpy(ModelObj->SubsetArray[sc].Material.Name, materialArray[i].Name);
 
-					break;
-				}
+				matched = true;
+				break;
 			}
-
-			sc++;
 		}
+
+#if _DEBUG
+		DebugLogFmt("[ModelRenderer] usemtl match: %s -> %s\n", str, matched ? "OK" : "NOT FOUND");
+#endif
+
+		sc++;
+	}
 		else if (strcmp(str, "f") == 0)
 		{
 			// 面
@@ -523,9 +564,14 @@ void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **Material
 
 	char dir[MAX_PATH];
 	strcpy(dir, FileName);
+	NormalizePathSeparators(dir);
 	PathRemoveFileSpec(dir);
 
 	char str[256];
+
+#if _DEBUG
+	DebugLogFmt("[ModelRenderer] LoadMaterial: %s\n", FileName);
+#endif
 
 	FILE *file;
 	file = fopen(FileName, "rt");
@@ -533,6 +579,9 @@ void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **Material
 	// ファイルが見つからなかったら空で返す
 	if (!file)
 	{
+#if _DEBUG
+		DebugLogFmt("[ModelRenderer] LoadMaterial: open failed\n");
+#endif
 		*MaterialArray = nullptr;
 		*MaterialNum = 0;
 		return;
@@ -554,6 +603,10 @@ void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **Material
 			materialNum++;
 		}
 	}
+
+#if _DEBUG
+	DebugLogFmt("[ModelRenderer] LoadMaterial: materialNum=%u\n", materialNum);
+#endif
 
 	// メモリ確保
 	materialArray = new MODEL_MATERIAL[materialNum];
@@ -595,6 +648,10 @@ void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **Material
 			materialArray[mc].Material.Shininess = 0.0f;
 			materialArray[mc].Material.TextureEnable = false;
 			materialArray[mc].Texture = nullptr;
+
+#if _DEBUG
+			DebugLogFmt("[ModelRenderer] newmtl: %s\n", materialArray[mc].Name);
+#endif
 		}
 		else if (strcmp(str, "Ka") == 0)
 		{
@@ -611,6 +668,14 @@ void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **Material
 			fscanf(file, "%f", &materialArray[mc].Material.Diffuse.y);
 			fscanf(file, "%f", &materialArray[mc].Material.Diffuse.z);
 			materialArray[mc].Material.Diffuse.w = 1.0f;
+
+#if _DEBUG
+			DebugLogFmt("[ModelRenderer] Kd %s = %.3f %.3f %.3f\n",
+				materialArray[mc].Name,
+				materialArray[mc].Material.Diffuse.x,
+				materialArray[mc].Material.Diffuse.y,
+				materialArray[mc].Material.Diffuse.z);
+#endif
 		}
 		else if (strcmp(str, "Ks") == 0)
 		{
@@ -635,10 +700,12 @@ void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **Material
 			// テクスチャ
 			fscanf(file, "%s", str);
 
-			char path[256];
-			strcpy(path, dir);
-			strcat(path, "\\");
-			strcat(path, str);
+			char rel[256];
+			strcpy(rel, str);
+			NormalizePathSeparators(rel);
+
+			char path[MAX_PATH];
+			PathCombine(path, dir, rel);
 
 			strcat(materialArray[mc].TextureName, path);
 		}
