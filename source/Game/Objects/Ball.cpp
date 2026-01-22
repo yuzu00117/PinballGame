@@ -45,10 +45,10 @@ void Ball::Init()
     m_RigidBody->m_IsKinematic = false;        // キネマティック無効化
 
     // ピンボール用の重力設定
-    const float g = 9.8f; // 重力加速度s
+    const float g = 10.0f; // 重力加速度s
 
     // テーブルがZマイナス方向に傾いているイメージ
-    const float tiltDeg = 65.0f;
+    const float tiltDeg = 85.0f;
     const float rad = tiltDeg * XM_PI / 180.0f;
 
     const float gy = -g * std::cosf(rad); // Y成分

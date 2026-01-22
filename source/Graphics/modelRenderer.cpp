@@ -39,10 +39,10 @@ static void NormalizePathSeparators(char* path)
 std::unordered_map<std::string, MODEL*> ModelRenderer::m_ModelPool;
 
 // ------------------------------------------------------------------------------
-// ライフサイクル
+// ライフサイクルメソッド
 // ------------------------------------------------------------------------------
-// - Owner の Transform を参照として保持する
-// - シェーダー未設定ならデフォルト（BaseLitVS/PS）をロードする
+// - Owner から Transform を取得して参照保持する
+// - シェーダー未設定ならデフォルトシェーダーを読み込む
 void ModelRenderer::Init()
 {
     m_Transform = &m_Owner->m_Transform;
@@ -58,8 +58,8 @@ void ModelRenderer::Init()
 // ------------------------------------------------------------------------------
 // 終了処理
 // ------------------------------------------------------------------------------
-// - シェーダー/入力レイアウトを解放する
-// - モデル自体はプール管理のためここでは解放しない
+// - シェーダーを解放する
+// - モデルはプール管理のためここでは解放しない
 void ModelRenderer::Uninit()
 {
     assert(m_VertexShader && "ModelRenderer::Uninit: VertexShader is null");
@@ -81,7 +81,7 @@ void ModelRenderer::Uninit()
 // ------------------------------------------------------------------------------
 // シェーダー読み込み
 // ------------------------------------------------------------------------------
-// - VS/PS を作成し、入力レイアウトも同時に生成する
+// - 頂点シェーダー（＋入力レイアウト）とピクセルシェーダーを作成する
 void ModelRenderer::LoadShader(const char* vsFilePath, const char* psFilePath)
 {
     Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, vsFilePath);
@@ -89,9 +89,10 @@ void ModelRenderer::LoadShader(const char* vsFilePath, const char* psFilePath)
 }
 
 // ------------------------------------------------------------------------------
-// 描画
+// 描画処理
 // ------------------------------------------------------------------------------
-// - WorldMatrix 設定 → VB/IB 設定 → サブセット単位で Material/Texture を設定して描画
+// - ワールド行列を設定して VB/IB をバインド
+// - サブセットごとに Material / Texture を設定して DrawIndexed
 void ModelRenderer::Draw()
 {
     assert(m_Model && "ModelRenderer::Draw: Model is null");
@@ -136,11 +137,10 @@ void ModelRenderer::Draw()
 }
 
 // ------------------------------------------------------------------------------
-// モデルプール
-// ------------------------------------------------------------------------------
-
 // モデルの事前読み込み
+// ------------------------------------------------------------------------------
 // - 既にプールに存在する場合は何もしない
+// - 存在しない場合はロードしてプールへ登録する
 void ModelRenderer::Preload(const char* FileName)
 {
     if (m_ModelPool.count(FileName) > 0)
@@ -154,10 +154,11 @@ void ModelRenderer::Preload(const char* FileName)
     m_ModelPool[FileName] = model;
 }
 
+// ------------------------------------------------------------------------------
 // モデルプールの全解放
-// - Vertex/IndexBuffer
-// - SubsetArray
-// - Subset の Texture(SRV)
+// ------------------------------------------------------------------------------
+// - Vertex/IndexBuffer, Texture(SRV), SubsetArray を解放する
+// - 最後に MODEL を delete してプールを空にする
 void ModelRenderer::UnloadAll()
 {
     for (std::pair<const std::string, MODEL*> pair : m_ModelPool)
@@ -179,7 +180,7 @@ void ModelRenderer::UnloadAll()
 }
 
 // ------------------------------------------------------------------------------
-// モデル読み込み（インスタンス操作）
+// モデル読み込み
 // ------------------------------------------------------------------------------
 // - 既にプールに存在する場合は参照を取得するだけ
 // - 存在しない場合はロードしてプールへ登録する
@@ -198,10 +199,11 @@ void ModelRenderer::Load(const char* FileName)
 }
 
 // ------------------------------------------------------------------------------
-// モデル読み込み（内部処理）
+// モデル読み込み（実体）
 // ------------------------------------------------------------------------------
-// - OBJ/MTL を読み込み、VB/IB を生成する
-// - サブセットごとにテクスチャをロードし SRV を作成する
+// - OBJ を読み込み（LoadObj）、VB/IB を生成する
+// - サブセットごとに TextureName を見て WIC で画像を読み込み SRV を作る
+// - TextureEnable は SRV の有無で決める
 void ModelRenderer::LoadModel(const char* FileName, MODEL* Model)
 {
     MODEL_OBJ modelObj;
@@ -209,15 +211,12 @@ void ModelRenderer::LoadModel(const char* FileName, MODEL* Model)
 
     // 頂点バッファ生成
     {
-        D3D11_BUFFER_DESC bd;
-        ZeroMemory(&bd, sizeof(bd));
+        D3D11_BUFFER_DESC bd{};
         bd.Usage = D3D11_USAGE_DEFAULT;
         bd.ByteWidth = sizeof(VERTEX_3D) * modelObj.VertexNum;
         bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        bd.CPUAccessFlags = 0;
 
-        D3D11_SUBRESOURCE_DATA sd;
-        ZeroMemory(&sd, sizeof(sd));
+        D3D11_SUBRESOURCE_DATA sd{};
         sd.pSysMem = modelObj.VertexArray;
 
         Renderer::GetDevice()->CreateBuffer(&bd, &sd, &Model->VertexBuffer);
@@ -225,21 +224,18 @@ void ModelRenderer::LoadModel(const char* FileName, MODEL* Model)
 
     // インデックスバッファ生成
     {
-        D3D11_BUFFER_DESC bd;
-        ZeroMemory(&bd, sizeof(bd));
+        D3D11_BUFFER_DESC bd{};
         bd.Usage = D3D11_USAGE_DEFAULT;
         bd.ByteWidth = sizeof(unsigned int) * modelObj.IndexNum;
         bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        bd.CPUAccessFlags = 0;
 
-        D3D11_SUBRESOURCE_DATA sd;
-        ZeroMemory(&sd, sizeof(sd));
+        D3D11_SUBRESOURCE_DATA sd{};
         sd.pSysMem = modelObj.IndexArray;
 
         Renderer::GetDevice()->CreateBuffer(&bd, &sd, &Model->IndexBuffer);
     }
 
-    // サブセット設定（Material/Texture）
+    // サブセット設定
     {
         Model->SubsetArray = new SUBSET[modelObj.SubsetNum];
         Model->SubsetNum = modelObj.SubsetNum;
@@ -247,10 +243,10 @@ void ModelRenderer::LoadModel(const char* FileName, MODEL* Model)
         for (unsigned int i = 0; i < modelObj.SubsetNum; i++)
         {
             Model->SubsetArray[i].StartIndex = modelObj.SubsetArray[i].StartIndex;
-            Model->SubsetArray[i].IndexNum = modelObj.SubsetArray[i].IndexNum;
+            Model->SubsetArray[i].IndexNum   = modelObj.SubsetArray[i].IndexNum;
 
             Model->SubsetArray[i].Material.Material = modelObj.SubsetArray[i].Material.Material;
-            Model->SubsetArray[i].Material.Texture = nullptr;
+            Model->SubsetArray[i].Material.Texture  = nullptr;
 
             // テクスチャ読み込み（TextureName が空ならスキップ）
             const char* texName = modelObj.SubsetArray[i].Material.TextureName;
@@ -258,8 +254,9 @@ void ModelRenderer::LoadModel(const char* FileName, MODEL* Model)
             {
                 TexMetadata metadata{};
                 ScratchImage image{};
-                wchar_t wc[256] = {};
+                wchar_t wc[256]{};
                 mbstowcs(wc, texName, _countof(wc));
+
                 if (SUCCEEDED(LoadFromWICFile(wc, WIC_FLAGS_NONE, &metadata, image)))
                 {
                     CreateShaderResourceView(
@@ -269,7 +266,7 @@ void ModelRenderer::LoadModel(const char* FileName, MODEL* Model)
                 }
             }
 
-            // TextureEnable は SRV の有無で決める
+            // TextureEnable 設定（SRV の有無）
             Model->SubsetArray[i].Material.Material.TextureEnable =
                 (Model->SubsetArray[i].Material.Texture != nullptr);
         }
@@ -280,444 +277,415 @@ void ModelRenderer::LoadModel(const char* FileName, MODEL* Model)
     delete[] modelObj.SubsetArray;
 }
 
-// 以降（LoadObj / LoadMaterial）は、元のコメントが既に同系統のため未変更でも整合します。
-// 必要なら同じ粒度で（"------------------------------------------------------------------"＋箇条書き）に統一もできます。
-
-
-// モデル読込////////////////////////////////////////////
-void ModelRenderer::LoadObj(const char *FileName, MODEL_OBJ *ModelObj)
+// ------------------------------------------------------------------------------
+// OBJファイル読み込み
+// ------------------------------------------------------------------------------
+// - 1パス目で v/vn/vt/usemtl/f を数えて必要サイズを決める
+// - 2パス目で実データを読み込み、サブセットと面データを構築する
+// - mtllib があれば MTL を読み込み（LoadMaterial）、usemtl で紐づける
+// NOTE: usemtl が一度も無い OBJ でも描画できるように、最低 1 サブセット確保する
+void ModelRenderer::LoadObj(const char* FileName, MODEL_OBJ* ModelObj)
 {
+    char dir[MAX_PATH];
+    strcpy(dir, FileName);
+    NormalizePathSeparators(dir);
+    PathRemoveFileSpec(dir);
 
-	char dir[MAX_PATH];
-	strcpy(dir, FileName);
-	NormalizePathSeparators(dir);
-	PathRemoveFileSpec(dir);
+    XMFLOAT3* positionArray;
+    XMFLOAT3* normalArray;
+    XMFLOAT2* texcoordArray;
 
-	XMFLOAT3 *positionArray;
-	XMFLOAT3 *normalArray;
-	XMFLOAT2 *texcoordArray;
+    unsigned int positionNum = 0;
+    unsigned int normalNum   = 0;
+    unsigned int texcoordNum = 0;
+    unsigned int vertexNum   = 0;
+    unsigned int indexNum    = 0;
+    unsigned int in          = 0;
+    unsigned int subsetNum   = 0;
 
-	unsigned int positionNum = 0;
-	unsigned int normalNum = 0;
-	unsigned int texcoordNum = 0;
-	unsigned int vertexNum = 0;
-	unsigned int indexNum = 0;
-	unsigned int in = 0;
-	unsigned int subsetNum = 0;
+    MODEL_MATERIAL* materialArray = nullptr;
+    unsigned int materialNum = 0;
 
-	MODEL_MATERIAL *materialArray = nullptr;
-	unsigned int materialNum = 0;
+    char str[256];
+    char* s;
+    char c;
 
-	char str[256];
-	char *s;
-	char c;
+    FILE* file = fopen(FileName, "rt");
+    assert(file);
 
-	FILE *file;
-	file = fopen(FileName, "rt");
-	assert(file);
+    // 要素数カウント
+    while (true)
+    {
+        fscanf(file, "%s", str);
 
-	// 要素数カウント
-	while (true)
-	{
-		fscanf(file, "%s", str);
+        if (feof(file) != 0)
+            break;
 
-		if (feof(file) != 0)
-			break;
+        if (strcmp(str, "v") == 0)       { positionNum++; }
+        else if (strcmp(str, "vn") == 0) { normalNum++; }
+        else if (strcmp(str, "vt") == 0) { texcoordNum++; }
+        else if (strcmp(str, "usemtl") == 0)
+        {
+            subsetNum++;
+        }
+        else if (strcmp(str, "f") == 0)
+        {
+            in = 0;
 
-		if (strcmp(str, "v") == 0)
-		{
-			positionNum++;
-		}
-		else if (strcmp(str, "vn") == 0)
-		{
-			normalNum++;
-		}
-		else if (strcmp(str, "vt") == 0)
-		{
-			texcoordNum++;
-		}
-		else if (strcmp(str, "usemtl") == 0)
-		{
-			subsetNum++;
-		}
-		else if (strcmp(str, "f") == 0)
-		{
-			in = 0;
+            do
+            {
+                fscanf(file, "%s", str);
+                vertexNum++;
+                in++;
+                c = fgetc(file);
+            } while (c != '\n' && c != '\r');
 
-			do
-			{
-				fscanf(file, "%s", str);
-				vertexNum++;
-				in++;
-				c = fgetc(file);
-			} while (c != '\n' && c != '\r');
+            // 四角は三角に分割
+            if (in == 4)
+                in = 6;
 
-			// 四角は三角に分割
-			if (in == 4)
-				in = 6;
+            indexNum += in;
+        }
+    }
 
-			indexNum += in;
-		}
-	}
+    // usemtl が一度もない obj でも描けるように、最低 1 サブセット確保
+    if (subsetNum == 0)
+        subsetNum = 1;
 
-	// usemtlが一度もないobjでもかけるように、最低1サブセット確保
-	if (subsetNum == 0)
-		subsetNum = 1;
+    // メモリ確保
+    positionArray = new XMFLOAT3[positionNum];
+    normalArray   = new XMFLOAT3[normalNum];
+    texcoordArray = new XMFLOAT2[texcoordNum];
 
-	// メモリ確保
-	positionArray = new XMFLOAT3[positionNum];
-	normalArray = new XMFLOAT3[normalNum];
-	texcoordArray = new XMFLOAT2[texcoordNum];
+    ModelObj->VertexArray = new VERTEX_3D[vertexNum];
+    ModelObj->VertexNum   = vertexNum;
 
-	ModelObj->VertexArray = new VERTEX_3D[vertexNum];
-	ModelObj->VertexNum = vertexNum;
+    ModelObj->IndexArray  = new unsigned int[indexNum];
+    ModelObj->IndexNum    = indexNum;
 
-	ModelObj->IndexArray = new unsigned int[indexNum];
-	ModelObj->IndexNum = indexNum;
+    ModelObj->SubsetArray = new SUBSET[subsetNum];
+    ModelObj->SubsetNum   = subsetNum;
 
-	ModelObj->SubsetArray = new SUBSET[subsetNum];
-	ModelObj->SubsetNum = subsetNum;
+    // 要素読込
+    XMFLOAT3* position = positionArray;
+    XMFLOAT3* normal   = normalArray;
+    XMFLOAT2* texcoord = texcoordArray;
 
-	// 要素読込
-	XMFLOAT3 *position = positionArray;
-	XMFLOAT3 *normal = normalArray;
-	XMFLOAT2 *texcoord = texcoordArray;
+    unsigned int vc = 0;
+    unsigned int ic = 0;
+    unsigned int sc = 0;
 
-	unsigned int vc = 0;
-	unsigned int ic = 0;
-	unsigned int sc = 0;
+    fseek(file, 0, SEEK_SET);
 
-	fseek(file, 0, SEEK_SET);
+    // デフォルトマテリアル（usemtl が無い場合用）
+    MODEL_MATERIAL defaultMat{};
+    strcpy(defaultMat.Name, "Default");
+    defaultMat.Material.Ambient       = XMFLOAT4(0, 0, 0, 1);
+    defaultMat.Material.Diffuse       = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
+    defaultMat.Material.Specular      = XMFLOAT4(0, 0, 0, 1);
+    defaultMat.Material.Shininess     = 0.0f;
+    defaultMat.Material.TextureEnable = false;
+    defaultMat.Texture               = nullptr;
+    defaultMat.TextureName[0]        = '\0';
 
-	// 追加：デフォルトマテリアルを用意（usemtl が来ない場合用）
-	MODEL_MATERIAL defaultMat{};
-	strcpy(defaultMat.Name, "Default");
-	defaultMat.Material.Ambient = XMFLOAT4(0, 0, 0, 1);
-	defaultMat.Material.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
-	defaultMat.Material.Specular = XMFLOAT4(0, 0, 0, 1);
-	defaultMat.Material.Shininess = 0.0f;
-	defaultMat.Material.TextureEnable = false;
-	defaultMat.Texture = nullptr;
-	defaultMat.TextureName[0] = '\0';
+    // 最初のサブセットを仮スタート（usemtl が来れば上書き）
+    ModelObj->SubsetArray[0].StartIndex = 0;
+    ModelObj->SubsetArray[0].Material   = defaultMat;
 
-	// 最初のサブセットを仮スタート（usemtl が来れば上書き）
-	ModelObj->SubsetArray[0].StartIndex = 0;
-	ModelObj->SubsetArray[0].Material = defaultMat;
+    while (true)
+    {
+        fscanf(file, "%s", str);
 
-	while (true)
-	{
-		fscanf(file, "%s", str);
+        if (feof(file) != 0)
+            break;
 
-		if (feof(file) != 0)
-			break;
+        if (strcmp(str, "mtllib") == 0)
+        {
+            // マテリアルファイル
+            fscanf(file, "%s", str);
 
-		if (strcmp(str, "mtllib") == 0)
-		{
-			// マテリアルファイル
-			fscanf(file, "%s", str);
+            char rel[256];
+            strcpy(rel, str);
+            NormalizePathSeparators(rel);
 
-			char rel[256];
-			strcpy(rel, str);
-			NormalizePathSeparators(rel);
-
-			char path[MAX_PATH];
-			PathCombine(path, dir, rel);
+            char path[MAX_PATH];
+            PathCombine(path, dir, rel);
 
 #if _DEBUG
-			DebugLogFmt("[ModelRenderer] mtllib: %s\n", path);
+            DebugLogFmt("[ModelRenderer] mtllib: %s\n", path);
 #endif
-
-			LoadMaterial(path, &materialArray, &materialNum);
-		}
-		else if (strcmp(str, "o") == 0)
-		{
-			// オブジェクト名
-			fscanf(file, "%s", str);
-		}
-		else if (strcmp(str, "v") == 0)
-		{
-			// 頂点座標
-			fscanf(file, "%f", &position->x);
-			fscanf(file, "%f", &position->y);
-			fscanf(file, "%f", &position->z);
-			position++;
-		}
-		else if (strcmp(str, "vn") == 0)
-		{
-			// 法線
-			fscanf(file, "%f", &normal->x);
-			fscanf(file, "%f", &normal->y);
-			fscanf(file, "%f", &normal->z);
-			normal++;
-		}
-		else if (strcmp(str, "vt") == 0)
-		{
-			// テクスチャ座標
-			fscanf(file, "%f", &texcoord->x);
-			fscanf(file, "%f", &texcoord->y);
-			texcoord->x = 1.0f - texcoord->x;
-			texcoord->y = 1.0f - texcoord->y;
-			texcoord++;
-		}
-		else if (strcmp(str, "usemtl") == 0)
-		{
-			// マテリアル
-			fscanf(file, "%s", str);
+            LoadMaterial(path, &materialArray, &materialNum);
+        }
+        else if (strcmp(str, "o") == 0)
+        {
+            // オブジェクト名
+            fscanf(file, "%s", str);
+        }
+        else if (strcmp(str, "v") == 0)
+        {
+            // 頂点座標
+            fscanf(file, "%f", &position->x);
+            fscanf(file, "%f", &position->y);
+            fscanf(file, "%f", &position->z);
+            position++;
+        }
+        else if (strcmp(str, "vn") == 0)
+        {
+            // 法線
+            fscanf(file, "%f", &normal->x);
+            fscanf(file, "%f", &normal->y);
+            fscanf(file, "%f", &normal->z);
+            normal++;
+        }
+        else if (strcmp(str, "vt") == 0)
+        {
+            // テクスチャ座標
+            fscanf(file, "%f", &texcoord->x);
+            fscanf(file, "%f", &texcoord->y);
+            texcoord->x = 1.0f - texcoord->x;
+            texcoord->y = 1.0f - texcoord->y;
+            texcoord++;
+        }
+        else if (strcmp(str, "usemtl") == 0)
+        {
+            // マテリアル（サブセット切り替え）
+            fscanf(file, "%s", str);
 
 #if _DEBUG
-			DebugLogFmt("[ModelRenderer] usemtl: %s (materialNum=%u)\n", str, materialNum);
+            DebugLogFmt("[ModelRenderer] usemtl: %s (materialNum=%u)\n", str, materialNum);
 #endif
 
-			if (sc != 0)
-				ModelObj->SubsetArray[sc - 1].IndexNum = ic - ModelObj->SubsetArray[sc - 1].StartIndex;
+            if (sc != 0)
+                ModelObj->SubsetArray[sc - 1].IndexNum = ic - ModelObj->SubsetArray[sc - 1].StartIndex;
 
-			ModelObj->SubsetArray[sc].StartIndex = ic;
+            ModelObj->SubsetArray[sc].StartIndex = ic;
 
-			// まずデフォルトマテリアルを設定
-			ModelObj->SubsetArray[sc].Material = defaultMat;
+            // まずデフォルトマテリアルを設定
+            ModelObj->SubsetArray[sc].Material = defaultMat;
 
-			// mtlが正しく読み込まれていればマテリアルを設定
-			bool matched = false;
-		for (unsigned int i = 0; i < materialNum; i++)
-		{
-			if (strcmp(str, materialArray[i].Name) == 0)
-			{
-				ModelObj->SubsetArray[sc].Material.Material = materialArray[i].Material;
-				strcpy(ModelObj->SubsetArray[sc].Material.TextureName, materialArray[i].TextureName);
-				strcpy(ModelObj->SubsetArray[sc].Material.Name, materialArray[i].Name);
-
-				matched = true;
-				break;
-			}
-		}
+            // mtl が正しく読み込まれていればマテリアルを設定
+            bool matched = false;
+            for (unsigned int i = 0; i < materialNum; i++)
+            {
+                if (strcmp(str, materialArray[i].Name) == 0)
+                {
+                    ModelObj->SubsetArray[sc].Material.Material = materialArray[i].Material;
+                    strcpy(ModelObj->SubsetArray[sc].Material.TextureName, materialArray[i].TextureName);
+                    strcpy(ModelObj->SubsetArray[sc].Material.Name, materialArray[i].Name);
+                    matched = true;
+                    break;
+                }
+            }
 
 #if _DEBUG
-		DebugLogFmt("[ModelRenderer] usemtl match: %s -> %s\n", str, matched ? "OK" : "NOT FOUND");
+            DebugLogFmt("[ModelRenderer] usemtl match: %s -> %s\n", str, matched ? "OK" : "NOT FOUND");
 #endif
+            sc++;
+        }
+        else if (strcmp(str, "f") == 0)
+        {
+            // 面
+            in = 0;
 
-		sc++;
-	}
-		else if (strcmp(str, "f") == 0)
-		{
-			// 面
-			in = 0;
+            do
+            {
+                fscanf(file, "%s", str);
 
-			do
-			{
-				fscanf(file, "%s", str);
+                s = strtok(str, "/");
+                ModelObj->VertexArray[vc].Position = positionArray[atoi(s) - 1];
 
-				s = strtok(str, "/");
-				ModelObj->VertexArray[vc].Position = positionArray[atoi(s) - 1];
+                // 先に既定UV
+                ModelObj->VertexArray[vc].TexCoord = XMFLOAT2(0.0f, 0.0f);
 
-				// 先に既定UV
-				ModelObj->VertexArray[vc].TexCoord = XMFLOAT2(0.0f, 0.0f);
+                if (s[strlen(s) + 1] != '/')
+                {
+                    // テクスチャ座標が存在しない場合もある
+                    s = strtok(nullptr, "/");
+                    ModelObj->VertexArray[vc].TexCoord = texcoordArray[atoi(s) - 1];
+                }
+                s = strtok(nullptr, "/");
+                ModelObj->VertexArray[vc].Normal = normalArray[atoi(s) - 1];
 
-				if (s[strlen(s) + 1] != '/')
-				{
-					// テクスチャ座標が存在しない場合もある
-					s = strtok(nullptr, "/");
-					ModelObj->VertexArray[vc].TexCoord = texcoordArray[atoi(s) - 1];
-				}
-				s = strtok(nullptr, "/");
-				ModelObj->VertexArray[vc].Normal = normalArray[atoi(s) - 1];
+                ModelObj->VertexArray[vc].Diffuse = XMFLOAT4(1, 1, 1, 1);
 
-				ModelObj->VertexArray[vc].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+                ModelObj->IndexArray[ic] = vc;
+                ic++;
+                vc++;
 
-				ModelObj->IndexArray[ic] = vc;
-				ic++;
-				vc++;
+                in++;
+                c = fgetc(file);
+            } while (c != '\n' && c != '\r');
 
-				in++;
-				c = fgetc(file);
-			} while (c != '\n' && c != '\r');
+            // 四角は三角に分割
+            if (in == 4)
+            {
+                ModelObj->IndexArray[ic] = vc - 4;
+                ic++;
+                ModelObj->IndexArray[ic] = vc - 2;
+                ic++;
+            }
+        }
+    }
 
-			// 四角は三角に分割
-			if (in == 4)
-			{
-				ModelObj->IndexArray[ic] = vc - 4;
-				ic++;
-				ModelObj->IndexArray[ic] = vc - 2;
-				ic++;
-			}
-		}
-	}
+    if (sc != 0)
+    {
+        ModelObj->SubsetArray[sc - 1].IndexNum =
+            ic - ModelObj->SubsetArray[sc - 1].StartIndex;
+    }
+    else
+    {
+        // usemtl が一度も無い OBJ → 全面を 0 番サブセットで描画
+        ModelObj->SubsetArray[0].StartIndex = 0;
+        ModelObj->SubsetArray[0].IndexNum   = ic;
+        ModelObj->SubsetNum = 1;
+    }
 
-	if (sc != 0)
-	{
-		ModelObj->SubsetArray[sc - 1].IndexNum =
-			ic - ModelObj->SubsetArray[sc - 1].StartIndex;
-	}
-	else
-	{
-		// usemtl が一度も無い OBJ → 全面を 0 番サブセットで描画
-		ModelObj->SubsetArray[0].StartIndex = 0;
-		ModelObj->SubsetArray[0].IndexNum = ic;
-		ModelObj->SubsetNum = 1;
-	}
+    fclose(file);
 
-	fclose(file);
-
-	delete[] positionArray;
-	delete[] normalArray;
-	delete[] texcoordArray;
-	delete[] materialArray;
+    delete[] positionArray;
+    delete[] normalArray;
+    delete[] texcoordArray;
+    delete[] materialArray;
 }
 
+// ------------------------------------------------------------------------------
 // マテリアル読み込み
-void ModelRenderer::LoadMaterial(const char *FileName, MODEL_MATERIAL **MaterialArray, unsigned int *MaterialNum)
+// ------------------------------------------------------------------------------
+// - MTL(.mtl) を解析して MODEL_MATERIAL 配列を作成する
+// - newmtl の数を数えて配列確保し、Ka/Kd/Ks/Ns/d/map_Kd を読み込む
+// - map_Kd は MTL のディレクトリと結合してフルパス化して保持する
+// NOTE: ファイルが開けない場合は MaterialArray=nullptr, MaterialNum=0 で返す
+void ModelRenderer::LoadMaterial(const char* FileName, MODEL_MATERIAL** MaterialArray, unsigned int* MaterialNum)
 {
+    char dir[MAX_PATH];
+    strcpy(dir, FileName);
+    NormalizePathSeparators(dir);
+    PathRemoveFileSpec(dir);
 
-	char dir[MAX_PATH];
-	strcpy(dir, FileName);
-	NormalizePathSeparators(dir);
-	PathRemoveFileSpec(dir);
-
-	char str[256];
-
-#if _DEBUG
-	DebugLogFmt("[ModelRenderer] LoadMaterial: %s\n", FileName);
-#endif
-
-	FILE *file;
-	file = fopen(FileName, "rt");
-
-	// ファイルが見つからなかったら空で返す
-	if (!file)
-	{
-#if _DEBUG
-		DebugLogFmt("[ModelRenderer] LoadMaterial: open failed\n");
-#endif
-		*MaterialArray = nullptr;
-		*MaterialNum = 0;
-		return;
-	}
-
-	MODEL_MATERIAL *materialArray;
-	unsigned int materialNum = 0;
-
-	// 要素数カウント
-	while (true)
-	{
-		fscanf(file, "%s", str);
-
-		if (feof(file) != 0)
-			break;
-
-		if (strcmp(str, "newmtl") == 0)
-		{
-			materialNum++;
-		}
-	}
+    char str[256];
 
 #if _DEBUG
-	DebugLogFmt("[ModelRenderer] LoadMaterial: materialNum=%u\n", materialNum);
+    DebugLogFmt("[ModelRenderer] LoadMaterial: %s\n", FileName);
 #endif
 
-	// メモリ確保
-	materialArray = new MODEL_MATERIAL[materialNum];
+    FILE* file = fopen(FileName, "rt");
 
-	// 要素読込
-	int mc = -1;
+    // ファイルが見つからなかったら空で返す
+    if (!file)
+    {
+#if _DEBUG
+        DebugLogFmt("[ModelRenderer] LoadMaterial: open failed\n");
+#endif
+        *MaterialArray = nullptr;
+        *MaterialNum = 0;
+        return;
+    }
 
-	fseek(file, 0, SEEK_SET);
+    MODEL_MATERIAL* materialArray;
+    unsigned int materialNum = 0;
 
-	// usemtlが来ない場合に備えて、デフォルトマテリアルを用意
-	MODEL_MATERIAL defaultMaterial{};
-	strcpy(defaultMaterial.Name, "Default");
-	defaultMaterial.Material.Ambient = XMFLOAT4(0, 0, 0, 1);
-	defaultMaterial.Material.Diffuse = XMFLOAT4(1, 1, 1, 1);
-	defaultMaterial.Material.Specular = XMFLOAT4(1, 1, 1, 1);
-	defaultMaterial.Material.Emission = XMFLOAT4(0, 0, 0, 1);
-	defaultMaterial.Material.Shininess = 0.0f;
-	defaultMaterial.Material.TextureEnable = false;
-	defaultMaterial.Texture = nullptr;
-	defaultMaterial.TextureName[0] = '\0';
+    // 要素数カウント
+    while (true)
+    {
+        fscanf(file, "%s", str);
 
-	while (true)
-	{
-		fscanf(file, "%s", str);
+        if (feof(file) != 0)
+            break;
 
-		if (feof(file) != 0)
-			break;
-
-		if (strcmp(str, "newmtl") == 0)
-		{
-			// マテリアル名
-			mc++;
-			fscanf(file, "%s", materialArray[mc].Name);
-			strcpy(materialArray[mc].TextureName, "");
-
-			materialArray[mc].Material.Ambient = XMFLOAT4(0, 0, 0, 1);
-			materialArray[mc].Material.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
-			materialArray[mc].Material.Specular = XMFLOAT4(0, 0, 0, 1);
-			materialArray[mc].Material.Shininess = 0.0f;
-			materialArray[mc].Material.TextureEnable = false;
-			materialArray[mc].Texture = nullptr;
+        if (strcmp(str, "newmtl") == 0)
+        {
+            materialNum++;
+        }
+    }
 
 #if _DEBUG
-			DebugLogFmt("[ModelRenderer] newmtl: %s\n", materialArray[mc].Name);
+    DebugLogFmt("[ModelRenderer] LoadMaterial: materialNum=%u\n", materialNum);
 #endif
-		}
-		else if (strcmp(str, "Ka") == 0)
-		{
-			// アンビエント
-			fscanf(file, "%f", &materialArray[mc].Material.Ambient.x);
-			fscanf(file, "%f", &materialArray[mc].Material.Ambient.y);
-			fscanf(file, "%f", &materialArray[mc].Material.Ambient.z);
-			materialArray[mc].Material.Ambient.w = 1.0f;
-		}
-		else if (strcmp(str, "Kd") == 0)
-		{
-			// ディフューズ
-			fscanf(file, "%f", &materialArray[mc].Material.Diffuse.x);
-			fscanf(file, "%f", &materialArray[mc].Material.Diffuse.y);
-			fscanf(file, "%f", &materialArray[mc].Material.Diffuse.z);
-			materialArray[mc].Material.Diffuse.w = 1.0f;
+
+    // メモリ確保
+    materialArray = new MODEL_MATERIAL[materialNum];
+
+    // 要素読込
+    int mc = -1;
+    fseek(file, 0, SEEK_SET);
+
+    while (true)
+    {
+        fscanf(file, "%s", str);
+
+        if (feof(file) != 0)
+            break;
+
+        if (strcmp(str, "newmtl") == 0)
+        {
+            // マテリアル名
+            mc++;
+            fscanf(file, "%s", materialArray[mc].Name);
+            strcpy(materialArray[mc].TextureName, "");
+
+            materialArray[mc].Material.Ambient       = XMFLOAT4(0, 0, 0, 1);
+            materialArray[mc].Material.Diffuse       = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
+            materialArray[mc].Material.Specular      = XMFLOAT4(0, 0, 0, 1);
+            materialArray[mc].Material.Shininess     = 0.0f;
+            materialArray[mc].Material.TextureEnable = false;
+            materialArray[mc].Texture               = nullptr;
 
 #if _DEBUG
-			DebugLogFmt("[ModelRenderer] Kd %s = %.3f %.3f %.3f\n",
-				materialArray[mc].Name,
-				materialArray[mc].Material.Diffuse.x,
-				materialArray[mc].Material.Diffuse.y,
-				materialArray[mc].Material.Diffuse.z);
+            DebugLogFmt("[ModelRenderer] newmtl: %s\n", materialArray[mc].Name);
 #endif
-		}
-		else if (strcmp(str, "Ks") == 0)
-		{
-			// スペキュラ
-			fscanf(file, "%f", &materialArray[mc].Material.Specular.x);
-			fscanf(file, "%f", &materialArray[mc].Material.Specular.y);
-			fscanf(file, "%f", &materialArray[mc].Material.Specular.z);
-			materialArray[mc].Material.Specular.w = 1.0f;
-		}
-		else if (strcmp(str, "Ns") == 0)
-		{
-			// スペキュラ強度
-			fscanf(file, "%f", &materialArray[mc].Material.Shininess);
-		}
-		else if (strcmp(str, "d") == 0)
-		{
-			// アルファ
-			fscanf(file, "%f", &materialArray[mc].Material.Diffuse.w);
-		}
-		else if (strcmp(str, "map_Kd") == 0)
-		{
-			// テクスチャ
-			fscanf(file, "%s", str);
+        }
+        else if (strcmp(str, "Ka") == 0)
+        {
+            // アンビエント
+            fscanf(file, "%f", &materialArray[mc].Material.Ambient.x);
+            fscanf(file, "%f", &materialArray[mc].Material.Ambient.y);
+            fscanf(file, "%f", &materialArray[mc].Material.Ambient.z);
+            materialArray[mc].Material.Ambient.w = 1.0f;
+        }
+        else if (strcmp(str, "Kd") == 0)
+        {
+            // ディフューズ
+            fscanf(file, "%f", &materialArray[mc].Material.Diffuse.x);
+            fscanf(file, "%f", &materialArray[mc].Material.Diffuse.y);
+            fscanf(file, "%f", &materialArray[mc].Material.Diffuse.z);
+            materialArray[mc].Material.Diffuse.w = 1.0f;
+        }
+        else if (strcmp(str, "Ks") == 0)
+        {
+            // スペキュラ
+            fscanf(file, "%f", &materialArray[mc].Material.Specular.x);
+            fscanf(file, "%f", &materialArray[mc].Material.Specular.y);
+            fscanf(file, "%f", &materialArray[mc].Material.Specular.z);
+            materialArray[mc].Material.Specular.w = 1.0f;
+        }
+        else if (strcmp(str, "Ns") == 0)
+        {
+            // スペキュラ強度
+            fscanf(file, "%f", &materialArray[mc].Material.Shininess);
+        }
+        else if (strcmp(str, "d") == 0)
+        {
+            // アルファ
+            fscanf(file, "%f", &materialArray[mc].Material.Diffuse.w);
+        }
+        else if (strcmp(str, "map_Kd") == 0)
+        {
+            // テクスチャ
+            fscanf(file, "%s", str);
 
-			char rel[256];
-			strcpy(rel, str);
-			NormalizePathSeparators(rel);
+            char rel[256];
+            strcpy(rel, str);
+            NormalizePathSeparators(rel);
 
-			char path[MAX_PATH];
-			PathCombine(path, dir, rel);
+            char path[MAX_PATH];
+            PathCombine(path, dir, rel);
 
-			strcat(materialArray[mc].TextureName, path);
-		}
-	}
+            strcat(materialArray[mc].TextureName, path);
+        }
+    }
 
-	fclose(file);
+    fclose(file);
 
-	*MaterialArray = materialArray;
-	*MaterialNum = materialNum;
+    *MaterialArray = materialArray;
+    *MaterialNum   = materialNum;
 }

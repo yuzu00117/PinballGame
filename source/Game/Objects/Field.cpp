@@ -36,7 +36,7 @@ FieldLayout Field::MakeStage01Layout()
     layout.flippers.push_back({ Flipper::Side::Right, { flipperX, flipperY, flipperZ } });
 
     const float bumperY = 0.5f;
-    const float bumperZ = 6.0f;
+    const float bumperZ = 7.5f;
     const float bumperOffsetX = 4.0f;
     const float bumperLowerZ = -3.0f;
     const float bumperLowerOffsetX = 9.0f;
