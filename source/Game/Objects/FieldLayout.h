@@ -1,17 +1,17 @@
 //------------------------------------------------------------------------------
 // FieldLayout
 //------------------------------------------------------------------------------
-// ƒtƒB[ƒ‹ƒh\’z‚É•K—v‚ÈuƒŒƒCƒAƒEƒg’è‹`i“ü—Íƒf[ƒ^jv‚ğ‚Ü‚Æ‚ß‚½ƒwƒbƒ_B
-// - FieldBuilder ‚ª‚±‚Ì’è‹`‚ğ‰ğß‚µ‚ÄAField ”z‰º‚É GameObject ‚ğ¶¬‚·‚é
-// - –{ƒtƒ@ƒCƒ‹‚Í”z’uEÚ‘±‚É•K—v‚Èƒf[ƒ^‚Ì‚İ‚ğ•Û‚µA¶¬ƒƒWƒbƒN‚Í‚½‚È‚¢
+// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰æ§‹ç¯‰ã«å¿…è¦ãªã€Œãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆå®šç¾©ï¼ˆå…¥åŠ›ãƒ‡ãƒ¼ã‚¿ï¼‰ã€ã‚’ã¾ã¨ã‚ãŸãƒ˜ãƒƒãƒ€ã€‚
+// - FieldBuilder ãŒã“ã®å®šç¾©ã‚’è§£é‡ˆã—ã¦ã€Field é…ä¸‹ã« GameObject ã‚’ç”Ÿæˆã™ã‚‹
+// - æœ¬ãƒ•ã‚¡ã‚¤ãƒ«ã¯é…ç½®ãƒ»æ¥ç¶šã«å¿…è¦ãªãƒ‡ãƒ¼ã‚¿ã®ã¿ã‚’ä¿æŒã—ã€ç”Ÿæˆãƒ­ã‚¸ãƒƒã‚¯ã¯æŒãŸãªã„
 //
-// İŒvˆÓ}F
-// - ¶¬ˆ—iFieldBuilderj‚ÆA”z’u’è‹`iFieldLayoutj‚ğ•ª—£‚·‚é
-// - ƒŒƒxƒ‹·‚µ‘Ö‚¦EƒeƒXƒgE«—ˆ“I‚ÈŠO•”ƒf[ƒ^‰»iJSON“™j‚ğ—eˆÕ‚É‚·‚é
+// è¨­è¨ˆæ„å›³ï¼š
+// - ç”Ÿæˆå‡¦ç†ï¼ˆFieldBuilderï¼‰ã¨ã€é…ç½®å®šç¾©ï¼ˆFieldLayoutï¼‰ã‚’åˆ†é›¢ã™ã‚‹
+// - ãƒ¬ãƒ™ãƒ«å·®ã—æ›¿ãˆãƒ»ãƒ†ã‚¹ãƒˆãƒ»å°†æ¥çš„ãªå¤–éƒ¨ãƒ‡ãƒ¼ã‚¿åŒ–ï¼ˆJSONç­‰ï¼‰ã‚’å®¹æ˜“ã«ã™ã‚‹
 //
-// ’ˆÓF
-// - idiHole ‚È‚Çj‚ÍQÆ‰ğŒˆ‚Ég‚¤‚½‚ßˆêˆÓ‚Å‚ ‚é‚±‚Æ
-// - À•WŒnE’PˆÊ‚ÍiƒvƒƒWƒFƒNƒg•W€‚Ìjƒ[ƒ‹ƒhÀ•W/’PˆÊŒn‚É]‚¤
+// æ³¨æ„ï¼š
+// - idï¼ˆHole ãªã©ï¼‰ã¯å‚ç…§è§£æ±ºã«ä½¿ã†ãŸã‚ä¸€æ„ã§ã‚ã‚‹ã“ã¨
+// - åº§æ¨™ç³»ãƒ»å˜ä½ã¯ï¼ˆãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆæ¨™æº–ã®ï¼‰ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™/å˜ä½ç³»ã«å¾“ã†
 //------------------------------------------------------------------------------
 #pragma once
 
@@ -21,48 +21,48 @@
 #include "Flipper.h"
 #include "Vector3.h"
 
-/// Flipper ‚Ì”z’u’è‹`
-/// - side ‚É‚æ‚è¶‰E‚ğw’è‚·‚é
-/// - position ‚Íƒ[ƒ‹ƒhÀ•W
+/// Flipper ã®é…ç½®å®šç¾©
+/// - side ã«ã‚ˆã‚Šå·¦å³ã‚’æŒ‡å®šã™ã‚‹
+/// - position ã¯ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™
 struct FlipperDesc
 {
-    Flipper::Side side; // ¶‰E‚Ì•Ê
-    Vector3 position;   // ”z’uˆÊ’u
+    Flipper::Side side; // å·¦å³ã®åˆ¥
+    Vector3 position;   // é…ç½®ä½ç½®
 };
 
-/// Bumper ‚Ì”z’u’è‹`
+/// Bumper ã®é…ç½®å®šç¾©
 struct BumperDesc
 {
-    Vector3 position; // ”z’uˆÊ’u
+    Vector3 position; // é…ç½®ä½ç½®
 };
 
-/// Hole ‚Ì”z’u’è‹`
-/// - id ‚Í Spawner ‚©‚çQÆ‚³‚ê‚éˆêˆÓ‚È¯•Êq
+/// Hole ã®é…ç½®å®šç¾©
+/// - id ã¯ Spawner ã‹ã‚‰å‚ç…§ã•ã‚Œã‚‹ä¸€æ„ãªè­˜åˆ¥å­
 struct HoleDesc
 {
-    std::string id; // Hole ¯•Êq
-    Vector3 position; // ”z’uˆÊ’u
-    Vector3 scale;    // ƒXƒP[ƒ‹
+    std::string id; // Hole è­˜åˆ¥å­
+    Vector3 position; // é…ç½®ä½ç½®
+    Vector3 scale;    // ã‚¹ã‚±ãƒ¼ãƒ«
 };
 
-/// EnemySpawner ‚Ì”z’uEÚ‘±’è‹`
-/// - targetHoleIds ‚É‚æ‚èAƒXƒ|[ƒ“‘ÎÛ‚Ì Hole ‚ğw’è‚·‚é
+/// EnemySpawner ã®é…ç½®ãƒ»æ¥ç¶šå®šç¾©
+/// - targetHoleIds ã«ã‚ˆã‚Šã€ã‚¹ãƒãƒ¼ãƒ³å¯¾è±¡ã® Hole ã‚’æŒ‡å®šã™ã‚‹
 struct SpawnerDesc
 {
-    Vector3 position;                    // ”z’uˆÊ’u
-    float spawnXMin = 0.0f;              // ƒXƒ|[ƒ“”ÍˆÍiX Å¬j
-    float spawnXMax = 0.0f;              // ƒXƒ|[ƒ“”ÍˆÍiX Å‘åj
-    float spawnZ = 0.0f;                 // ƒXƒ|[ƒ“ Z À•W
-    std::vector<std::string> targetHoleIds; // ‘ÎÛ Hole ‚Ì ID ˆê——
+    Vector3 position;                    // é…ç½®ä½ç½®
+    float spawnXMin = 0.0f;              // ã‚¹ãƒãƒ¼ãƒ³ç¯„å›²ï¼ˆX æœ€å°ï¼‰
+    float spawnXMax = 0.0f;              // ã‚¹ãƒãƒ¼ãƒ³ç¯„å›²ï¼ˆX æœ€å¤§ï¼‰
+    float spawnZ = 0.0f;                 // ã‚¹ãƒãƒ¼ãƒ³ Z åº§æ¨™
+    std::vector<std::string> targetHoleIds; // å¯¾è±¡ Hole ã® ID ä¸€è¦§
 };
 
-/// ƒtƒB[ƒ‹ƒh\¬‚ğ’è‹`‚·‚éƒf[ƒ^\‘¢
-/// - À‘Ì‚Ì¶¬‚Ís‚í‚¸A”z’uEÚ‘±î•ñ‚Ì‚İ‚ğ•Û‚·‚é
-/// - FieldBuilder ‚É‚æ‚Á‚Ä‰ğßE\’z‚³‚ê‚é
+/// ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰æ§‹æˆã‚’å®šç¾©ã™ã‚‹ãƒ‡ãƒ¼ã‚¿æ§‹é€ 
+/// - å®Ÿä½“ã®ç”Ÿæˆã¯è¡Œã‚ãšã€é…ç½®ãƒ»æ¥ç¶šæƒ…å ±ã®ã¿ã‚’ä¿æŒã™ã‚‹
+/// - FieldBuilder ã«ã‚ˆã£ã¦è§£é‡ˆãƒ»æ§‹ç¯‰ã•ã‚Œã‚‹
 struct FieldLayout
 {
-    std::vector<FlipperDesc> flippers; // Flipper ’è‹`ˆê——
-    std::vector<BumperDesc> bumpers;   // Bumper ’è‹`ˆê——
-    std::vector<HoleDesc> holes;       // Hole ’è‹`ˆê——
-    std::vector<SpawnerDesc> spawners; // EnemySpawner ’è‹`ˆê——
+    std::vector<FlipperDesc> flippers; // Flipper å®šç¾©ä¸€è¦§
+    std::vector<BumperDesc> bumpers;   // Bumper å®šç¾©ä¸€è¦§
+    std::vector<HoleDesc> holes;       // Hole å®šç¾©ä¸€è¦§
+    std::vector<SpawnerDesc> spawners; // EnemySpawner å®šç¾©ä¸€è¦§
 };
