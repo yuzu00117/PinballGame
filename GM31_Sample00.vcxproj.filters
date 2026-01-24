@@ -137,6 +137,9 @@
     <ClCompile Include="source\Game\Objects\EnemyBase.cpp">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="source\Game\Objects\EnemyManager.cpp">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClCompile>
     <ClCompile Include="source\Game\Objects\EnemySpawner.cpp">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
@@ -260,6 +263,9 @@
       <Filter>ソース ファイル\Physics</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Objects\EnemyBase.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\Objects\EnemyManager.h">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Objects\EnemySpawner.h">

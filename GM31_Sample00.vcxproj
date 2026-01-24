@@ -209,6 +209,7 @@
     <ClCompile Include="source\Game\Objects\Ball.cpp" />
     <ClCompile Include="source\Game\Objects\Bumper.cpp" />
     <ClCompile Include="source\Game\Objects\EnemyBase.cpp" />
+    <ClCompile Include="source\Game\Objects\EnemyManager.cpp" />
     <ClCompile Include="source\Game\Objects\EnemySpawner.cpp" />
     <ClCompile Include="source\Game\Objects\EnemyStraight.cpp" />
     <ClCompile Include="source\Game\Objects\Field.cpp" />
@@ -247,6 +248,7 @@
     <ClInclude Include="source\Game\Objects\Ball.h" />
     <ClInclude Include="source\Game\Objects\Bumper.h" />
     <ClInclude Include="source\Game\Objects\EnemyBase.h" />
+    <ClInclude Include="source\Game\Objects\EnemyManager.h" />
     <ClInclude Include="source\Game\Objects\EnemySpawner.h" />
     <ClInclude Include="source\Game\Objects\EnemyStraight.h" />
     <ClInclude Include="source\Game\Objects\Field.h" />

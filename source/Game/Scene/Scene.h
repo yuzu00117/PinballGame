@@ -14,6 +14,7 @@
 #include "Score.h"
 #include "SoundManager.h"
 #include "HP.h"
+#include "EnemyManager.h"
 
 /// シーン列挙型
 enum class Scene {
@@ -31,6 +32,7 @@ inline std::vector<GameObject*> CreateSceneObjects(Scene scene) {
 		break;
     case Scene::Game:
         objs.push_back(new Camera());
+        objs.push_back(new EnemyManager());
         objs.push_back(new Field());
         objs.push_back(new Ball());
         objs.push_back(new Polygon2D());

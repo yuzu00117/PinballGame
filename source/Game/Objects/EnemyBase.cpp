@@ -1,6 +1,7 @@
 #include "EnemyBase.h"
 #include "Input.h"
 #include "HP.h"
+#include "EnemyManager.h"
 
 // コンポーネント
 #include "BoxCollider.h"
@@ -18,6 +19,9 @@ void EnemyBase::Init()
 {
     // 親クラスの初期化呼び出し
     GameObject::Init();
+
+    // エネミーマネージャーへ登録
+    EnemyManager::RegisterEnemy(this);
     // ------------------------------------------------------------------------------
     // パラメーター初期化
     // ------------------------------------------------------------------------------
