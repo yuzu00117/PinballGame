@@ -35,11 +35,16 @@ FieldLayout Field::MakeStage01Layout()
     layout.flippers.push_back({ Flipper::Side::Left, { -flipperX, flipperY, flipperZ } });
     layout.flippers.push_back({ Flipper::Side::Right, { flipperX, flipperY, flipperZ } });
 
-    const float bumperX = 0.0f;
     const float bumperY = 0.5f;
-    const float bumperZ = 0.0f;
+    const float bumperZ = 7.5f;
+    const float bumperOffsetX = 4.0f;
+    const float bumperLowerZ = -3.0f;
+    const float bumperLowerOffsetX = 9.0f;
 
-    layout.bumpers.push_back({ { bumperX, bumperY, bumperZ } });
+    layout.bumpers.push_back({ { -bumperOffsetX, bumperY, bumperZ } });
+    layout.bumpers.push_back({ { bumperOffsetX, bumperY, bumperZ } });
+    layout.bumpers.push_back({ { -bumperLowerOffsetX, bumperY, bumperLowerZ } });
+    layout.bumpers.push_back({ { bumperLowerOffsetX, bumperY, bumperLowerZ } });
 
     const float holeY = 1.0f;
     const float holeZ = -kHalfHeight - 0.2f;

@@ -1,3 +1,29 @@
+//------------------------------------------------------------------------------
+// GameObject
+//------------------------------------------------------------------------------
+// 役割:
+// ゲーム内に存在するオブジェクトの基底クラス。
+// 位置・回転・スケールなどの基本的な Transform 情報を保持し、
+// Update / Draw の共通インターフェースを提供する。
+//
+// 設計意図:
+// すべてのゲームオブジェクトを同一のライフサイクルで管理するため、
+// Update / Draw を仮想関数として定義している。
+// 描画・衝突・物理などの機能は Component として分離し、
+// 組み合わせによって多様なオブジェクトを表現できるようにしている。
+//
+// 構成:
+// - Transform              : 位置・回転・スケール情報を保持
+// - Component 管理         : Component を複数所有（unique_ptr）
+// - 子オブジェクト管理     : GameObject を階層構造で所有可能
+// - ライフサイクル         : Init / Update / Draw
+// - 衝突イベント受信       : OnCollision / OnTrigger 系コールバック
+// - 生存管理               : Destroy による遅延削除フラグ
+//
+// NOTE:
+// GameObject 自体は描画処理を直接持たない。
+// 描画が必要な場合は Renderer / Component を介して実装すること。
+//------------------------------------------------------------------------------
 #pragma once
 #include "DebugSettings.h"
 #include "CollisionInfo.h"
@@ -16,8 +42,8 @@ class Collider;
 
 /// ゲームオブジェクトの基底クラス
 /// - Transform 情報を持ち、複数の Component と子オブジェクトを所有できる
-/// - 破棄は Destroy() を呼び出し、実際の削除はシーンマネージャーが行う
-/// - 継承先では、必要に応じて各関数を override する
+/// - Destroy() は削除予約。子は親 Update() 後に回収され破棄される
+/// - 継承先では必要に応じて各関数を override する
 class GameObject  
 {
 public:
@@ -41,9 +67,12 @@ public:
     // ----------------------------------------------------------------------
     /// Componentを追加する
     /// - 所有権：GameObjectが保持（unique_ptrで所有）
-    /// - 戻り値：非所有ポインタ（this が生存し、当該Componentが保持されている限り有効）
+    /// - 戻り値：非所有ポインタ
+    ///   - GameObject が生存し、かつ当該 Component が保持されている間のみ有効
+    ///   - 将来的に Component の削除/差し替えを導入した場合、無効化され得る
     /// - 副作用：追加直後に comp->Init() が呼び出される
-    /// 注意：Init内で AddComponent する場合、順序依存に注意
+    /// NOTE: Init 内で AddComponent する場合、初期化順序に依存しない設計か確認すること
+
     template <typename T, typename... Args>
     T *AddComponent(Args &&...args)
     {
@@ -82,11 +111,13 @@ public:
     // 子オブジェクト管理
     // ----------------------------------------------------------------------
     /// 子オブジェクトを追加する（基本版）
-    /// 戻り値：非所有ポインタ（所有は親GameObject側が持つ） 
+    /// 戻り値：非所有ポインタ（所有は親GameObject側が持つ）
+    /// NOTE: 子が Destroy() 済みの場合、親の次回 Update() 後に回収され無効化される
     GameObject* CreateChild();
 
     /// 子オブジェクトを追加する（派生クラス版）
     /// 戻り値：非所有ポインタ（所有は親GameObject側が持つ）
+    /// NOTE: 子が Destroy() 済みの場合、親の次回 Update() 後に回収され無効化される
     template <class T, class... Args>
     T* CreateChild(Args&&... args) {
         static_assert(std::is_base_of<GameObject, T>::value, "T must inherit from GameObject");
@@ -101,6 +132,7 @@ public:
     void AttachChild(std::unique_ptr<GameObject> child);
 
     /// すべての子オブジェクトを破棄する（親子関係も解除）
+    /// NOTE: この関数は「子を外へ渡す(detach)」ではなく、解除後に即時破棄する
     // TODO: 将来的に DestroyAllChildren / ClearChildren に改名
     void DetachAllChildren();
 
@@ -129,11 +161,15 @@ public:
     bool IsDead() const { return m_IsDead; }
 
 public:
+    // ----------------------------------------------------------------------
     // Transform情報
+    // ----------------------------------------------------------------------
     Transform m_Transform;                                  // オブジェクトのTransform情報
 
 protected:
+    // ----------------------------------------------------------------------
     // 所有権・参照関係
+    // ----------------------------------------------------------------------
     GameObject* m_Parent = nullptr;                         // 非所有：親への参照
     
     std::vector<std::unique_ptr<Component>> m_Components;   // 所有：Component群
