@@ -97,7 +97,7 @@ private:
     static constexpr float kTableMaxY = 1.0f;  // 天井
 
     /// 初期位置
-    inline static const Vector3 kDefaultBallPosition = { 8.0f, 1.0f, 7.0f };
+    inline static const Vector3 kDefaultBallPosition = { 8.0f, 1.0f, 0.0f };
 
 private:
     // ----------------------------------------------------------------------
