@@ -92,6 +92,9 @@
     <ClCompile Include="source\Game\Objects\Hole.cpp">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="source\Game\Objects\ShockWave.cpp">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClCompile>
     <ClCompile Include="source\Game\Scene\result.cpp">
       <Filter>ソース ファイル\Game\Scene</Filter>
     </ClCompile>
@@ -200,6 +203,9 @@
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Objects\Hole.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\Objects\ShockWave.h">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Scene\result.h">

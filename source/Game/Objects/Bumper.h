@@ -81,4 +81,10 @@ private:
     /// 非所有：ModelRenderer（所有は GameObject::m_Components）
     /// - 有効期間：当該 Component が保持されている間のみ有効
     ModelRenderer* m_ModelRenderer = nullptr;
+
+    // ----------------------------------------------------------------------
+    // 状態
+    // ----------------------------------------------------------------------
+    float m_ShockCooldownTimer = 0.0f;
 };
+

@@ -216,6 +216,7 @@
     <ClCompile Include="source\Game\Objects\FieldBuilder.cpp" />
     <ClCompile Include="source\Game\Objects\Flipper.cpp" />
     <ClCompile Include="source\Game\Objects\Hole.cpp" />
+    <ClCompile Include="source\Game\Objects\ShockWave.cpp" />
     <ClCompile Include="source\Game\Scene\result.cpp" />
     <ClCompile Include="source\Game\Scene\title.cpp" />
     <ClCompile Include="source\Game\score.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="source\Game\Objects\FieldLayout.h" />
     <ClInclude Include="source\Game\Objects\Flipper.h" />
     <ClInclude Include="source\Game\Objects\Hole.h" />
+    <ClInclude Include="source\Game\Objects\ShockWave.h" />
     <ClInclude Include="source\Game\Scene\result.h" />
     <ClInclude Include="source\Game\Scene\Scene.h" />
     <ClInclude Include="source\Game\Scene\title.h" />

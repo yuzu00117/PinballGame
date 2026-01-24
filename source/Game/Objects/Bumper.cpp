@@ -8,6 +8,13 @@
 
 // ゲームオブジェクト
 #include "Ball.h"
+#include "ShockWave.h"
+
+namespace
+{
+    // 衝撃波発生のクールダウン（秒）
+    constexpr float kShockCooldown = 0.4f;
+}
 
 // ------------------------------------------------------------------------------
 // 初期化処理
@@ -42,7 +49,14 @@ void Bumper::Init()
 // NOTE: 現状は状態を持たないため何もしない
 void Bumper::Update(float deltaTime)
 {
-    (void)deltaTime;
+    GameObject::Update(deltaTime);
+
+    if (m_ShockCooldownTimer > 0.0f)
+    {
+        m_ShockCooldownTimer -= deltaTime;
+        if (m_ShockCooldownTimer < 0.0f)
+            m_ShockCooldownTimer = 0.0f;
+    }
 }
 
 // ------------------------------------------------------------------------------
@@ -93,6 +107,16 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
     // ----------------------------------------------------------------------
     auto* rb = ball->GetComponent<RigidBody>();
     if (!rb) return;
+
+    // ----------------------------------------------------------------------
+    // 衝撃波の生成（クールダウン中は生成しない）
+    // ----------------------------------------------------------------------
+    if (m_ShockCooldownTimer <= 0.0f)
+    {
+        auto* shockWave = CreateChild<ShockWave>();
+        shockWave->m_Transform.Position = Vector3{ 0.0f, 0.0f, 0.0f };
+        m_ShockCooldownTimer = kShockCooldown;
+    }
 
     // ----------------------------------------------------------------------
     // キック方向を計算（水平成分のみ法線から作り、Yは固定で上方向）
