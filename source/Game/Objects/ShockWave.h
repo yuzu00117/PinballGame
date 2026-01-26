@@ -23,6 +23,7 @@
 
 class ColliderGroup;
 class SphereCollider;
+class MeshRenderer;
 
 /// 衝撃波オブジェクト
 /// - 一定時間だけ半径を拡大する Trigger 判定を発生させる
@@ -63,6 +64,9 @@ private:
     static constexpr float kStartRadius = 5.0f; // 開始半径
     static constexpr float kEndRadius   = 8.0f; // 終了半径
     static constexpr float kDuration    = 0.35f; // 寿命（秒）
+    static constexpr const wchar_t* kShockWaveTexturePath = L"asset\\texture\\BumperShockWave.png";
+    static constexpr const char* kShockWaveVertexShaderPath = "shader\\bin\\BaseLitVS.cso";
+    static constexpr const char* kShockWavePixelShaderPath  = "shader\\bin\\BaseLitPS.cso";
 
     // ----------------------------------------------------------------------
     // 状態
@@ -74,4 +78,5 @@ private:
     // ----------------------------------------------------------------------
     ColliderGroup*  m_ColliderGroup  = nullptr; // 非所有：ColliderGroup
     SphereCollider* m_SphereCollider = nullptr; // 非所有：SphereCollider
+    MeshRenderer*   m_MeshRenderer   = nullptr; // 非所有：MeshRenderer
 };

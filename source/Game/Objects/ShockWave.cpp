@@ -4,6 +4,7 @@
 // コンポーネント
 #include "ColliderGroup.h"
 #include "SphereCollider.h"
+#include "MeshRenderer.h"
 
 // ゲームオブジェクト
 #include "EnemyBase.h"
@@ -24,6 +25,13 @@ void ShockWave::Init()
     // Trigger 判定（物理反発なし）
     m_SphereCollider->m_IsTrigger = true;
     m_SphereCollider->m_radius = kStartRadius;
+
+    m_MeshRenderer = AddComponent<MeshRenderer>();
+    m_MeshRenderer->LoadShader(kShockWaveVertexShaderPath, kShockWavePixelShaderPath);
+    m_MeshRenderer->SetTexture(kShockWaveTexturePath);
+    m_MeshRenderer->CreateUnitPlane();
+    m_MeshRenderer->SetLocalScale(kStartRadius * 2.0f, 1.0f, kStartRadius * 2.0f);
+    m_MeshRenderer->m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     m_Elapsed = 0.0f;
 }
@@ -50,6 +58,13 @@ void ShockWave::Update(float deltaTime)
     // 非所有参照のため、生存確認してから操作する
     if (m_SphereCollider)
         m_SphereCollider->m_radius = radius;
+
+    if (m_MeshRenderer)
+    {
+        m_MeshRenderer->SetLocalScale(radius * 2.0f, 1.0f, radius * 2.0f);
+        const float alpha = 1.0f - t;
+        m_MeshRenderer->m_Color = { 1.0f, 1.0f, 1.0f, alpha };
+    }
 
     if (m_Elapsed >= kDuration)
     {
@@ -79,6 +94,7 @@ void ShockWave::Uninit()
 {
     m_ColliderGroup = nullptr;
     m_SphereCollider = nullptr;
+    m_MeshRenderer = nullptr;
 }
 
 // ------------------------------------------------------------------------------
