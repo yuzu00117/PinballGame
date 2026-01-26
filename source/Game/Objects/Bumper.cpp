@@ -116,12 +116,8 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
     {
         auto* shockWave = CreateChild<ShockWave>();
         shockWave->Init();
-        const DirectX::XMMATRIX world = m_Transform.GetWorldMatrix();
-        DirectX::XMVECTOR scaleV, rotQ, transV;
-        DirectX::XMMatrixDecompose(&scaleV, &rotQ, &transV, world);
-        DirectX::XMFLOAT3 transF;
-        DirectX::XMStoreFloat3(&transF, transV);
-        shockWave->m_Transform.Position = Vector3{ transF.x, transF.y, transF.z };
+        // 子オブジェクトなのでローカル原点に置く（親Transformでワールド位置が決まる）
+        shockWave->m_Transform.Position = Vector3{ 0.0f, 0.0f, 0.0f };
         m_ShockCooldownTimer = kShockCooldown;
     }
 
