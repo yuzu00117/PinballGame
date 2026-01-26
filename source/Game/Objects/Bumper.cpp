@@ -1,10 +1,12 @@
-#include "Bumper.h"
+﻿#include "Bumper.h"
 
 // コンポーネント
 #include "SphereCollider.h"
 #include "ColliderGroup.h"
 #include "ModelRenderer.h"
 #include "RigidBody.h"
+
+#include <DirectXMath.h>
 
 // ゲームオブジェクト
 #include "Ball.h"
@@ -19,7 +21,7 @@ namespace
 // ------------------------------------------------------------------------------
 // 初期化処理
 // ------------------------------------------------------------------------------
-// - Transform の初期値を設定（Scale）
+// - Transform の初期値を設定（Scale など）
 // - ModelRenderer を追加し、モデルをロード
 // - ColliderGroup + SphereCollider を追加し、判定半径を設定
 void Bumper::Init()
@@ -85,11 +87,11 @@ void Bumper::Uninit()
 // - めり込み対策として、法線方向へ少し押し出してから速度を上書きする
 // NOTE:
 // - 速度を「上書き」しているため、既存速度は消える（意図が違う場合は加算に変更する）
-// - info.normal の向き（self->other か other->self）に依存するため、符号は仕様として固定すること
+// - info.normal の向きは self->other / other->self に依存するため、符号は仕様として固定すること
 void Bumper::OnCollisionEnter(const CollisionInfo& info)
 {
     // ----------------------------------------------------------------------
-    // 早期リターン（入力の妥当性チェック）
+    // 早期リターン：入力の妥当性チェック
     // ----------------------------------------------------------------------
     if (!info.self || !info.other) return;
     if (info.self->m_Owner != this) return;
@@ -108,23 +110,28 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
     if (!rb) return;
 
     // ----------------------------------------------------------------------
-    // 衝撃波の生成（クールダウン中は生成しない）
+    // 衝撃波の生成：クールダウン中は生成しない
     // ----------------------------------------------------------------------
     if (m_ShockCooldownTimer <= 0.0f)
     {
         auto* shockWave = CreateChild<ShockWave>();
         shockWave->Init();
-        shockWave->m_Transform.Position = Vector3{ 0.0f, 0.0f, 0.0f };
+        const DirectX::XMMATRIX world = m_Transform.GetWorldMatrix();
+        DirectX::XMVECTOR scaleV, rotQ, transV;
+        DirectX::XMMatrixDecompose(&scaleV, &rotQ, &transV, world);
+        DirectX::XMFLOAT3 transF;
+        DirectX::XMStoreFloat3(&transF, transV);
+        shockWave->m_Transform.Position = Vector3{ transF.x, transF.y, transF.z };
         m_ShockCooldownTimer = kShockCooldown;
     }
 
     // ----------------------------------------------------------------------
-    // キック方向を計算（水平成分のみ法線から作り、Yは固定で上方向）
+    // キック方向を計算（水平成分のみ法線から作り、Y は固定で上方向）
     // ----------------------------------------------------------------------
     Vector3 n = -info.normal; // NOTE: 衝突法線の定義に合わせて符号を固定
     n.y = 0.0f;
 
-    // 方向がゼロに近い場合のフォールバック
+    // 方向がゼロに近い場合はフォールバック
     if (n.LengthSq() < 1e-6f)
         n = Vector3(1.0f, 0.0f, 0.0f);
 
