@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Collider.h"
 
@@ -19,6 +19,7 @@ public:
     /// </summary>
     Vector3 GetWorldPosition() const override
     {
+        // BUG: 親Transformを考慮していないのでコライダーだけ位置がズレる。
         return m_Transform ? m_Transform->Position + Center : Center;
     }
 

@@ -1,4 +1,4 @@
-﻿#include "Bumper.h"
+#include "Bumper.h"
 
 // コンポーネント
 #include "SphereCollider.h"

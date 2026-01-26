@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "vector3.h"
 #include "Transform.h"
@@ -25,6 +25,7 @@ public:
     /// </summary>
     virtual Vector3 GetWorldPosition() const
     {
+        // BUG: 親Transformを考慮していないのでコライダーだけ位置がズレる。
         return m_Transform ? m_Transform->Position : Vector3{ 0.0f, 0.0f, 0.0f };
     }
 
