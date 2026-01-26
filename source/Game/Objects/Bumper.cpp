@@ -46,7 +46,6 @@ void Bumper::Init()
 // ------------------------------------------------------------------------------
 // 更新処理
 // ------------------------------------------------------------------------------
-// NOTE: 現状は状態を持たないため何もしない
 void Bumper::Update(float deltaTime)
 {
     GameObject::Update(deltaTime);
@@ -114,6 +113,7 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
     if (m_ShockCooldownTimer <= 0.0f)
     {
         auto* shockWave = CreateChild<ShockWave>();
+        shockWave->Init();
         shockWave->m_Transform.Position = Vector3{ 0.0f, 0.0f, 0.0f };
         m_ShockCooldownTimer = kShockCooldown;
     }
