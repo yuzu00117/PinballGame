@@ -1,4 +1,4 @@
-#include "Audio.h"
+﻿#include "Audio.h"
 #include "main.h"
 
 // 静的変数の初期化

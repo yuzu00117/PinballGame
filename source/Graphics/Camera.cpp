@@ -1,18 +1,28 @@
-#include "Camera.h"
+ï»¿#include "Camera.h"
+
+// ã‚·ã‚¹ãƒ†ãƒ 
 #include "main.h"
 #include "renderer.h"
-#include "GameManager.h"
-#include "Ball.h"
 #include "Input.h"
+#include "GameManager.h"
 
-// ƒV[ƒ““à‚Ìƒ{[ƒ‹‚ğ’T‚·ƒwƒ‹ƒp[ŠÖ”
+// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+#include "Ball.h"
+
+
 namespace
 {
+    // ----------------------------------------------------------------------
+    // ãƒ˜ãƒ«ãƒ‘ãƒ¼
+    // ----------------------------------------------------------------------
+    /// ç¾åœ¨ã®ã‚·ãƒ¼ãƒ³ã‹ã‚‰ Ball ã‚’æ¢ç´¢ã™ã‚‹
+    /// - æˆ»ã‚Šå€¤ï¼šéæ‰€æœ‰ãƒã‚¤ãƒ³ã‚¿ï¼ˆBall ã®ç”Ÿå­˜æœŸé–“å†…ã®ã¿æœ‰åŠ¹ï¼‰
+    /// - è¦‹ã¤ã‹ã‚‰ãªã„å ´åˆã¯ nullptr
     Ball* FindBall()
     {
         for (auto obj : GameManager::GetGameObjects())
         {
-            if (auto ball = dynamic_cast<Ball*>(obj))
+            if (auto* ball = dynamic_cast<Ball*>(obj))
             {
                 return ball;
             }
@@ -21,123 +31,132 @@ namespace
     }
 }
 
-// ‰Šú‰»ˆ—
+
+//------------------------------------------------------------------------------
+// ãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«
+//------------------------------------------------------------------------------
+/// åˆæœŸåŒ–
+/// - ãƒœãƒ¼ãƒ«ãŒå­˜åœ¨ã™ã‚‹å ´åˆã€è¿½å¾“ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ãƒœãƒ¼ãƒ«åº§æ¨™ã«è¨­å®šã™ã‚‹
+/// - ã‚«ãƒ¡ãƒ©ä½ç½®ã¯å›ºå®šã‚ªãƒ•ã‚»ãƒƒãƒˆï¼ˆm_CameraOffsetï¼‰ã§åˆæœŸåŒ–ã™ã‚‹
 void Camera::Init()
 {
-    // ƒV[ƒ““à‚É‚¢‚é Ball ‚ğ’T‚µ‚ÄA‰Šúƒ^[ƒQƒbƒg‚ğİ’è
     Ball* ball = FindBall();
-    if (!ball) return;
+    if (!ball)
+    {
+        return;
+    }
 
-    // Ball ‚ÌˆÊ’u‚ğ’‹“_‚É
-    auto p = ball->GetPosition();
+    const auto p = ball->GetPosition();
     m_Target = XMFLOAT3(p.x, p.y, p.z);
 
-    // Î‚ßãŒÅ’èƒJƒƒ‰—p‚Ì‰ŠúˆÊ’u
     const XMFLOAT3 offset = m_CameraOffset;
-    m_Transform.Position = {
+    m_Transform.Position =
+    {
         p.x + offset.x,
         p.y + offset.y,
         p.z + offset.z
     };
 
-    // Transform‚©‚çˆÊ’u‚ğæ“¾‚µ‚ÄƒLƒƒƒbƒVƒ…
     const XMMATRIX world = m_Transform.GetWorldMatrix();
     XMStoreFloat3(&m_Position, world.r[3]);
 }
 
-// I—¹ˆ—
+/// çµ‚äº†å‡¦ç†
+/// - ã‚«ãƒ¼ã‚½ãƒ«ã‚¯ãƒªãƒƒãƒ—ã‚’è§£é™¤ã—ã€ã‚«ãƒ¼ã‚½ãƒ«è¡¨ç¤ºã‚’æˆ»ã™
 void Camera::Uninit()
 {
-    // ”O‚Ì‚½‚ßƒJ[ƒ\ƒ‹§ŒÀ‚Æ•\¦‚ğŒ³‚É–ß‚·
     ClipCursor(nullptr);
     ShowCursor(TRUE);
 }
 
-// XVˆ—
+/// æ›´æ–°å‡¦ç†
+/// - _DEBUG:
+///   - F2 ã§è‡ªç”±ã‚«ãƒ¡ãƒ©ãƒ¢ãƒ¼ãƒ‰ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹
+///   - é€šå¸¸æ™‚ï¼šãƒœãƒ¼ãƒ«è¿½å¾“ï¼ˆå›ºå®šã‚ªãƒ•ã‚»ãƒƒãƒˆï¼‰
+///   - è‡ªç”±æ™‚ï¼šãƒã‚¦ã‚¹ãƒ«ãƒƒã‚¯ + ã‚­ãƒ¼ç§»å‹•ï¼ˆçŸ¢å°/PGUP/PGDNï¼‰
+/// - Release:
+///   - å¸¸ã«ãƒœãƒ¼ãƒ«è¿½å¾“ï¼ˆå›ºå®šã‚ªãƒ•ã‚»ãƒƒãƒˆï¼‰
+/// NOTE:
+/// - deltaTime ã¯ç¾çŠ¶æœªä½¿ç”¨ï¼ˆé€Ÿåº¦ãŒãƒ•ãƒ¬ãƒ¼ãƒ ä¾å­˜ã«ãªã‚‹ï¼‰ã€‚å¿…è¦ãªã‚‰ç§»å‹•é‡ã«ä¹—ç®—ã™ã‚‹è¨­è¨ˆã¸å¤‰æ›´ã™ã‚‹ã€‚
 void Camera::Update(float deltaTime)
 {
 #if defined(_DEBUG)
-    // --------------------------------------------------------------
-    // ƒfƒoƒbƒOƒJƒƒ‰ƒ‚[ƒhØ‘Öˆ—
-    // --------------------------------------------------------------
-    // F2ƒL[‚ÅƒfƒoƒbƒOƒJƒƒ‰ƒ‚[ƒhØ‘Ö
+    // ----------------------------------------------------------------------
+    // è‡ªç”±ã‚«ãƒ¡ãƒ©åˆ‡æ›¿
+    // ----------------------------------------------------------------------
     if (Input::GetKeyTrigger(VK_F2))
     {
         m_DebugCameraMode = !m_DebugCameraMode;
-        m_FirstMouse = true; // ƒ‚[ƒhØ‚è‘Ö‚¦‚Éƒ}ƒEƒX‰Šú‰»
+        m_FirstMouse = true;
 
         if (m_DebugCameraMode)
         {
-            // ----- ƒfƒoƒbƒOƒJƒƒ‰ ONFƒJ[ƒ\ƒ‹”ñ•\¦•ƒEƒBƒ“ƒhƒE“à‚ÉŒÅ’è -----
             ShowCursor(FALSE);
 
-            // ƒEƒBƒ“ƒhƒE‚ÌƒNƒ‰ƒCƒAƒ“ƒg—Ìˆæ‚ğƒXƒNƒŠ[ƒ“À•W‚É•ÏŠ·‚µ‚Ä ClipCursor
-            HWND hWnd = GetActiveWindow(); // •K—v‚È‚ç©‘O‚Ì HWND ‚É·‚µ‘Ö‚¦ OK
+            HWND hWnd = GetActiveWindow();
             if (hWnd)
             {
                 RECT rect;
-                GetClientRect(hWnd, &rect); // ƒNƒ‰ƒCƒAƒ“ƒgÀ•W
-                POINT lt{ rect.left,  rect.top    };
+                GetClientRect(hWnd, &rect);
+
+                POINT lt{ rect.left,  rect.top };
                 POINT rb{ rect.right, rect.bottom };
 
-                ClientToScreen(hWnd, &lt); // ¶ã‚ğƒXƒNƒŠ[ƒ“À•W‚Ö
-                ClientToScreen(hWnd, &rb); // ‰E‰º‚ğƒXƒNƒŠ[ƒ“À•W‚Ö
+                ClientToScreen(hWnd, &lt);
+                ClientToScreen(hWnd, &rb);
 
                 rect.left   = lt.x;
                 rect.top    = lt.y;
                 rect.right  = rb.x;
                 rect.bottom = rb.y;
 
-                ClipCursor(&rect); // ‚±‚Ì”ÍˆÍ‚©‚ço‚ç‚ê‚È‚¢
+                ClipCursor(&rect);
             }
         }
         else
         {
-            // ----- ƒfƒoƒbƒOƒJƒƒ‰ OFFFƒJ[ƒ\ƒ‹•\¦•ƒNƒŠƒbƒv‰ğœ -----
-            ClipCursor(nullptr); // §ŒÀ‰ğœ
+            ClipCursor(nullptr);
             ShowCursor(TRUE);
         }
     }
 
-    // ƒfƒoƒbƒOƒJƒƒ‰‚ªOFF‚Ì‚Æ‚«‚Í’Êí‚ÌƒJƒƒ‰ˆ—‚¾‚¯‚µ‚ÄI—¹
+    // ----------------------------------------------------------------------
+    // é€šå¸¸ï¼šãƒœãƒ¼ãƒ«è¿½å¾“
+    // ----------------------------------------------------------------------
     if (!m_DebugCameraMode)
     {
-        // ƒV[ƒ““à‚É‚¢‚é Ball ‚ğ’T‚·
         Ball* ball = FindBall();
         if (!ball)
+        {
             return;
+        }
 
-        Vector3 ballPos = ball->GetPosition();
-
-        // ƒJƒƒ‰‚Ìƒ^[ƒQƒbƒg‚ğƒ{[ƒ‹‚ÌˆÊ’u‚ÉXV
+        const Vector3 ballPos = ball->GetPosition();
         m_Target = XMFLOAT3(ballPos.x, ballPos.y, ballPos.z);
 
-        // ƒJƒƒ‰‚ÌŒÅ’èƒIƒtƒZƒbƒg
         const XMFLOAT3 offset = m_CameraOffset;
-
-        // ƒJƒƒ‰ˆÊ’u‚ğXV
-        m_Transform.Position = {
+        m_Transform.Position =
+        {
             ballPos.x + offset.x,
             ballPos.y + offset.y,
             ballPos.z + offset.z
         };
 
-        // Transform‚©‚çˆÊ’u‚ğæ“¾‚µ‚ÄƒLƒƒƒbƒVƒ…
         const XMMATRIX world = m_Transform.GetWorldMatrix();
         XMStoreFloat3(&m_Position, world.r[3]);
-
-        return;    // šƒfƒoƒbƒOƒJƒƒ‰OFF‚È‚ç‚±‚±‚ÅI‚í‚é
+        return;
     }
 
-    // ƒfƒoƒbƒOƒJƒƒ‰ ON ‚Ìˆ—
-    HWND hWnd = GetActiveWindow(); // •K—v‚È‚çŠO•”‚Ì HWND ‚ğg‚¤
+    // ----------------------------------------------------------------------
+    // ãƒ‡ãƒãƒƒã‚°ï¼šãƒã‚¦ã‚¹ãƒ«ãƒƒã‚¯ + ç§»å‹•
+    // ----------------------------------------------------------------------
+    HWND  hWnd = GetActiveWindow();
     POINT curPos{};
     POINT centerClient{};
     POINT centerScreen{};
 
     if (hWnd)
     {
-        // ƒNƒ‰ƒCƒAƒ“ƒg’†‰›‚ÌƒXƒNƒŠ[ƒ“À•W‚ğŒvZ
         RECT rect;
         GetClientRect(hWnd, &rect);
 
@@ -147,36 +166,32 @@ void Camera::Update(float deltaTime)
         centerScreen = centerClient;
         ClientToScreen(hWnd, &centerScreen);
 
-        // Œ»İ‚ÌƒJ[ƒ\ƒ‹ˆÊ’uæ“¾
         GetCursorPos(&curPos);
 
-        // ’†‰›‚©‚ç‚Ì·•ª‚ğ‰ñ“]—Ê‚Æ‚µ‚Äg‚¤
-        float dx = float(curPos.x - centerScreen.x) * m_MouseSensitivity;
-        float dy = float(curPos.y - centerScreen.y) * m_MouseSensitivity;
+        const float dx = float(curPos.x - centerScreen.x) * m_MouseSensitivity;
+        const float dy = float(curPos.y - centerScreen.y) * m_MouseSensitivity;
 
-        // –ˆƒtƒŒ[ƒ€AƒJ[ƒ\ƒ‹‚ğ’†‰›‚É–ß‚·i’†‰›ŒÅ’èj
+        // ã‚«ãƒ¼ã‚½ãƒ«ã‚’ä¸­å¤®ã¸æˆ»ã—ã¦ç›¸å¯¾ç§»å‹•é‡ã‚’æ¸¬å®š
         SetCursorPos(centerScreen.x, centerScreen.y);
 
-        // Yaw: ¶‰E‰ñ“]
         m_Yaw += dx;
-
-        // Pitch: ã‰º‰ñ“]i”½“]Ïj
         m_Pitch -= dy;
 
-        // ƒsƒbƒ`Šp‚Ì§ŒÀ
-        const float MAX_PITCH = XM_PIDIV2 - 0.1f;
-        const float MIN_PITCH = -XM_PIDIV2 + 0.1f;
-        if (m_Pitch > MAX_PITCH) m_Pitch = MAX_PITCH;
-        if (m_Pitch < MIN_PITCH) m_Pitch = MIN_PITCH;
+        // Pitch ã‚¯ãƒ©ãƒ³ãƒ—ï¼ˆã‚¸ãƒ³ãƒãƒ«ãƒ­ãƒƒã‚¯å›é¿ï¼‰
+        const float kMaxPitch = XM_PIDIV2 - 0.1f;
+        const float kMinPitch = -XM_PIDIV2 + 0.1f;
+        if (m_Pitch > kMaxPitch) m_Pitch = kMaxPitch;
+        if (m_Pitch < kMinPitch) m_Pitch = kMinPitch;
     }
 
-    // 2. ƒJƒƒ‰‚ÌŒü‚«ƒxƒNƒgƒ‹‚ğŒvZ
+    // ----------------------------------------------------------------------
+    // å‰æ–¹/å³ãƒ™ã‚¯ãƒˆãƒ«æ§‹ç¯‰ï¼ˆYaw/Pitchï¼‰
+    // ----------------------------------------------------------------------
     XMVECTOR forward = XMVectorSet(
         cosf(m_Pitch) * sinf(m_Yaw),
         sinf(m_Pitch),
         cosf(m_Pitch) * cosf(m_Yaw),
-        0.0f
-    );
+        0.0f);
     forward = XMVector3Normalize(forward);
 
     XMVECTOR right = XMVector3Normalize(
@@ -184,120 +199,118 @@ void Camera::Update(float deltaTime)
             sinf(m_Yaw - XM_PIDIV2),
             0.0f,
             cosf(m_Yaw - XM_PIDIV2),
-            0.0f
-        )
-    );
+            0.0f));
 
-    // 3. ƒL[“ü—Í‚É‚æ‚éˆÚ“®iŒü‚«Šî€j
     XMVECTOR move = XMVectorZero();
 
+    // çŸ¢å°ã‚­ãƒ¼ï¼šã‚«ãƒ¡ãƒ©è»¸ç§»å‹•
     if (Input::GetKeyPress(VK_UP))    move += forward * m_DebugCameraSpeed;
     if (Input::GetKeyPress(VK_DOWN))  move -= forward * m_DebugCameraSpeed;
     if (Input::GetKeyPress(VK_RIGHT)) move -= right   * m_DebugCameraSpeed;
     if (Input::GetKeyPress(VK_LEFT))  move += right   * m_DebugCameraSpeed;
 
-    if (Input::GetKeyPress(VK_PRIOR)) // PageUp
-        move += XMVectorSet(0, 1, 0, 0) * m_DebugCameraSpeed;
-    if (Input::GetKeyPress(VK_NEXT))  // PageDown
-        move -= XMVectorSet(0, 1, 0, 0) * m_DebugCameraSpeed;
+    // PageUp/PageDownï¼šä¸Šä¸‹ç§»å‹•
+    if (Input::GetKeyPress(VK_PRIOR)) move += XMVectorSet(0, 1, 0, 0) * m_DebugCameraSpeed; // PageUp
+    if (Input::GetKeyPress(VK_NEXT))  move -= XMVectorSet(0, 1, 0, 0) * m_DebugCameraSpeed; // PageDown
 
-    XMFLOAT3 d;
+    XMFLOAT3 d{};
     XMStoreFloat3(&d, move);
 
     m_Transform.Position.x += d.x;
     m_Transform.Position.y += d.y;
     m_Transform.Position.z += d.z;
 
-    // forward •ûŒü‚Öƒ^[ƒQƒbƒg‚ğİ’è
+    // æ³¨è¦–ç‚¹ã¯å‰æ–¹ã¸ 1.0 ã ã‘ä¼¸ã°ã™
     m_Target.x = m_Transform.Position.x + XMVectorGetX(forward);
     m_Target.y = m_Transform.Position.y + XMVectorGetY(forward);
     m_Target.z = m_Transform.Position.z + XMVectorGetZ(forward);
 
 #else
-    // -----------------------------------------------
-    // Release ƒrƒ‹ƒhê—pF’ÊíƒJƒƒ‰‚Ì‚İ
-    // -----------------------------------------------
-    // ƒfƒoƒbƒOƒJƒƒ‰‚Íg‚í‚È‚¢
+    // ----------------------------------------------------------------------
+    // Releaseï¼šå¸¸ã«ãƒœãƒ¼ãƒ«è¿½å¾“
+    // ----------------------------------------------------------------------
     m_DebugCameraMode = false;
 
-    // ƒV[ƒ““à‚É‚¢‚é Ball ‚ğ’T‚·
     Ball* ball = FindBall();
     if (!ball)
+    {
         return;
+    }
 
-    Vector3 ballPos = ball->GetPosition();
-
-    // ƒJƒƒ‰‚Ìƒ^[ƒQƒbƒg‚ğƒ{[ƒ‹‚ÌˆÊ’u‚ÉXV
+    const Vector3 ballPos = ball->GetPosition();
     m_Target = XMFLOAT3(ballPos.x, ballPos.y, ballPos.z);
 
-    // ƒJƒƒ‰‚ÌŒÅ’èƒIƒtƒZƒbƒg
     const XMFLOAT3 offset = m_CameraOffset;
-
-    // ƒJƒƒ‰ˆÊ’u‚ğXV
-    m_Transform.Position = {
+    m_Transform.Position =
+    {
         ballPos.x + offset.x,
         ballPos.y + offset.y,
         ballPos.z + offset.z
     };
 
-    // Transform‚©‚çˆÊ’u‚ğæ“¾‚µ‚ÄƒLƒƒƒbƒVƒ…
     const XMMATRIX world = m_Transform.GetWorldMatrix();
     XMStoreFloat3(&m_Position, world.r[3]);
 #endif
 }
 
 
-
-// •`‰æˆ—
+//------------------------------------------------------------------------------
+// æç”»å‡¦ç†
+//------------------------------------------------------------------------------
+/// æç”»å‡¦ç†
+/// - Projection ã‚’ç”Ÿæˆã—ã¦ Renderer ã«é©ç”¨ã™ã‚‹
+/// - Transform ã‹ã‚‰ã‚«ãƒ¡ãƒ©ä½ç½®ã‚’æ±‚ã‚ã€Target ã¨ã¨ã‚‚ã« View ã‚’ç”Ÿæˆã—ã¦é©ç”¨ã™ã‚‹
 void Camera::Draw()
 {
-    // ƒvƒƒWƒFƒNƒVƒ‡ƒ“ƒ}ƒgƒŠƒNƒX
     m_Projection = XMMatrixPerspectiveFovLH(
         XMConvertToRadians(45.0f),
         (float)SCREEN_WIDTH / SCREEN_HEIGHT,
         1.0f,
-        1000.0f
-    );
+        1000.0f);
 
     Renderer::SetProjectionMatrix(m_Projection);
 
-    // ”O‚Ìˆ×Transform‚©‚çˆÊ’u‚ğÄæ“¾
     const XMMATRIX world = m_Transform.GetWorldMatrix();
     XMStoreFloat3(&m_Position, world.r[3]);
 
-    // ƒrƒ…[Eƒ}ƒgƒŠƒNƒX
-    XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
+    const XMFLOAT3 up{ 0.0f, 1.0f, 0.0f };
     m_View = XMMatrixLookAtLH(
         XMLoadFloat3(&m_Position),
         XMLoadFloat3(&m_Target),
-        XMLoadFloat3(&up)
-    );
+        XMLoadFloat3(&up));
 
     Renderer::SetViewMatrix(m_View);
 }
 
-// ƒJƒƒ‰‚Ìƒsƒbƒ`‰ñ“]‚ğ§Œä
+
+//------------------------------------------------------------------------------
+// æ“ä½œ
+//------------------------------------------------------------------------------
+/// Pitch å›è»¢ã‚’åŠ ç®—ã™ã‚‹ï¼ˆã‚²ãƒ¼ãƒ ãƒ—ãƒ¬ã‚¤ç”¨ã®ç¯„å›²ã§ã‚¯ãƒ©ãƒ³ãƒ—ï¼‰
+/// - angle: ãƒ©ã‚¸ã‚¢ãƒ³
 void Camera::RotatePitch(float angle)
 {
     m_Pitch += angle;
-    
-    // ‹ÂŠp‚Ì§ŒÀiƒJƒƒ‰‚ª’n–Ê‚Éö‚è‚Ü‚È‚¢‚æ‚¤§ŒÀj
-    const float MAX_PITCH = 1.3f;  // –ñ75“x
-    const float MIN_PITCH = -0.3f; // –ñ-17“x
-    
-    if (m_Pitch > MAX_PITCH) m_Pitch = MAX_PITCH;
-    if (m_Pitch < MIN_PITCH) m_Pitch = MIN_PITCH;
+
+    const float kMaxPitch = 1.3f;
+    const float kMinPitch = -0.3f;
+
+    if (m_Pitch > kMaxPitch) m_Pitch = kMaxPitch;
+    if (m_Pitch < kMinPitch) m_Pitch = kMinPitch;
 }
 
-// ƒJƒƒ‰‚Ì‹——£‚ğİ’è
+/// è·é›¢ã‚’è¨­å®šã™ã‚‹ï¼ˆã‚¯ãƒ©ãƒ³ãƒ—ï¼‰
+/// - distance: è·é›¢
+/// NOTE:
+/// - ç¾çŠ¶ã€è¿½å¾“ä½ç½®è¨ˆç®—ã« m_Distance ã¯æœªä½¿ç”¨ï¼ˆm_CameraOffset ã‚’ä½¿ã£ã¦ã„ã‚‹ï¼‰
+///   åæ˜ ã™ã‚‹å ´åˆã¯ã€ŒYaw/Pitch/Distance ã‹ã‚‰ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’ç®—å‡ºã€ã™ã‚‹å®Ÿè£…ã¸æ•´ç†ã™ã‚‹ã€‚
 void Camera::SetDistance(float distance)
 {
     m_Distance = distance;
-    
-    // ‹——£‚Ì§ŒÀ
-    const float MIN_DISTANCE = 2.0f;
-    const float MAX_DISTANCE = 10.0f;
-    
-    if (m_Distance < MIN_DISTANCE) m_Distance = MIN_DISTANCE;
-    if (m_Distance > MAX_DISTANCE) m_Distance = MAX_DISTANCE;
+
+    const float kMinDistance = 2.0f;
+    const float kMaxDistance = 10.0f;
+
+    if (m_Distance < kMinDistance) m_Distance = kMinDistance;
+    if (m_Distance > kMaxDistance) m_Distance = kMaxDistance;
 }

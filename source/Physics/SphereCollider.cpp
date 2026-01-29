@@ -1,4 +1,4 @@
-#include "main.h"
+﻿#include "main.h"
 #include "MathUtil.h"
 #include "renderer.h"
 #include "GameObject.h"
@@ -84,8 +84,7 @@ static bool SphereVsBox(SphereCollider* s, BoxCollider* b,
         // NOTE: CCD は「今フレームの位置p1がBoxに近いとき」にだけ使う。
         // p0基準にすると接地スライド時のブルブルが増えたため、
         // 実用上 p1 で判定する実装を採用している。
-        if (moveLen >= ccdMinMove && 
-            IsSphereOverlappingBox(p1, s->m_radius, boxMin, boxMax))
+        if (moveLen >= ccdMinMove)
         {
             useCCD = true;
         }

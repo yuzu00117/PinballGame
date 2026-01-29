@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vector3.h"
 #include "MathUtil.h"
@@ -48,5 +48,5 @@ static bool IsSphereOverlappingBox(
     // NOTE: 数学的にはdiff.Length() <= radius が正しいが、
     // このエンジンではCCD安定性のため、あえてdiff.Length() <= (radius * radius) として
     // 広めに判定している（挙動が良いので仕様とする）
-    return diff.Length() <= (radius * radius);
+    return diff.LengthSq() <= (radius * radius);
 }

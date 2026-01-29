@@ -1,4 +1,4 @@
-#include "HP.h"
+﻿#include "HP.h"
 #include "Renderer.h"
 #include "Input.h"
 #include <algorithm>

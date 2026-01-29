@@ -1,83 +1,95 @@
-// soundManager.cpp
-#include "main.h"
+ï»¿#include "main.h"
 #include "SoundManager.h"
 
-// Ã“Iƒƒ“ƒo‚Ì’è‹`
+#include <algorithm>
+
 SoundManager* SoundManager::s_Instance = nullptr;
 
-// ‰Šú‰»ˆ—
+// ------------------------------------------------------------------------------
+// åˆæœŸåŒ–
+// ------------------------------------------------------------------------------
+// - ã‚°ãƒ­ãƒ¼ãƒãƒ«å‚ç…§ã‚’ this ã«è¨­å®šã™ã‚‹
 void SoundManager::Init()
 {
-    // ƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX‚Ìİ’è
     s_Instance = this;
-
-    // --- Œø‰Ê‰¹‚Ì“Ç‚İ‚İ ---
-    // ‚±‚±‚ÅƒTƒEƒ“ƒh‚ğ“Ç‚İ‚Ş
 }
 
-// ”jŠüˆ—
+// ------------------------------------------------------------------------------
+// çµ‚äº†
+// ------------------------------------------------------------------------------
+// - è‡ªåˆ†ãŒã‚°ãƒ­ãƒ¼ãƒãƒ«å‚ç…§ãªã‚‰ nullptr ã«æˆ»ã™
+// - ã™ã¹ã¦ã® Audio ã‚’ Uninit ã™ã‚‹
 void SoundManager::Uninit()
 {
-    // ©•ª‚ªƒCƒ“ƒXƒ^ƒ“ƒX‚È‚çŠJ•ú
     if (s_Instance == this)
     {
         s_Instance = nullptr;
     }
 
-    // “o˜^Ï‚İƒTƒEƒ“ƒh‚Ì‰ğ•ú
     for (int i = 0; i < (int)SoundID::Count; ++i)
     {
         m_Sounds[i].Uninit();
     }
 }
 
-// XVˆ—
-void SoundManager::Update(float deltaTime)
+// ------------------------------------------------------------------------------
+// æ›´æ–°
+// ------------------------------------------------------------------------------
+// NOTE: ç¾çŠ¶ã¯æœªä½¿ç”¨ï¼ˆãƒ•ã‚§ãƒ¼ãƒ‰ç­‰ã‚’å®Ÿè£…ã—ãŸå ´åˆã«ã“ã“ã§æ›´æ–°ã™ã‚‹ï¼‰
+void SoundManager::Update(float /*deltaTime*/)
 {
-    // “Á‚ÉXVˆ—‚Í‚È‚µi‰¹ºŠÇ—‚È‚Ì‚Åj
-    // «—ˆ“I‚É‚ÍAƒtƒF[ƒhˆ—‚âˆêŠ‡ƒ~ƒ…[ƒg‚È‚Ç‚ğ‚±‚±‚Ås‚¤‚©‚à
 }
 
-// •`‰æˆ—
+// ------------------------------------------------------------------------------
+// æç”»
+// ------------------------------------------------------------------------------
+// NOTE: éŸ³å£°ã¯æç”»ã—ãªã„ãŸã‚ç©º
 void SoundManager::Draw()
 {
-    // •`‰æˆ—‚Í“Á‚É‚È‚µi‰¹ºŠÇ—‚È‚Ì‚Åj
 }
 
-// ƒTƒEƒ“ƒh‚Ì“Ç‚İ‚İ
+// ------------------------------------------------------------------------------
+// èª­ã¿è¾¼ã¿
+// ------------------------------------------------------------------------------
+// - id ãŒç¯„å›²å¤–ã®å ´åˆã¯ä½•ã‚‚ã—ãªã„
 void SoundManager::Load(SoundID id, const char* filename)
 {
-    int index = static_cast<int>(id);
+    const int index = static_cast<int>(id);
     if (index < 0 || index >= (int)SoundID::Count) return;
 
     m_Sounds[index].Load(filename);
 }
 
 // ------------------------------------------------------------------------------
-// BGMESE‚ÌÄ¶ / ’â~
+// å†ç”Ÿ
 // ------------------------------------------------------------------------------
-// ƒTƒEƒ“ƒh‚ÌÄ¶
+// - æœ€çµ‚éŸ³é‡ = volume * m_MasterVolume
+// - id ãŒç¯„å›²å¤–ã®å ´åˆã¯ä½•ã‚‚ã—ãªã„
 void SoundManager::Play(SoundID id, bool loop, float volume)
 {
-    int index = static_cast<int>(id);
+    const int index = static_cast<int>(id);
     if (index < 0 || index >= (int)SoundID::Count) return;
 
-    float finalVolume = volume * m_MasterVolume;
+    const float finalVolume = volume * m_MasterVolume;
 
     m_Sounds[index].SetVolume(finalVolume);
     m_Sounds[index].Play(loop);
 }
 
-// ƒTƒEƒ“ƒh‚Ì’â~
+// ------------------------------------------------------------------------------
+// åœæ­¢
+// ------------------------------------------------------------------------------
 void SoundManager::Stop(SoundID id)
 {
-    int index = static_cast<int>(id);
+    const int index = static_cast<int>(id);
     if (index < 0 || index >= (int)SoundID::Count) return;
 
     m_Sounds[index].Stop();
 }
 
-// ‚·‚×‚Ä‚ÌƒTƒEƒ“ƒh‚ğ’â~
+// ------------------------------------------------------------------------------
+// å…¨åœæ­¢
+// ------------------------------------------------------------------------------
 void SoundManager::StopAll()
 {
     for (int i = 0; i < (int)SoundID::Count; ++i)
@@ -87,11 +99,13 @@ void SoundManager::StopAll()
 }
 
 // ------------------------------------------------------------------------------
-// ‰¹—Êİ’è
+// ãƒã‚¹ã‚¿ãƒ¼ãƒœãƒªãƒ¥ãƒ¼ãƒ è¨­å®š
 // ------------------------------------------------------------------------------
+// - 0.0ã€œ1.0 ã«ã‚¯ãƒ©ãƒ³ãƒ—ã™ã‚‹
 void SoundManager::SetMasterVolume(float volume)
 {
     if (volume < 0.0f) volume = 0.0f;
     if (volume > 1.0f) volume = 1.0f;
+
     m_MasterVolume = volume;
 }

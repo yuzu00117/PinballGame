@@ -1,4 +1,4 @@
-#include "TimeSystem.h"
+﻿#include "TimeSystem.h"
 #include <algorithm>
 
 LARGE_INTEGER TimeSystem::s_Freq = {};
