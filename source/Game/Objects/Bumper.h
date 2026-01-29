@@ -67,13 +67,13 @@ private:
     // ----------------------------------------------------------------------
     // バンパー設定（調整パラメータ）
     // ----------------------------------------------------------------------
-    static constexpr float kDefaultSize          = 1.6f;  // バンパーのデフォルトサイズ（見た目/判定の基準）
-    static constexpr float kDefaultColliderRadius = 1.6f; // SphereCollider の半径
+    static constexpr float kBumperDefaultSize           = 1.6f;  // バンパーのデフォルトサイズ（見た目/判定の基準）
+    static constexpr float kBumperDefaultColliderRadius = 1.6f;  // SphereCollider の半径
 
     // 反発（キック）速度
     // - 接触法線方向やゲーム設計に応じて適用方法は cpp 側で決定する
-    static constexpr float kKickHorizontalSpeed  = 25.0f; // 水平方向のキック速度
-    static constexpr float kKickVerticalSpeed    = 15.0f; // 垂直方向のキック速度
+    static constexpr float kBumperKickHorizontalSpeed   = 25.0f; // 水平方向のキック速度
+    static constexpr float kBumperKickVerticalSpeed     = 15.0f; // 垂直方向のキック速度
 
     // ----------------------------------------------------------------------
     // コンポーネント参照（非所有）
@@ -85,6 +85,6 @@ private:
     // ----------------------------------------------------------------------
     // 状態
     // ----------------------------------------------------------------------
-    float m_ShockCooldownTimer = 0.0f;
+    float m_ShockCooldownTimer = 0.0f; // 衝撃波発生のクールダウンタイマー（秒）
 };
 

@@ -54,6 +54,8 @@
     <FxCompile Include="shader\src\BaseLitVS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
+    <FxCompile Include="shader\src\unlitTexturePS.hlsl" />
+    <FxCompile Include="shader\src\unlitTextureVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Audio\audio.cpp">

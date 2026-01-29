@@ -1,6 +1,5 @@
 ﻿#include "ShockWave.h"
 
-
 // コンポーネント
 #include "ColliderGroup.h"
 #include "SphereCollider.h"
@@ -24,13 +23,13 @@ void ShockWave::Init()
 
     // Trigger 判定（物理反発なし）
     m_SphereCollider->m_IsTrigger = true;
-    m_SphereCollider->m_radius = kStartRadius;
+    m_SphereCollider->m_radius = kShockWaveStartRadius;
 
     m_MeshRenderer = AddComponent<MeshRenderer>();
     m_MeshRenderer->LoadShader(kShockWaveVertexShaderPath, kShockWavePixelShaderPath);
     m_MeshRenderer->SetTexture(kShockWaveTexturePath);
     m_MeshRenderer->CreateUnitPlane();
-    m_MeshRenderer->SetLocalScale(kStartRadius * 2.0f, 1.0f, kStartRadius * 2.0f);
+    m_MeshRenderer->SetLocalScale(kShockWaveStartRadius * 2.0f, 1.0f, kShockWaveStartRadius * 2.0f);
     m_MeshRenderer->m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     m_Elapsed = 0.0f;
@@ -49,11 +48,11 @@ void ShockWave::Update(float deltaTime)
 
     m_Elapsed += deltaTime;
 
-    float t = (kDuration > 0.0f) ? (m_Elapsed / kDuration) : 1.0f;
+    float t = (kShockWaveDuration > 0.0f) ? (m_Elapsed / kShockWaveDuration) : 1.0f;
     if (t < 0.0f) t = 0.0f;
     if (t > 1.0f) t = 1.0f;
 
-    const float radius = kStartRadius + (kEndRadius - kStartRadius) * t;
+    const float radius = kShockWaveStartRadius + (kShockWaveEndRadius - kShockWaveStartRadius) * t;
 
     // 非所有参照のため、生存確認してから操作する
     if (m_SphereCollider)
@@ -66,7 +65,7 @@ void ShockWave::Update(float deltaTime)
         m_MeshRenderer->m_Color = { 1.0f, 1.0f, 1.0f, alpha };
     }
 
-    if (m_Elapsed >= kDuration)
+    if (m_Elapsed >= kShockWaveDuration)
     {
         Destroy();
     }

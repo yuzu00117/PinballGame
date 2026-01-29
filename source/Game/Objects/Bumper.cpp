@@ -29,7 +29,7 @@ void Bumper::Init()
     // ----------------------------------------------------------------------
     // オブジェクトのパラメータ設定
     // ----------------------------------------------------------------------
-    m_Transform.Scale = { kDefaultSize, kDefaultSize, kDefaultSize };
+    m_Transform.Scale = { kBumperDefaultSize, kBumperDefaultSize, kBumperDefaultSize };
 
     // ----------------------------------------------------------------------
     // ModelRenderer コンポーネント追加
@@ -42,7 +42,7 @@ void Bumper::Init()
     // ----------------------------------------------------------------------
     auto* colliderGroup = AddComponent<ColliderGroup>();
     auto* sphereCollider = colliderGroup->AddCollider<SphereCollider>();
-    sphereCollider->m_radius = kDefaultColliderRadius;
+    sphereCollider->m_radius = kBumperDefaultColliderRadius;
 }
 
 // ------------------------------------------------------------------------------
@@ -116,8 +116,10 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
     {
         auto* shockWave = CreateChild<ShockWave>();
         shockWave->Init();
+
         // 子オブジェクトなのでローカル原点に置く（親Transformでワールド位置が決まる）
         shockWave->m_Transform.Position = Vector3{ 0.0f, 0.0f, 0.0f };
+
         m_ShockCooldownTimer = kShockCooldown;
     }
 
@@ -142,7 +144,7 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
     // ----------------------------------------------------------------------
     // 速度を設定してキック（上書き）
     // ----------------------------------------------------------------------
-    Vector3 newVel = n * kKickHorizontalSpeed;
-    newVel.y = kKickVerticalSpeed;
+    Vector3 newVel = n * kBumperKickHorizontalSpeed;
+    newVel.y = kBumperKickVerticalSpeed;
     rb->m_Velocity = newVel;
 }
