@@ -1,4 +1,4 @@
-#include "ShockWave.h"
+﻿#include "ShockWave.h"
 
 
 // コンポーネント
