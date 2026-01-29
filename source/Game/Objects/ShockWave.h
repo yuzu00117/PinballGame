@@ -62,8 +62,8 @@ private:
     // 調整パラメータ
     // ----------------------------------------------------------------------
     inline static const Vector3 kShockWaveDefaultScale      = { 0.75f, 0.75f, 0.75f }; // 衝撃波の基本スケール
-    static constexpr float kShockWaveStartRadius            = 5.0f;  // 開始半径
-    static constexpr float kShockWaveEndRadius              = 8.0f;  // 終了半径
+    static constexpr float kShockWaveStartRadius            = 4.5f;  // 開始半径
+    static constexpr float kShockWaveEndRadius              = 7.2f;  // 終了半径
     static constexpr float kShockWaveDuration               = 0.35f; // 寿命（秒）
     static constexpr const wchar_t* kShockWaveTexturePath   = L"asset\\texture\\BumperShockWave.png"; 
     static constexpr const char* kShockWaveVertexShaderPath = "shader\\bin\\BaseLitVS.cso";

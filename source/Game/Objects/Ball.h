@@ -88,16 +88,16 @@ private:
     // ----------------------------------------------------------------------
     // ボールのデフォルト属性
     // ----------------------------------------------------------------------
-    inline static const Vector3 kDefaultBallScale = { 0.5f, 0.5f, 0.5f };
-    static constexpr float kDefaultBallRadius = 0.5f;
-    static constexpr float kDefaultBallBounce = 0.15f;
+    inline static const Vector3 kDefaultBallScale  = { 0.5f, 0.5f, 0.5f };
+    static constexpr float      kDefaultBallRadius = 0.5f;
+    static constexpr float      kDefaultBallBounce = 0.15f;
 
     /// テーブル面の高さ制限（Y軸）
-    static constexpr float kTableMinY = 0.0f;  // 床
-    static constexpr float kTableMaxY = 1.0f;  // 天井
+    static constexpr float      kTableMinY = 0.0f;  // 床
+    static constexpr float      kTableMaxY = 1.0f;  // 天井
 
     /// 初期位置
-    inline static const Vector3 kDefaultBallPosition = { 8.0f, 1.0f, 0.0f };
+    inline static const Vector3 kDefaultBallPosition = { 8.0f, 1.0f, -5.0f };
 
 private:
     // ----------------------------------------------------------------------
