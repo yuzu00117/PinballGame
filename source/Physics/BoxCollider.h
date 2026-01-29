@@ -19,8 +19,16 @@ public:
     /// </summary>
     Vector3 GetWorldPosition() const override
     {
-        // BUG: 親Transformを考慮していないのでコライダーだけ位置がズレる。
-        return m_Transform ? m_Transform->Position + Center : Center;
+        if (!m_Transform)
+            return Center;
+
+        const auto world = m_Transform->GetWorldMatrix();
+        DirectX::XMFLOAT3 pos{};
+        DirectX::XMStoreFloat3(
+            &pos,
+            DirectX::XMVector3TransformCoord(
+                DirectX::XMVectorSet(Center.x, Center.y, Center.z, 1.0f), world));
+        return Vector3{ pos.x, pos.y, pos.z };
     }
 
     /// <summary>
