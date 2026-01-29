@@ -1,4 +1,4 @@
-#include "Bumper.h"
+﻿#include "Bumper.h"
 
 // コンポーネント
 #include "SphereCollider.h"
@@ -6,13 +6,22 @@
 #include "ModelRenderer.h"
 #include "RigidBody.h"
 
+#include <DirectXMath.h>
+
 // ゲームオブジェクト
 #include "Ball.h"
+#include "ShockWave.h"
+
+namespace
+{
+    // 衝撃波発生のクールダウン（秒）
+    constexpr float kShockCooldown = 0.4f;
+}
 
 // ------------------------------------------------------------------------------
 // 初期化処理
 // ------------------------------------------------------------------------------
-// - Transform の初期値を設定（Scale）
+// - Transform の初期値を設定（Scale など）
 // - ModelRenderer を追加し、モデルをロード
 // - ColliderGroup + SphereCollider を追加し、判定半径を設定
 void Bumper::Init()
@@ -20,7 +29,7 @@ void Bumper::Init()
     // ----------------------------------------------------------------------
     // オブジェクトのパラメータ設定
     // ----------------------------------------------------------------------
-    m_Transform.Scale = { kDefaultSize, kDefaultSize, kDefaultSize };
+    m_Transform.Scale = { kBumperDefaultSize, kBumperDefaultSize, kBumperDefaultSize };
 
     // ----------------------------------------------------------------------
     // ModelRenderer コンポーネント追加
@@ -33,16 +42,22 @@ void Bumper::Init()
     // ----------------------------------------------------------------------
     auto* colliderGroup = AddComponent<ColliderGroup>();
     auto* sphereCollider = colliderGroup->AddCollider<SphereCollider>();
-    sphereCollider->m_radius = kDefaultColliderRadius;
+    sphereCollider->m_radius = kBumperDefaultColliderRadius;
 }
 
 // ------------------------------------------------------------------------------
 // 更新処理
 // ------------------------------------------------------------------------------
-// NOTE: 現状は状態を持たないため何もしない
 void Bumper::Update(float deltaTime)
 {
-    (void)deltaTime;
+    GameObject::Update(deltaTime);
+
+    if (m_ShockCooldownTimer > 0.0f)
+    {
+        m_ShockCooldownTimer -= deltaTime;
+        if (m_ShockCooldownTimer < 0.0f)
+            m_ShockCooldownTimer = 0.0f;
+    }
 }
 
 // ------------------------------------------------------------------------------
@@ -72,11 +87,11 @@ void Bumper::Uninit()
 // - めり込み対策として、法線方向へ少し押し出してから速度を上書きする
 // NOTE:
 // - 速度を「上書き」しているため、既存速度は消える（意図が違う場合は加算に変更する）
-// - info.normal の向き（self->other か other->self）に依存するため、符号は仕様として固定すること
+// - info.normal の向きは self->other / other->self に依存するため、符号は仕様として固定すること
 void Bumper::OnCollisionEnter(const CollisionInfo& info)
 {
     // ----------------------------------------------------------------------
-    // 早期リターン（入力の妥当性チェック）
+    // 早期リターン：入力の妥当性チェック
     // ----------------------------------------------------------------------
     if (!info.self || !info.other) return;
     if (info.self->m_Owner != this) return;
@@ -95,12 +110,26 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
     if (!rb) return;
 
     // ----------------------------------------------------------------------
-    // キック方向を計算（水平成分のみ法線から作り、Yは固定で上方向）
+    // 衝撃波の生成：クールダウン中は生成しない
+    // ----------------------------------------------------------------------
+    if (m_ShockCooldownTimer <= 0.0f)
+    {
+        auto* shockWave = CreateChild<ShockWave>();
+        shockWave->Init();
+
+        // 子オブジェクトなのでローカル原点に置く（親Transformでワールド位置が決まる）
+        shockWave->m_Transform.Position = Vector3{ 0.0f, 0.0f, 0.0f };
+
+        m_ShockCooldownTimer = kShockCooldown;
+    }
+
+    // ----------------------------------------------------------------------
+    // キック方向を計算（水平成分のみ法線から作り、Y は固定で上方向）
     // ----------------------------------------------------------------------
     Vector3 n = -info.normal; // NOTE: 衝突法線の定義に合わせて符号を固定
     n.y = 0.0f;
 
-    // 方向がゼロに近い場合のフォールバック
+    // 方向がゼロに近い場合はフォールバック
     if (n.LengthSq() < 1e-6f)
         n = Vector3(1.0f, 0.0f, 0.0f);
 
@@ -115,7 +144,7 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
     // ----------------------------------------------------------------------
     // 速度を設定してキック（上書き）
     // ----------------------------------------------------------------------
-    Vector3 newVel = n * kKickHorizontalSpeed;
-    newVel.y = kKickVerticalSpeed;
+    Vector3 newVel = n * kBumperKickHorizontalSpeed;
+    newVel.y = kBumperKickVerticalSpeed;
     rb->m_Velocity = newVel;
 }

@@ -24,6 +24,6 @@ void Title::Draw()
     // GameManager::Draw() 内で Begin()/End() しているため、
     // ここではテキスト描画のみ行う
     // 仮に Renderer::DrawText を使う場合の例：
-    Renderer::DrawText(L"=== My Game ===", 100, 200);
+    Renderer::DrawText(L"=== PinBall Battle ===", 100, 200);
     Renderer::DrawText(L"Press Enter to Start", 100, 240);
 }

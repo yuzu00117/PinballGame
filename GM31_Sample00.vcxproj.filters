@@ -54,6 +54,8 @@
     <FxCompile Include="shader\src\BaseLitVS.hlsl">
       <Filter>shader</Filter>
     </FxCompile>
+    <FxCompile Include="shader\src\unlitTexturePS.hlsl" />
+    <FxCompile Include="shader\src\unlitTextureVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Audio\audio.cpp">
@@ -90,6 +92,9 @@
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
     <ClCompile Include="source\Game\Objects\Hole.cpp">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Game\Objects\ShockWave.cpp">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
     <ClCompile Include="source\Game\Scene\result.cpp">
@@ -135,6 +140,9 @@
       <Filter>ソース ファイル\Physics</Filter>
     </ClCompile>
     <ClCompile Include="source\Game\Objects\EnemyBase.cpp">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Game\Objects\EnemyManager.cpp">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClCompile>
     <ClCompile Include="source\Game\Objects\EnemySpawner.cpp">
@@ -199,6 +207,9 @@
     <ClInclude Include="source\Game\Objects\Hole.h">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="source\Game\Objects\ShockWave.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClInclude>
     <ClInclude Include="source\Game\Scene\result.h">
       <Filter>ソース ファイル\Game\Scene</Filter>
     </ClInclude>
@@ -260,6 +271,9 @@
       <Filter>ソース ファイル\Physics</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Objects\EnemyBase.h">
+      <Filter>ソース ファイル\Game\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Game\Objects\EnemyManager.h">
       <Filter>ソース ファイル\Game\Objects</Filter>
     </ClInclude>
     <ClInclude Include="source\Game\Objects\EnemySpawner.h">

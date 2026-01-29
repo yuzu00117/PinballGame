@@ -1,4 +1,4 @@
-#include "Ball.h"
+﻿#include "Ball.h"
 
 // システム関連
 #include <algorithm>
