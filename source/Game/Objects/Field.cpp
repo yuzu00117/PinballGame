@@ -1,6 +1,8 @@
-﻿#include "main.h"
+﻿#include "field.h"
+
+// システムｋ
+#include "main.h"
 #include "renderer.h"
-#include "field.h"
 
 // コンポーネント関連
 #include "MeshRenderer.h"
@@ -28,35 +30,47 @@ FieldLayout Field::MakeStage01Layout()
 {
     FieldLayout layout;
 
-    const float flipperZ = -kHalfHeight + 3.0f;
-    const float flipperY = 0.5f;
-    const float flipperX = kHalfWidth - 2.5f;
+    constexpr float kFlipperZOffset = 3.0f;
+    constexpr float kFlipperY = 0.5f;
+    constexpr float kFlipperXInset = 2.5f;
 
-    layout.flippers.push_back({ Flipper::Side::Left, { -flipperX, flipperY, flipperZ } });
-    layout.flippers.push_back({ Flipper::Side::Right, { flipperX, flipperY, flipperZ } });
+    constexpr float kBumperY = 0.5f;
+    constexpr float kBumperUpperZ = 7.5f;
+    constexpr float kBumperUpperXOffset = 4.0f;
+    constexpr float kBumperLowerZ = -3.0f;
+    constexpr float kBumperLowerXOffset = 9.0f;
 
-    const float bumperY = 0.5f;
-    const float bumperZ = 7.5f;
-    const float bumperOffsetX = 4.0f;
-    const float bumperLowerZ = -3.0f;
-    const float bumperLowerOffsetX = 9.0f;
+    constexpr float kHoleY = 1.0f;
+    constexpr float kHoleZOffset = 0.2f;
+    constexpr float kHoleSizeX = 3.0f;
+    constexpr float kHoleSizeY = 1.5f;
+    constexpr float kHoleSizeZ = 1.0f;
+    constexpr const char* kMainHoleId = "main";
 
-    layout.bumpers.push_back({ { -bumperOffsetX, bumperY, bumperZ } });
-    layout.bumpers.push_back({ { bumperOffsetX, bumperY, bumperZ } });
-    layout.bumpers.push_back({ { -bumperLowerOffsetX, bumperY, bumperLowerZ } });
-    layout.bumpers.push_back({ { bumperLowerOffsetX, bumperY, bumperLowerZ } });
+    constexpr float kSpawnerY = 0.5f;
+    constexpr float kSpawnerZInset = 2.0f;
+    constexpr float kSpawnerXInset = 1.0f;
 
-    const float holeY = 1.0f;
-    const float holeZ = -kHalfHeight - 0.2f;
+    const float flipperZ = -kHalfHeight + kFlipperZOffset;
+    const float flipperX = kHalfWidth - kFlipperXInset;
 
-    layout.holes.push_back({ "main", { 0.0f, holeY, holeZ }, { 3.0f, 1.5f, 1.0f } });
+    layout.flippers.push_back({ Flipper::Side::Left, { -flipperX, kFlipperY, flipperZ } });
+    layout.flippers.push_back({ Flipper::Side::Right, { flipperX, kFlipperY, flipperZ } });
+
+    layout.bumpers.push_back({ { -kBumperUpperXOffset, kBumperY, kBumperUpperZ } });
+    layout.bumpers.push_back({ { kBumperUpperXOffset, kBumperY, kBumperUpperZ } });
+    layout.bumpers.push_back({ { -kBumperLowerXOffset, kBumperY, kBumperLowerZ } });
+    layout.bumpers.push_back({ { kBumperLowerXOffset, kBumperY, kBumperLowerZ } });
+
+    const float holeZ = -kHalfHeight - kHoleZOffset;
+    layout.holes.push_back({ kMainHoleId, { 0.0f, kHoleY, holeZ }, { kHoleSizeX, kHoleSizeY, kHoleSizeZ } });
 
     SpawnerDesc spawner;
-    spawner.position = { 0.0f, 0.5f, 0.0f };
-    spawner.spawnZ = kHalfHeight - 2.0f;
-    spawner.spawnXMin = -kHalfWidth + 1.0f;
-    spawner.spawnXMax = kHalfWidth - 1.0f;
-    spawner.targetHoleIds = { "main" };
+    spawner.position = { 0.0f, kSpawnerY, 0.0f };
+    spawner.spawnZ = kHalfHeight - kSpawnerZInset;
+    spawner.spawnXMin = -kHalfWidth + kSpawnerXInset;
+    spawner.spawnXMax = kHalfWidth - kSpawnerXInset;
+    spawner.targetHoleIds = { kMainHoleId };
 
     layout.spawners.push_back(spawner);
 
@@ -78,12 +92,16 @@ void Field::Init()
     // ----------------------------------------------------------------------
     // 床の作成
     // ----------------------------------------------------------------------
+    constexpr float kFloorScaleY = 1.0f;
+    constexpr float kFloorColliderThickness = 0.5f;
+    constexpr float kFloorColliderCenterY = -kFloorColliderThickness * 0.5f;
+
     // 床メッシュの作成
     m_Floor = AddComponent<MeshRenderer>();
     m_Floor->LoadShader(kVertexShaderPath, kPixelShaderPath);
     m_Floor->SetTexture(kFieldTexturePath);
     m_Floor->CreateUnitPlane();
-    m_Floor->SetLocalScale(kHalfWidth * 2.0f, 1.0f, kHalfHeight * 2.0f);
+    m_Floor->SetLocalScale(kHalfWidth * 2.0f, kFloorScaleY, kHalfHeight * 2.0f);
 
     // 床コライダーの作成
     m_ColliderGroup = AddComponent<ColliderGroup>();
@@ -91,14 +109,15 @@ void Field::Init()
         auto floorCollider = m_ColliderGroup->AddCollider<BoxCollider>();
 
         // 位置を微調整して床の上面に合わせる
-        floorCollider->Center = { 0.0f, -0.25f, 0.0f };
-        floorCollider->Size = { kHalfWidth * 2.0f, 0.5f, kHalfHeight * 2.0f };
+        floorCollider->Center = { 0.0f, kFloorColliderCenterY, 0.0f };
+        floorCollider->Size = { kHalfWidth * 2.0f, kFloorColliderThickness, kHalfHeight * 2.0f };
     }
 
     // ----------------------------------------------------------------------
     // 壁の作成
     // ----------------------------------------------------------------------
     const float yCenter = kWallHeight * 0.5f;
+    const XMFLOAT4 kWallColor = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);
 
     // 1枚の壁を生成する簡易ヘルパー
     auto MakeWall = [&](const Vector3& position, const Vector3& scale)
@@ -113,7 +132,7 @@ void Field::Init()
         wallMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);
         wallMesh->SetTexture(kWallTexturePath);
         wallMesh->CreateUnitBox();
-        wallMesh->m_Color = XMFLOAT4(0.8f, 0.8f, 0.85f, 1.0f);
+        wallMesh->m_Color = kWallColor;
 
         // 当たり判定（Center/Size は Transform から算出される想定）
         auto wallColliderGroup = wallObj->AddComponent<ColliderGroup>();
@@ -137,11 +156,18 @@ void Field::Init()
     // ----------------------------------------------------------------------
 
     // 1本のガイドを生成する簡易ヘルパー
+    constexpr float kGuideWidth = 1.0f;
+    constexpr float kGuideLength = 4.0f;
+    constexpr float kGuideRotationDeg = 120.0f;
+    constexpr float kGuideZOffset = 3.9f;
+    constexpr float kGuideXInset = 1.5f;
+    const XMFLOAT4 kGuideColor = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);
+
     auto MakeGuide = [&](const Vector3& position, float rotYDeg)
     {
         GameObject* guideObj = CreateChild();
         guideObj->m_Transform.Position = position;
-        guideObj->m_Transform.Scale = { 1.0f, kWallHeight, 4.0f };   // 細長いガイド
+        guideObj->m_Transform.Scale = { kGuideWidth, kWallHeight, kGuideLength };   // 細長いガイド
         guideObj->m_Transform.Rotation.y = rotYDeg;
 
         // 見た目
@@ -149,7 +175,7 @@ void Field::Init()
         guideMesh->LoadShader(kVertexShaderPath, kPixelShaderPath);
         guideMesh->SetTexture(kWallTexturePath);
         guideMesh->CreateUnitBox();
-        guideMesh->m_Color = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);  // 壁より少し明るめ
+        guideMesh->m_Color = kGuideColor;  // 壁より少し明るめ
 
         // 当たり判定（Transform から自動反映）
         auto colGroup = guideObj->AddComponent<ColliderGroup>();
@@ -157,22 +183,26 @@ void Field::Init()
     };
 
     // ガイドの位置
-    const float guideZ = -kHalfHeight + 3.9f;
-    const float guideY = kWallHeight * 0.5f;
-    const float guideX = kHalfWidth - 1.5f;     // 外壁との隙間をなくすため少し内側
+    const float guideZ = -kHalfHeight + kGuideZOffset;
+    const float guideY = yCenter;
+    const float guideX = kHalfWidth - kGuideXInset;     // 外壁との隙間をなくすため少し内側
 
     // 左ガイド（内側へ向ける）
-    MakeGuide({ -guideX, guideY, guideZ }, 120.0f);
+    MakeGuide({ -guideX, guideY, guideZ }, kGuideRotationDeg);
 
     // 右ガイド（内側へ向ける）
-    MakeGuide({ +guideX, guideY, guideZ }, -120.0f);
+    MakeGuide({ +guideX, guideY, guideZ }, -kGuideRotationDeg);
 
     // ガイドの下に、更にコライダーのみを追加（ボールが潜り抜けないようにするため）
+    constexpr float kGuideColliderLength = 10.0f;
+    constexpr float kGuideColliderZOffset = 2.5f;
+    constexpr float kGuideColliderXInset = 3.5f;
+
     auto MakeGuideCollider = [&](const Vector3& position, float rotYDeg)
     {
         GameObject* guideObj = CreateChild();
         guideObj->m_Transform.Position = position;
-        guideObj->m_Transform.Scale = { 1.0f, kWallHeight, 10.0f };   // 細長いガイド
+        guideObj->m_Transform.Scale = { kGuideWidth, kWallHeight, kGuideColliderLength };   // 細長いガイド
         guideObj->m_Transform.Rotation.y = rotYDeg;
 
         // 当たり判定（Transform から自動反映）
@@ -181,14 +211,14 @@ void Field::Init()
     };
 
     // ガイドの位置
-    const float guideColliderX = kHalfWidth - 3.5f;     // 外壁との隙間をなくすため少し内側
-    const float guideColliderY = kWallHeight * 0.5f;
-    const float guideColliderZ = -kHalfHeight + 2.5f;
+    const float guideColliderX = kHalfWidth - kGuideColliderXInset;     // 外壁との隙間をなくすため少し内側
+    const float guideColliderY = yCenter;
+    const float guideColliderZ = -kHalfHeight + kGuideColliderZOffset;
 
     // 左ガイド（内側へ向ける）
-    MakeGuideCollider({ -guideColliderX, guideColliderY, guideColliderZ }, 120.0f);
+    MakeGuideCollider({ -guideColliderX, guideColliderY, guideColliderZ }, kGuideRotationDeg);
     // 右ガイド（内側へ向ける）
-    MakeGuideCollider({ +guideColliderX, guideColliderY, guideColliderZ }, -120.0f);
+    MakeGuideCollider({ +guideColliderX, guideColliderY, guideColliderZ }, -kGuideRotationDeg);
 
     // ----------------------------------------------------------------------
     // フィールド内オブジェクトの作成
