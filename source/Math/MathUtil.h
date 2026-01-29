@@ -1,26 +1,34 @@
-﻿#ifndef _MATHUTIL_H
-#define _MATHUTIL_H
+﻿//------------------------------------------------------------------------------
+// MathUtil
+//------------------------------------------------------------------------------
+// 役割:
+// 数値演算に関する汎用ユーティリティ関数を提供する。
+// 主に範囲制限や簡易的な数値補正処理を想定。
+//
+// 設計意図:
+// エンジン全体で頻出する単純な数値処理を共通化し、
+// 可読性と再利用性を向上させる。
+//
+// 構成:
+// - Clamp : 値を指定範囲[min, max]に収める
+//
+// NOTE:
+// テンプレート関数のため、比較演算子(<, >)が定義されている型のみ使用可能。
+//------------------------------------------------------------------------------
+#pragma once
 
 #include <algorithm>
 
-/// <summary>
-/// ���w���[�e�B���e�B�N���X
-/// </summary>
-template<typename T>
-
-/// <summary>
-/// �l��w��͈͂ɃN�����v����
-/// </summary>
-/// <typeparam name="T">�^</typeparam>
-/// <param name="value">�l</param>
-/// <param name="minVal">�ŏ��l</param>
-/// <param name="maxVal">�ő�l</param>
-/// <returns>�N�����v��̒l</returns>
+/// 値を指定した範囲内に制限する
+/// - value が minVal 未満の場合は minVal を返す
+/// - value が maxVal を超える場合は maxVal を返す
+/// - それ以外は value をそのまま返す
+/// - 副作用：なし
+/// - 制約：T は < および > 演算子が使用可能であること
+template <typename T>
 inline T Clamp(T value, T minVal, T maxVal)
 {
-	if (value < minVal) return minVal;
-	if (value > maxVal) return maxVal;
-	return value;
+    if (value < minVal) return minVal;
+    if (value > maxVal) return maxVal;
+    return value;
 }
-
-#endif //_MATHUTIL_H

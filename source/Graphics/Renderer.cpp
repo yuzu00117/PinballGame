@@ -28,21 +28,18 @@ ID3D11DepthStencilState* Renderer::m_DepthStateDisable{};
 ID3D11BlendState*		Renderer::m_BlendState{};
 ID3D11BlendState*		Renderer::m_BlendStateATC{};
 
-// �ǉ��FDirect2D�^DirectWrite �p�����o������
 ID2D1Factory* Renderer::m_D2DFactory = nullptr;
 ID2D1RenderTarget* Renderer::m_D2DRT = nullptr;
 IDWriteFactory* Renderer::m_DWriteFactory = nullptr;
 IDWriteTextFormat* Renderer::m_TextFormat = nullptr;
 ID2D1SolidColorBrush* Renderer::m_Brush = nullptr;
 
-// �f�o�b�O�`��p�ÓI�ϐ�
 static ID3D11Buffer* 		s_DebugVB 		= nullptr;
 static UINT 				s_DebugVBBytes 	= 0;
 static ID3D11VertexShader*	s_DebugLineVS	= nullptr;
 static ID3D11PixelShader*	s_DebugLinePS	= nullptr;
 static ID3D11InputLayout*	s_DebugLineIL	= nullptr;
 
-// ���݂̃��[���h�s��
 XMFLOAT4X4 Renderer::m_CurrentWorld = {
 	1,0,0,0,
 	0,1,0,0,
@@ -50,19 +47,16 @@ XMFLOAT4X4 Renderer::m_CurrentWorld = {
 	0,0,0,1
 };
 
-// �萔�o�b�t�@�\����
 struct CBWorld
 {
 	DirectX::XMFLOAT4X4 World;
 	DirectX::XMFLOAT4X4 WorldInvTranspose;
 };
 
-// ����������
 void Renderer::Init()
 {
 	HRESULT hr = S_OK;
 
-	// --- �f�o�C�X�A�X���b�v�`�F�[���쐬 ---
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferCount = 1;
 	swapChainDesc.BufferDesc.Width = SCREEN_WIDTH;
@@ -90,13 +84,11 @@ void Renderer::Init()
 										&m_FeatureLevel,
 										&m_DeviceContext );
 
-	// --- �����_�[�^�[�Q�b�g�r���[�쐬 ---
 	ID3D11Texture2D* renderTarget{};
 	m_SwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), ( LPVOID* )&renderTarget );
 	m_Device->CreateRenderTargetView( renderTarget, NULL, &m_RenderTargetView );
 	renderTarget->Release();
 
-	// --- �f�v�X�X�e���V���o�b�t�@�쐬 ---
 	ID3D11Texture2D* depthStencile{};
 	D3D11_TEXTURE2D_DESC textureDesc{};
 	textureDesc.Width = swapChainDesc.BufferDesc.Width;
@@ -111,7 +103,6 @@ void Renderer::Init()
 	textureDesc.MiscFlags = 0;
 	m_Device->CreateTexture2D(&textureDesc, NULL, &depthStencile);
 
-	// --- �f�v�X�X�e���V���r���[�쐬 ---
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
 	depthStencilViewDesc.Format = textureDesc.Format;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -122,7 +113,6 @@ void Renderer::Init()
 
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, m_DepthStencilView);
 
-	// --- �r���[�|�[�g�ݒ� ---
 	D3D11_VIEWPORT viewport;
 	viewport.Width = (FLOAT)SCREEN_WIDTH;
 	viewport.Height = (FLOAT)SCREEN_HEIGHT;
@@ -132,7 +122,6 @@ void Renderer::Init()
 	viewport.TopLeftY = 0;
 	m_DeviceContext->RSSetViewports( 1, &viewport );
 
-	// --- ���X�^���C�U�X�e�[�g�ݒ� ---
 	D3D11_RASTERIZER_DESC rasterizerDesc{};
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID; 
 	rasterizerDesc.CullMode = D3D11_CULL_BACK; 
@@ -144,7 +133,6 @@ void Renderer::Init()
 
 	m_DeviceContext->RSSetState( rs );
 
-	// --- �u�����h�X�e�[�g�ݒ� ---
 	D3D11_BLEND_DESC blendDesc{};
 	blendDesc.AlphaToCoverageEnable = FALSE;
 	blendDesc.IndependentBlendEnable = FALSE;
@@ -165,22 +153,20 @@ void Renderer::Init()
 	float blendFactor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	m_DeviceContext->OMSetBlendState(m_BlendState, blendFactor, 0xffffffff );
 
-	// --- �f�v�X�X�e���V���X�e�[�g�ݒ� ---
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = TRUE;
 	depthStencilDesc.DepthWriteMask	= D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	depthStencilDesc.StencilEnable = FALSE;
 
-	m_Device->CreateDepthStencilState( &depthStencilDesc, &m_DepthStateEnable );//�[�x�L���X�e�[�g
+	m_Device->CreateDepthStencilState( &depthStencilDesc, &m_DepthStateEnable );
 
 	//depthStencilDesc.DepthEnable = FALSE;
 	depthStencilDesc.DepthWriteMask	= D3D11_DEPTH_WRITE_MASK_ZERO;
-	m_Device->CreateDepthStencilState( &depthStencilDesc, &m_DepthStateDisable );//�[�x�����X�e�[�g
+	m_Device->CreateDepthStencilState( &depthStencilDesc, &m_DepthStateDisable );
 
 	m_DeviceContext->OMSetDepthStencilState( m_DepthStateEnable, NULL );
 
-	// --- �T���v���[�X�e�[�g�ݒ� ---
 	D3D11_SAMPLER_DESC samplerDesc{};
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -194,7 +180,6 @@ void Renderer::Init()
 
 	m_DeviceContext->PSSetSamplers( 0, 1, &samplerState );
 
-	// --- �萔�o�b�t�@���� ---
 	D3D11_BUFFER_DESC bufferDesc{};
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -202,7 +187,6 @@ void Renderer::Init()
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = sizeof(float);
 
-	// ���[���h�A�r���[�A�v���W�F�N�V�����s��p
 	// World
 	bufferDesc.ByteWidth = sizeof(CBWorld);
 	m_Device->CreateBuffer( &bufferDesc, NULL, &m_WorldBuffer );
@@ -236,7 +220,6 @@ void Renderer::Init()
 
 
 
-	// ���C�g������
 	LIGHT light{};
 	light.Enable = true;
 	light.Direction = XMFLOAT4(0.3f, -1.0f, 0.3f, 0.0f);
@@ -246,7 +229,6 @@ void Renderer::Init()
 
 
 
-	// �}�e���A��������
 	MATERIAL material{};
 	material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	material.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -255,13 +237,10 @@ void Renderer::Init()
 
 
 
-	// --- ��������ǉ��FDirect2D + DirectWrite ������ ---
 
-	// 1) D2D �t�@�N�g������
 	hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_D2DFactory);
 	assert(SUCCEEDED(hr));
 
-	// 2) DXGI �o�b�N�o�b�t�@���� D2D �����_�[�^�[�Q�b�g�쐬
 	IDXGISurface* backBuffer = nullptr;
 	hr = m_SwapChain->GetBuffer(0, __uuidof(IDXGISurface), reinterpret_cast<void**>(&backBuffer));
 	assert(SUCCEEDED(hr));
@@ -275,25 +254,23 @@ void Renderer::Init()
 	backBuffer->Release();
 	assert(SUCCEEDED(hr));
 
-	// 3) DirectWrite �t�@�N�g�� & TextFormat
 	hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
 		__uuidof(IDWriteFactory),
 		reinterpret_cast<IUnknown**>(&m_DWriteFactory));
 	assert(SUCCEEDED(hr));
 
 	hr = m_DWriteFactory->CreateTextFormat(
-		L"Segoe UI",        // �t�H���g��
+		L"Segoe UI",
 		nullptr,
 		DWRITE_FONT_WEIGHT_NORMAL,
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
-		24.0f,              // �t�H���g�T�C�Y
-		L"",                // ���P�[��
+		24.0f,
+		L"",
 		&m_TextFormat
 	);
 	assert(SUCCEEDED(hr));
 
-	// 4) �u���V����
 	hr = m_D2DRT->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_Brush);
 	assert(SUCCEEDED(hr));
 
@@ -316,13 +293,11 @@ void Renderer::Uninit()
 	m_DeviceContext->Release();
 	m_Device->Release();
 
-    // --- �ǉ��FDirect2D/DirectWrite ��� ---
     if (m_Brush)         { m_Brush->Release();         m_Brush = nullptr; }
     if (m_TextFormat)    { m_TextFormat->Release();    m_TextFormat = nullptr; }
     if (m_DWriteFactory) { m_DWriteFactory->Release(); m_DWriteFactory = nullptr; }
     if (m_D2DRT)         { m_D2DRT->Release();         m_D2DRT = nullptr; }
     if (m_D2DFactory)    { m_D2DFactory->Release();    m_D2DFactory = nullptr; }
-    // --- Direct2D/DirectWrite ��������܂� ---
 
 }
 
@@ -370,15 +345,12 @@ void Renderer::SetWorldViewProjection2D()
 
 void Renderer::SetWorldMatrix(XMMATRIX WorldMatrix)
 {
-	// ���݂̃��[���h�s���ۑ�
 	XMStoreFloat4x4(&m_CurrentWorld, WorldMatrix);
 
 	CBWorld cb{};
 
-	// �V�F�[�_�[�ɓn���p�ɓ]�u�s���v�Z
 	XMStoreFloat4x4(&cb.World, XMMatrixTranspose(WorldMatrix));
 
-	// �@���p�]�u�t�s���v�Z
 	XMMATRIX invWorld = XMMatrixInverse(nullptr, WorldMatrix);
 	XMStoreFloat4x4(&cb.WorldInvTranspose, XMMatrixTranspose(invWorld));
 
@@ -466,10 +438,8 @@ void Renderer::CreatePixelShader( ID3D11PixelShader** PixelShader, const char* F
 
 void Renderer::DrawText(const std::wstring& text, float x, float y)
 {
-	// 1) D2D �`��J�n
 	m_D2DRT->BeginDraw();
 
-	// 2) �e�L�X�g�`��
 	D2D1_RECT_F layout = D2D1::RectF(x, y, x + 800, y + 200);
 	m_D2DRT->DrawText(
 		text.c_str(),
@@ -479,23 +449,19 @@ void Renderer::DrawText(const std::wstring& text, float x, float y)
 		m_Brush
 	);
 
-	// 3) �`��m��
 	m_D2DRT->EndDraw();
 }
 
-// �f�o�b�O�`��p�p�C�v���C���m��
 static void EnsureDebugLinePipeline()
 {
 	const char* vsPath = "shader\\bin\\DebugLineVS.cso";
 	const char* psPath = "shader\\bin\\DebugLinePS.cso";
 
-	// �o�C�g�R�[�h�ǂݍ���
 	FILE* fp = fopen(vsPath, "rb"); assert(fp);
 	fseek(fp, 0, SEEK_END); long vsSize = ftell(fp); fseek(fp, 0, SEEK_SET);
 	std::vector<unsigned char> vsBlob(vsSize);
 	fread(vsBlob.data(), 1, vsSize, fp); fclose(fp);
 
-	// VS/IL �쐬
 	Renderer::GetDevice()->CreateVertexShader(vsBlob.data(), vsSize, nullptr, &s_DebugLineVS);
 
 	D3D11_INPUT_ELEMENT_DESC il[] = {
@@ -504,7 +470,6 @@ static void EnsureDebugLinePipeline()
     };
     Renderer::GetDevice()->CreateInputLayout(il, _countof(il), vsBlob.data(), vsSize, &s_DebugLineIL);
 
-    // PS�쐬
     fp = fopen(psPath, "rb"); assert(fp);
     fseek(fp, 0, SEEK_END); long psSize = ftell(fp); fseek(fp, 0, SEEK_SET);
     std::vector<unsigned char> psBlob(psSize);
@@ -512,7 +477,6 @@ static void EnsureDebugLinePipeline()
     Renderer::GetDevice()->CreatePixelShader(psBlob.data(), psSize, nullptr, &s_DebugLinePS);
 }
 
-// �f�o�b�O���C���`��
 void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
 {
     if (!vertices || vertexCount == 0) return;
@@ -522,7 +486,6 @@ void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
     auto* dev = GetDevice();
     auto* ctx = GetDeviceContext();
 
-    // --- ���O�̃p�C�v���C����Ԃ�ޔ� ---
     ID3D11InputLayout*     	 prevIL  = nullptr;
     ID3D11VertexShader*    	 prevVS  = nullptr;
     ID3D11PixelShader*     	 prevPS  = nullptr;
@@ -533,10 +496,8 @@ void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
     ctx->PSGetShader(&prevPS, nullptr, nullptr);
     ctx->IAGetPrimitiveTopology(&prevTopo);
 
-    // World�s���ޔ�
 	XMMATRIX prevWorld = XMLoadFloat4x4(&m_CurrentWorld);
 
-    // --- ���IVB��m��/�g�� ---
     const UINT bytesNeeded = sizeof(DebugLineVertex) * vertexCount;
     if (!s_DebugVB || s_DebugVBBytes < bytesNeeded)
     {
@@ -551,13 +512,11 @@ void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
         dev->CreateBuffer(&bd, nullptr, &s_DebugVB);
     }
 
-    // �f�[�^�]��
     D3D11_MAPPED_SUBRESOURCE msr{};
     ctx->Map(s_DebugVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
     memcpy(msr.pData, vertices, bytesNeeded);
     ctx->Unmap(s_DebugVB, 0);
 
-    // ===== �f�o�b�O�p�p�C�v���C���ݒ� =====
     UINT stride = sizeof(DebugLineVertex), offset = 0;
     ctx->IASetInputLayout(s_DebugLineIL);
     ctx->IASetVertexBuffers(0, 1, &s_DebugVB, &stride, &offset);
@@ -565,12 +524,10 @@ void Renderer::DrawDebugLines(const DebugLineVertex* vertices, UINT vertexCount)
     ctx->VSSetShader(s_DebugLineVS, nullptr, 0);
     ctx->PSSetShader(s_DebugLinePS, nullptr, 0);
 
-    // �f�o�b�O���͒��_�����[���h���W�Ȃ̂ŁAWorld=I�ɂ���
 	SetWorldMatrix(XMMatrixIdentity());
 
     ctx->Draw(vertexCount, 0);
 
-    // --- �p�C�v���C����Ԃ���ɖ߂� ---
     ctx->IASetInputLayout(prevIL);
     ctx->VSSetShader(prevVS, nullptr, 0);
     ctx->PSSetShader(prevPS, nullptr, 0);

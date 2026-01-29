@@ -11,7 +11,6 @@
 
 using namespace DirectX;
 
-// ���b�V���`��񋓌^
 enum class MeshShape
 {
 	Plane,
@@ -21,15 +20,10 @@ enum class MeshShape
 };
 
 /// <summary>
-/// MeshRenderer ���b�V���̕`���S������R���|�[�l���g
-/// Transform�̃X�P�[�� x ���[�J���X�P�[�� ��|�����킹���l�ŕ`�悳���
-/// TODO: �V�F�[�_�[���ݒ肳��Ă��Ȃ��ꍇ�̃f�t�H���g�V�F�[�_�[������ǉ�
 /// </summary>
 class MeshRenderer : public Component
 {	
-// --- �ϐ���` ---
 public:
-    // �|�C���^��
 	ID3D11Buffer*               m_VertexBuffer  = nullptr;
     ID3D11InputLayout*          m_VertexLayout  = nullptr;
     ID3D11VertexShader*         m_VertexShader  = nullptr;
@@ -37,33 +31,28 @@ public:
     ID3D11ShaderResourceView*   m_Texture       = nullptr;
     Transform*                  m_Transform     = nullptr;
 
-    Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f };            // ���[�J���X�P�[��
-	MeshShape m_Shape = MeshShape::Custom;    			    // ���b�V���`��
-	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);				// ���b�V���F�i�f�t�H���g�͔��j
-	bool m_EnableTexture = false;                         	// �e�N�X�`���L���t���O
+    Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f };
+	MeshShape m_Shape = MeshShape::Custom;
+	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);
+	bool m_EnableTexture = false;
 
 private:
-    ID3D11Buffer* m_IndexBuffer = nullptr;                  // �C���f�b�N�X�o�b�t�@
-    UINT m_IndexCount = 0;                                	// �C���f�b�N�X��
-	UINT m_VertexCount = 0;                             	// ���_��
+    ID3D11Buffer* m_IndexBuffer = nullptr;
+    UINT m_IndexCount = 0;
+	UINT m_VertexCount = 0;
 
-// --- �֐���` ---
 public:
-	// �f�t�H���g�R���X�g���N�^�E�f�X�g���N�^
 	MeshRenderer() = default;
 	~MeshRenderer() override { Release(); }
 
 	/// <summary>
-	/// ���C�t�T�C�N�����\�b�h
 	/// </summary>
 	void Init() override {};
 	void Uninit() override { Release(); };
 
     // ----------------------------------------------------------------------
-    // ��{����
     // ----------------------------------------------------------------------
 	/// <summary>
-	/// �e�N�X�`����ݒ肷��
 	/// </summary>
 	void SetTexture(const std::wstring& filePath)
 	{
@@ -77,7 +66,6 @@ public:
 	}
 
 	/// <summary>
-	/// �V�F�[�_�[��ݒ肷��
 	/// </summary>
 	void LoadShader(const char* vsFilePath, const char* psFilePath)
 	{
@@ -86,7 +74,6 @@ public:
     }
 
     /// <summary>
-    /// ���[�J���X�P�[����ݒ肷��
     /// </summary>
     void SetLocalScale(float x, float y, float z)
     {
@@ -94,14 +81,11 @@ public:
     }
 
     /// ------------------------------------------------------------------------
-    /// �P�ʌ`�󃁃b�V���쐬
     /// ------------------------------------------------------------------------
     /// <summary>
-    /// �P�ʕ��ʃ��b�V����쐬�iPlane�j
     /// </summary>
     void CreateUnitPlane()
     {
-        // ��1�A����1�̕��ʂ�쐬
 		VERTEX_3D v[4];
 		v[0].Position = {-0.5f, 0.0f,  0.5f};
 		v[1].Position = { 0.5f, 0.0f,  0.5f};
@@ -119,67 +103,55 @@ public:
     }
 
     /// <summary>
-    /// �P�ʗ����̃��b�V����쐬�iBox�j
     /// </summary>
     void CreateUnitBox()
     {
         const float h = 0.5f;
 
-        // 24���_�i�e��4���_�~6�ʁj
-            // 24���_�i�e��4���_�~6�ʁj
         VERTEX_3D v[24] =
         {
-            // �O�� (+Z)
             {{-h,-h, h},{0,0,1},{1,1,1,1},{0,1}},
             {{ h,-h, h},{0,0,1},{1,1,1,1},{1,1}},
             {{-h, h, h},{0,0,1},{1,1,1,1},{0,0}},
             {{ h, h, h},{0,0,1},{1,1,1,1},{1,0}},
-            // �w�� (-Z)
             {{ h,-h,-h},{0,0,-1},{1,1,1,1},{0,1}},
             {{-h,-h,-h},{0,0,-1},{1,1,1,1},{1,1}},
             {{ h, h,-h},{0,0,-1},{1,1,1,1},{0,0}},
             {{-h, h,-h},{0,0,-1},{1,1,1,1},{1,0}},
-            // �E�� (+X)
             {{ h,-h, h},{1,0,0},{1,1,1,1},{0,1}},
             {{ h, h, h},{1,0,0},{1,1,1,1},{0,0}},
             {{ h,-h,-h},{1,0,0},{1,1,1,1},{1,1}},
             {{ h, h,-h},{1,0,0},{1,1,1,1},{1,0}},
-            // ���� (-X)
             {{-h,-h,-h},{-1,0,0},{1,1,1,1},{0,1}},
             {{-h, h,-h},{-1,0,0},{1,1,1,1},{0,0}},
             {{-h,-h, h},{-1,0,0},{1,1,1,1},{1,1}},
             {{-h, h, h},{-1,0,0},{1,1,1,1},{1,0}},
-            // ��� (+Y)
             {{-h, h, h},{0,1,0},{1,1,1,1},{0,1}},
             {{-h, h,-h},{0,1,0},{1,1,1,1},{0,0}},
             {{ h, h, h},{0,1,0},{1,1,1,1},{1,1}},
             {{ h, h,-h},{0,1,0},{1,1,1,1},{1,0}},
-            // ���� (-Y)
             {{-h,-h,-h},{0,-1,0},{1,1,1,1},{0,1}},
             {{-h,-h, h},{0,-1,0},{1,1,1,1},{0,0}},
             {{ h,-h,-h},{0,-1,0},{1,1,1,1},{1,1}},
             {{ h,-h, h},{0,-1,0},{1,1,1,1},{1,0}},
         };
 
-        // 36�C���f�b�N�X�i�e��2�O�p�`�~3���_�~6�ʁj
         const uint16_t indices[36] =
         {
-         0,  1,  2,  2,  1,  3,  // �O��
-         4,  5,  6,  6,  5,  7,  // �w��
+         0,  1,  2,  2,  1,  3,
+         4,  5,  6,  6,  5,  7,
          8, 10,  9,  9, 10, 11,
         14, 15, 13, 14, 13, 12,
         16, 18, 17, 18, 19, 17,
         20, 22, 21, 21, 22, 23,
     };
 
-        // ���_�o�b�t�@�ƃC���f�b�N�X�o�b�t�@�̍쐬
         MakeVertexBuffer(v, 24);
         MakeIndexBuffer(indices, 36);
         m_Shape = MeshShape::Box;
     }
 
     /// <summary>
-    /// UnitSphere���b�V����쐬
     /// </summary>
     void CreateUnitSphere(int slices = 16, int stacks = 16)
     {
@@ -222,18 +194,14 @@ public:
     }
 
     /// ----------------------------------------------------------------------
-    /// �`�揈��
     /// ----------------------------------------------------------------------
 	/// <summary>
-	/// ���b�V���̕`��
 	/// </summary>
 	void Draw() override
     {
-        // ���[�J���X�P�[���𔽉f�������[���h�s���擾
         const auto localScaleMatrix = XMMatrixScaling(m_LocalScale.x, m_LocalScale.y, m_LocalScale.z);
         const auto world = localScaleMatrix * m_Transform->GetWorldMatrix();
 
-        // �}�e���A���ݒ�
         MATERIAL mat{};
         mat.Diffuse = m_Color;
         mat.Ambient = {1,1,1,1};
@@ -242,7 +210,6 @@ public:
         Renderer::SetMaterial(mat);
         Renderer::SetWorldMatrix(world);
 
-        // �`��
         auto ctx = Renderer::GetDeviceContext();
         ctx->IASetInputLayout(m_VertexLayout);
         ctx->VSSetShader(m_VertexShader, nullptr, 0);
@@ -251,13 +218,11 @@ public:
         UINT stride = sizeof(VERTEX_3D), offset = 0;
         ctx->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
         
-        // �e�N�X�`���ݒ�
         if (m_Texture)
         {
             ctx->PSSetShaderResources(0, 1, &m_Texture);
         }
 
-        // �C���f�b�N�X�o�b�t�@������ꍇ�͂������g�p
         if (m_IndexBuffer && m_IndexCount > 0)
         {
             ctx->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
@@ -273,7 +238,6 @@ public:
 	
 private:
 	/// <summary>
-	/// ���_�o�b�t�@��쐬����
 	/// </summary>
     void MakeVertexBuffer(const VERTEX_3D* verts, UINT count)
     {
@@ -290,7 +254,6 @@ private:
     }
 
     /// <summary>
-    /// �C���f�b�N�X�o�b�t�@��쐬����
     /// </summary>
     void MakeIndexBuffer(const uint16_t* indices, UINT count)
     {
@@ -308,7 +271,6 @@ private:
     }
 
 	/// <summary>
-	/// �g�|���W�[��ݒ肷��
 	/// </summary>
 	D3D11_PRIMITIVE_TOPOLOGY GetTopology() const
 	{
@@ -325,7 +287,6 @@ private:
 		}
 	}
 
-	// ���\�[�X���
     void Release()
     {
         if (m_Texture)       { m_Texture->Release(); m_Texture = nullptr; }

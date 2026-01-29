@@ -14,10 +14,10 @@ private:
     ID3D11ShaderResourceView* m_Texture;
 
     int m_CurrentFrame = 0;
-    int m_TotalFrames = 16;      // ���t���[����
-    int m_FramesPerRow = 4;      // �������̃t���[����
-    float m_FrameTime = 0.05f;   // 1�t���[���̕\�����ԁi�b�j
-    float m_ElapsedTime = 0.0f;  // �o�ߎ���
+    int m_TotalFrames = 16;
+    int m_FramesPerRow = 4;
+    float m_FrameTime = 0.05f;
+    float m_ElapsedTime = 0.0f;
 
 public:
     void Init() override;
