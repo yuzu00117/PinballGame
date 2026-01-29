@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "main.h"
 #include "Component.h"
@@ -11,7 +11,7 @@
 
 using namespace DirectX;
 
-// ƒƒbƒVƒ…Œ`ó—ñ‹“Œ^
+// ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½`ï¿½ï¿½ñ‹“Œ^
 enum class MeshShape
 {
 	Plane,
@@ -21,15 +21,15 @@ enum class MeshShape
 };
 
 /// <summary>
-/// MeshRenderer ƒƒbƒVƒ…‚Ì•`‰æ‚ğ’S“–‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg
-/// Transform‚ÌƒXƒP[ƒ‹ x ƒ[ƒJƒ‹ƒXƒP[ƒ‹ ‚ğŠ|‚¯‡‚í‚¹‚½’l‚Å•`‰æ‚³‚ê‚é
-/// TODO: ƒVƒF[ƒ_[‚ªİ’è‚³‚ê‚Ä‚¢‚È‚¢ê‡‚ÌƒfƒtƒHƒ‹ƒgƒVƒF[ƒ_[ˆ—‚ğ’Ç‰Á
+/// MeshRenderer ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½Ì•`ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Rï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½g
+/// Transformï¿½ÌƒXï¿½Pï¿½[ï¿½ï¿½ x ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½Xï¿½Pï¿½[ï¿½ï¿½ ï¿½ï¿½|ï¿½ï¿½ï¿½ï¿½ï¿½í‚¹ï¿½ï¿½ï¿½lï¿½Å•`ï¿½æ‚³ï¿½ï¿½ï¿½
+/// TODO: ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½ï¿½İ’è‚³ï¿½ï¿½Ä‚ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½Ìƒfï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‰ï¿½
 /// </summary>
 class MeshRenderer : public Component
 {	
-// --- •Ï”’è‹` ---
+// --- ï¿½Ïï¿½ï¿½ï¿½` ---
 public:
-    // ƒ|ƒCƒ“ƒ^—Ş
+    // ï¿½|ï¿½Cï¿½ï¿½ï¿½^ï¿½ï¿½
 	ID3D11Buffer*               m_VertexBuffer  = nullptr;
     ID3D11InputLayout*          m_VertexLayout  = nullptr;
     ID3D11VertexShader*         m_VertexShader  = nullptr;
@@ -37,33 +37,33 @@ public:
     ID3D11ShaderResourceView*   m_Texture       = nullptr;
     Transform*                  m_Transform     = nullptr;
 
-    Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f };            // ƒ[ƒJƒ‹ƒXƒP[ƒ‹
-	MeshShape m_Shape = MeshShape::Custom;    			    // ƒƒbƒVƒ…Œ`ó
-	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);				// ƒƒbƒVƒ…FiƒfƒtƒHƒ‹ƒg‚Í”’j
-	bool m_EnableTexture = false;                         	// ƒeƒNƒXƒ`ƒƒ—LŒøƒtƒ‰ƒO
+    Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f };            // ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½Xï¿½Pï¿½[ï¿½ï¿½
+	MeshShape m_Shape = MeshShape::Custom;    			    // ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½`ï¿½ï¿½
+	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);				// ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½Fï¿½iï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Í”ï¿½ï¿½j
+	bool m_EnableTexture = false;                         	// ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½tï¿½ï¿½ï¿½O
 
 private:
-    ID3D11Buffer* m_IndexBuffer = nullptr;                  // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@
-    UINT m_IndexCount = 0;                                	// ƒCƒ“ƒfƒbƒNƒX”
-	UINT m_VertexCount = 0;                             	// ’¸“_”
+    ID3D11Buffer* m_IndexBuffer = nullptr;                  // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@
+    UINT m_IndexCount = 0;                                	// ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½ï¿½
+	UINT m_VertexCount = 0;                             	// ï¿½ï¿½ï¿½_ï¿½ï¿½
 
-// --- ŠÖ”’è‹` ---
+// --- ï¿½Öï¿½ï¿½ï¿½` ---
 public:
-	// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^EƒfƒXƒgƒ‰ƒNƒ^
+	// ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^ï¿½Eï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 	MeshRenderer() = default;
 	~MeshRenderer() override { Release(); }
 
 	/// <summary>
-	/// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+	/// ï¿½ï¿½ï¿½Cï¿½tï¿½Tï¿½Cï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½bï¿½h
 	/// </summary>
 	void Init() override {};
 	void Uninit() override { Release(); };
 
     // ----------------------------------------------------------------------
-    // Šî–{‘€ì
+    // ï¿½ï¿½{ï¿½ï¿½ï¿½ï¿½
     // ----------------------------------------------------------------------
 	/// <summary>
-	/// ƒeƒNƒXƒ`ƒƒ‚ğİ’è‚·‚é
+	/// ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½İ’è‚·ï¿½ï¿½
 	/// </summary>
 	void SetTexture(const std::wstring& filePath)
 	{
@@ -77,7 +77,7 @@ public:
 	}
 
 	/// <summary>
-	/// ƒVƒF[ƒ_[‚ğİ’è‚·‚é
+	/// ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½İ’è‚·ï¿½ï¿½
 	/// </summary>
 	void LoadShader(const char* vsFilePath, const char* psFilePath)
 	{
@@ -86,7 +86,7 @@ public:
     }
 
     /// <summary>
-    /// ƒ[ƒJƒ‹ƒXƒP[ƒ‹‚ğİ’è‚·‚é
+    /// ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½ï¿½İ’è‚·ï¿½ï¿½
     /// </summary>
     void SetLocalScale(float x, float y, float z)
     {
@@ -94,14 +94,14 @@ public:
     }
 
     /// ------------------------------------------------------------------------
-    /// ’PˆÊŒ`óƒƒbƒVƒ…ì¬
+    /// ï¿½Pï¿½ÊŒ`ï¿½óƒƒbï¿½Vï¿½ï¿½ï¿½ì¬
     /// ------------------------------------------------------------------------
     /// <summary>
-    /// ’PˆÊ•½–ÊƒƒbƒVƒ…‚ğì¬iPlanej
+    /// ï¿½Pï¿½Ê•ï¿½ï¿½Êƒï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ì¬ï¿½iPlaneï¿½j
     /// </summary>
     void CreateUnitPlane()
     {
-        // •1A‚‚³1‚Ì•½–Ê‚ğì¬
+        // ï¿½ï¿½1ï¿½Aï¿½ï¿½ï¿½ï¿½1ï¿½Ì•ï¿½ï¿½Ê‚ï¿½ì¬
 		VERTEX_3D v[4];
 		v[0].Position = {-0.5f, 0.0f,  0.5f};
 		v[1].Position = { 0.5f, 0.0f,  0.5f};
@@ -119,67 +119,67 @@ public:
     }
 
     /// <summary>
-    /// ’PˆÊ—§•û‘ÌƒƒbƒVƒ…‚ğì¬iBoxj
+    /// ï¿½Pï¿½Ê—ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ì¬ï¿½iBoxï¿½j
     /// </summary>
     void CreateUnitBox()
     {
         const float h = 0.5f;
 
-        // 24’¸“_iŠe–Ê4’¸“_~6–Êj
-            // 24’¸“_iŠe–Ê4’¸“_~6–Êj
+        // 24ï¿½ï¿½ï¿½_ï¿½iï¿½eï¿½ï¿½4ï¿½ï¿½ï¿½_ï¿½~6ï¿½Êj
+            // 24ï¿½ï¿½ï¿½_ï¿½iï¿½eï¿½ï¿½4ï¿½ï¿½ï¿½_ï¿½~6ï¿½Êj
         VERTEX_3D v[24] =
         {
-            // ‘O–Ê (+Z)
+            // ï¿½Oï¿½ï¿½ (+Z)
             {{-h,-h, h},{0,0,1},{1,1,1,1},{0,1}},
             {{ h,-h, h},{0,0,1},{1,1,1,1},{1,1}},
             {{-h, h, h},{0,0,1},{1,1,1,1},{0,0}},
             {{ h, h, h},{0,0,1},{1,1,1,1},{1,0}},
-            // ”w–Ê (-Z)
+            // ï¿½wï¿½ï¿½ (-Z)
             {{ h,-h,-h},{0,0,-1},{1,1,1,1},{0,1}},
             {{-h,-h,-h},{0,0,-1},{1,1,1,1},{1,1}},
             {{ h, h,-h},{0,0,-1},{1,1,1,1},{0,0}},
             {{-h, h,-h},{0,0,-1},{1,1,1,1},{1,0}},
-            // ‰E–Ê (+X)
+            // ï¿½Eï¿½ï¿½ (+X)
             {{ h,-h, h},{1,0,0},{1,1,1,1},{0,1}},
             {{ h, h, h},{1,0,0},{1,1,1,1},{0,0}},
             {{ h,-h,-h},{1,0,0},{1,1,1,1},{1,1}},
             {{ h, h,-h},{1,0,0},{1,1,1,1},{1,0}},
-            // ¶–Ê (-X)
+            // ï¿½ï¿½ï¿½ï¿½ (-X)
             {{-h,-h,-h},{-1,0,0},{1,1,1,1},{0,1}},
             {{-h, h,-h},{-1,0,0},{1,1,1,1},{0,0}},
             {{-h,-h, h},{-1,0,0},{1,1,1,1},{1,1}},
             {{-h, h, h},{-1,0,0},{1,1,1,1},{1,0}},
-            // ã–Ê (+Y)
+            // ï¿½ï¿½ï¿½ (+Y)
             {{-h, h, h},{0,1,0},{1,1,1,1},{0,1}},
             {{-h, h,-h},{0,1,0},{1,1,1,1},{0,0}},
             {{ h, h, h},{0,1,0},{1,1,1,1},{1,1}},
             {{ h, h,-h},{0,1,0},{1,1,1,1},{1,0}},
-            // ‰º–Ê (-Y)
+            // ï¿½ï¿½ï¿½ï¿½ (-Y)
             {{-h,-h,-h},{0,-1,0},{1,1,1,1},{0,1}},
             {{-h,-h, h},{0,-1,0},{1,1,1,1},{0,0}},
             {{ h,-h,-h},{0,-1,0},{1,1,1,1},{1,1}},
             {{ h,-h, h},{0,-1,0},{1,1,1,1},{1,0}},
         };
 
-        // 36ƒCƒ“ƒfƒbƒNƒXiŠe–Ê2OŠpŒ`~3’¸“_~6–Êj
+        // 36ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½iï¿½eï¿½ï¿½2ï¿½Oï¿½pï¿½`ï¿½~3ï¿½ï¿½ï¿½_ï¿½~6ï¿½Êj
         const uint16_t indices[36] =
         {
-         0,  1,  2,  2,  1,  3,  // ‘O–Ê
-         4,  5,  6,  6,  5,  7,  // ”w–Ê
+         0,  1,  2,  2,  1,  3,  // ï¿½Oï¿½ï¿½
+         4,  5,  6,  6,  5,  7,  // ï¿½wï¿½ï¿½
          8, 10,  9,  9, 10, 11,
         14, 15, 13, 14, 13, 12,
         16, 18, 17, 18, 19, 17,
         20, 22, 21, 21, 22, 23,
     };
 
-        // ’¸“_ƒoƒbƒtƒ@‚ÆƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚Ìì¬
+        // ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@ï¿½ÆƒCï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½Ìì¬
         MakeVertexBuffer(v, 24);
         MakeIndexBuffer(indices, 36);
         m_Shape = MeshShape::Box;
     }
 
     /// <summary>
-    /// UnitSphereƒƒbƒVƒ…‚ğì¬
+    /// UnitSphereï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½ï¿½ì¬
     /// </summary>
     void CreateUnitSphere(int slices = 16, int stacks = 16)
     {
@@ -222,18 +222,18 @@ public:
     }
 
     /// ----------------------------------------------------------------------
-    /// •`‰æˆ—
+    /// ï¿½`ï¿½æˆï¿½ï¿½
     /// ----------------------------------------------------------------------
 	/// <summary>
-	/// ƒƒbƒVƒ…‚Ì•`‰æ
+	/// ï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½ï¿½Ì•`ï¿½ï¿½
 	/// </summary>
 	void Draw() override
     {
-        // ƒ[ƒJƒ‹ƒXƒP[ƒ‹‚ğ”½‰f‚µ‚½ƒ[ƒ‹ƒhs—ñ‚ğæ“¾
+        // ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½ğ”½‰fï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½sï¿½ï¿½ï¿½æ“¾
         const auto localScaleMatrix = XMMatrixScaling(m_LocalScale.x, m_LocalScale.y, m_LocalScale.z);
         const auto world = localScaleMatrix * m_Transform->GetWorldMatrix();
 
-        // ƒ}ƒeƒŠƒAƒ‹İ’è
+        // ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½İ’ï¿½
         MATERIAL mat{};
         mat.Diffuse = m_Color;
         mat.Ambient = {1,1,1,1};
@@ -242,7 +242,7 @@ public:
         Renderer::SetMaterial(mat);
         Renderer::SetWorldMatrix(world);
 
-        // •`‰æ
+        // ï¿½`ï¿½ï¿½
         auto ctx = Renderer::GetDeviceContext();
         ctx->IASetInputLayout(m_VertexLayout);
         ctx->VSSetShader(m_VertexShader, nullptr, 0);
@@ -251,13 +251,13 @@ public:
         UINT stride = sizeof(VERTEX_3D), offset = 0;
         ctx->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
         
-        // ƒeƒNƒXƒ`ƒƒİ’è
+        // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½İ’ï¿½
         if (m_Texture)
         {
             ctx->PSSetShaderResources(0, 1, &m_Texture);
         }
 
-        // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ª‚ ‚éê‡‚Í‚»‚¿‚ç‚ğg—p
+        // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Í‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½gï¿½p
         if (m_IndexBuffer && m_IndexCount > 0)
         {
             ctx->IASetIndexBuffer(m_IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
@@ -273,7 +273,7 @@ public:
 	
 private:
 	/// <summary>
-	/// ’¸“_ƒoƒbƒtƒ@‚ğì¬‚·‚é
+	/// ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ì¬ï¿½ï¿½ï¿½ï¿½
 	/// </summary>
     void MakeVertexBuffer(const VERTEX_3D* verts, UINT count)
     {
@@ -290,7 +290,7 @@ private:
     }
 
     /// <summary>
-    /// ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ğì¬‚·‚é
+    /// ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ì¬ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     void MakeIndexBuffer(const uint16_t* indices, UINT count)
     {
@@ -308,7 +308,7 @@ private:
     }
 
 	/// <summary>
-	/// ƒgƒ|ƒƒW[‚ğİ’è‚·‚é
+	/// ï¿½gï¿½|ï¿½ï¿½ï¿½Wï¿½[ï¿½ï¿½İ’è‚·ï¿½ï¿½
 	/// </summary>
 	D3D11_PRIMITIVE_TOPOLOGY GetTopology() const
 	{
@@ -325,7 +325,7 @@ private:
 		}
 	}
 
-	// ƒŠƒ\[ƒX‰ğ•ú
+	// ï¿½ï¿½ï¿½\ï¿½[ï¿½Xï¿½ï¿½ï¿½
     void Release()
     {
         if (m_Texture)       { m_Texture->Release(); m_Texture = nullptr; }

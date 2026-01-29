@@ -1,11 +1,11 @@
-#pragma once
+ï»¿#pragma once
 
 #include "gameObject.h"
 
 class Score : public GameObject
 {
 private:
-    static int s_Score; // Ã“IƒXƒRƒA•Ï”
+    static int s_Score; // ï¿½Ã“Iï¿½Xï¿½Rï¿½Aï¿½Ïï¿½
 
 public:
     void Init() override;
@@ -13,7 +13,7 @@ public:
     void Update(float deltaTime) override;
     void Draw() override;
 
-    // ƒXƒRƒA‘€ì—p‚ÌÃ“Iƒƒ\ƒbƒh
+    // ï¿½Xï¿½Rï¿½Aï¿½ï¿½ï¿½ï¿½pï¿½ÌÃ“Iï¿½ï¿½ï¿½\ï¿½bï¿½h
     static int GetScore() { return s_Score; }
     static void SetScore(int score) { s_Score = score; }
     static void AddScore(int points) { s_Score += points; }

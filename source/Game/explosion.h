@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "gameobject.h"
 
@@ -14,10 +14,10 @@ private:
     ID3D11ShaderResourceView* m_Texture;
 
     int m_CurrentFrame = 0;
-    int m_TotalFrames = 16;      // ‘ƒtƒŒ[ƒ€”
-    int m_FramesPerRow = 4;      // ‰¡•ûŒü‚ÌƒtƒŒ[ƒ€”
-    float m_FrameTime = 0.05f;   // 1ƒtƒŒ[ƒ€‚Ì•\¦ŠÔi•bj
-    float m_ElapsedTime = 0.0f;  // Œo‰ßŠÔ
+    int m_TotalFrames = 16;      // ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½
+    int m_FramesPerRow = 4;      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒtï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½
+    float m_FrameTime = 0.05f;   // 1ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Ì•\ï¿½ï¿½ï¿½ï¿½ï¿½Ôiï¿½bï¿½j
+    float m_ElapsedTime = 0.0f;  // ï¿½oï¿½ßï¿½ï¿½ï¿½
 
 public:
     void Init() override;

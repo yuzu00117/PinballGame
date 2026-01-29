@@ -1,21 +1,21 @@
-#ifndef _MATHUTIL_H
+ï»¿#ifndef _MATHUTIL_H
 #define _MATHUTIL_H
 
 #include <algorithm>
 
 /// <summary>
-/// ”Šwƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒX
+/// ï¿½ï¿½ï¿½wï¿½ï¿½ï¿½[ï¿½eï¿½Bï¿½ï¿½ï¿½eï¿½Bï¿½Nï¿½ï¿½ï¿½X
 /// </summary>
 template<typename T>
 
 /// <summary>
-/// ’l‚ðŽw’è”ÍˆÍ‚ÉƒNƒ‰ƒ“ƒv‚·‚é
+/// ï¿½lï¿½ï¿½wï¿½ï¿½ÍˆÍ‚ÉƒNï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½
 /// </summary>
-/// <typeparam name="T">Œ^</typeparam>
-/// <param name="value">’l</param>
-/// <param name="minVal">Å¬’l</param>
-/// <param name="maxVal">Å‘å’l</param>
-/// <returns>ƒNƒ‰ƒ“ƒvŒã‚Ì’l</returns>
+/// <typeparam name="T">ï¿½^</typeparam>
+/// <param name="value">ï¿½l</param>
+/// <param name="minVal">ï¿½Åï¿½ï¿½l</param>
+/// <param name="maxVal">ï¿½Å‘ï¿½l</param>
+/// <returns>ï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½vï¿½ï¿½Ì’l</returns>
 inline T Clamp(T value, T minVal, T maxVal)
 {
 	if (value < minVal) return minVal;

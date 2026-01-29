@@ -1,4 +1,4 @@
-// modelRenderer.h
+ï»¿// modelRenderer.h
 #pragma once
 
 #include "main.h"
@@ -13,156 +13,156 @@ using namespace DirectX;
 class GameObject;
 
 // ------------------------------------------------------------------------------
-// ƒ‚ƒfƒ‹—pƒf[ƒ^\‘¢
+// ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½pï¿½fï¿½[ï¿½^ï¿½\ï¿½ï¿½
 // ------------------------------------------------------------------------------
 
-/// ƒ}ƒeƒŠƒAƒ‹î•ñ
-/// - MTL(.mtl) ‚©‚ç“Ç‚İ‚ñ‚¾F/ƒpƒ‰ƒ[ƒ^iMATERIALj‚ğ•Û
-/// - map_Kd ‚È‚Ç‚ÌƒeƒNƒXƒ`ƒƒƒpƒXiTextureNamej‚ğ•Û
-/// - Texture ‚Í“Ç‚İ‚İŒã‚Ì SRVi–³‚¢ê‡‚Í nullptrj
+/// ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½
+/// - MTL(.mtl) ï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ñ‚¾F/ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½^ï¿½iMATERIALï¿½jï¿½ï¿½Ûï¿½
+/// - map_Kd ï¿½È‚Ç‚Ìƒeï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½pï¿½Xï¿½iTextureNameï¿½jï¿½ï¿½Ûï¿½
+/// - Texture ï¿½Í“Ç‚İï¿½ï¿½İŒï¿½ï¿½ SRVï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ï¿½ nullptrï¿½j
 struct MODEL_MATERIAL
 {
-    char                      Name[256];        // ƒ}ƒeƒŠƒAƒ‹–¼inewmtlj
-    MATERIAL                  Material;          // F/ŒW”iKa/Kd/Ks/Ns/d “™j
-    char                      TextureName[256];  // ƒeƒNƒXƒ`ƒƒƒtƒ@ƒCƒ‹ƒpƒXimap_Kdj
-    ID3D11ShaderResourceView* Texture;           // ƒeƒNƒXƒ`ƒƒSRVi–³‚¢ê‡‚Í nullptrj
+    char                      Name[256];        // ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½inewmtlï¿½j
+    MATERIAL                  Material;          // ï¿½F/ï¿½Wï¿½ï¿½ï¿½iKa/Kd/Ks/Ns/d ï¿½ï¿½ï¿½j
+    char                      TextureName[256];  // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½pï¿½Xï¿½imap_Kdï¿½j
+    ID3D11ShaderResourceView* Texture;           // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½SRVï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ï¿½ nullptrï¿½j
 };
 
-/// •`‰æƒTƒuƒZƒbƒg
-/// - usemtl ‚²‚Æ‚É•ªŠ„‚³‚ê‚½•`‰æ’PˆÊ
-/// - IndexBuffer ‚Ì”ÍˆÍiStartIndex, IndexNumj‚Æ Material ‚ğ‚Â
+/// ï¿½`ï¿½ï¿½Tï¿½uï¿½Zï¿½bï¿½g
+/// - usemtl ï¿½ï¿½ï¿½Æ‚É•ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‚½ï¿½`ï¿½ï¿½Pï¿½ï¿½
+/// - IndexBuffer ï¿½Ì”ÍˆÍiStartIndex, IndexNumï¿½jï¿½ï¿½ Material ï¿½ï¿½ï¿½ï¿½ï¿½
 struct SUBSET
 {
-    unsigned int   StartIndex;   // ŠJnƒCƒ“ƒfƒbƒNƒX
-    unsigned int   IndexNum;     // ƒCƒ“ƒfƒbƒNƒX”
-    MODEL_MATERIAL Material;     // ƒTƒuƒZƒbƒg‚Ìƒ}ƒeƒŠƒAƒ‹
+    unsigned int   StartIndex;   // ï¿½Jï¿½nï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½X
+    unsigned int   IndexNum;     // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½ï¿½
+    MODEL_MATERIAL Material;     // ï¿½Tï¿½uï¿½Zï¿½bï¿½gï¿½Ìƒ}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½
 };
 
-/// OBJ “Ç‚İ‚İ—piCPU‘¤jƒf[ƒ^
-/// - LoadObj() ‚ª¶¬‚·‚éˆêƒf[ƒ^
-/// - LoadModel() ‚Å GPU ƒoƒbƒtƒ@‰»‚µ‚½Œã‚É‰ğ•ú‚³‚ê‚é
+/// OBJ ï¿½Ç‚İï¿½ï¿½İ—pï¿½iCPUï¿½ï¿½ï¿½jï¿½fï¿½[ï¿½^
+/// - LoadObj() ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½êï¿½fï¿½[ï¿½^
+/// - LoadModel() ï¿½ï¿½ GPU ï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 struct MODEL_OBJ
 {
-    VERTEX_3D*     VertexArray;  // ’¸“_”z—ñ
-    unsigned int   VertexNum;    // ’¸“_”
+    VERTEX_3D*     VertexArray;  // ï¿½ï¿½ï¿½_ï¿½zï¿½ï¿½
+    unsigned int   VertexNum;    // ï¿½ï¿½ï¿½_ï¿½ï¿½
 
-    unsigned int*  IndexArray;   // ƒCƒ“ƒfƒbƒNƒX”z—ñ
-    unsigned int   IndexNum;     // ƒCƒ“ƒfƒbƒNƒX”
+    unsigned int*  IndexArray;   // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½zï¿½ï¿½
+    unsigned int   IndexNum;     // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½ï¿½
 
-    SUBSET*        SubsetArray;  // ƒTƒuƒZƒbƒg”z—ñ
-    unsigned int   SubsetNum;    // ƒTƒuƒZƒbƒg”
+    SUBSET*        SubsetArray;  // ï¿½Tï¿½uï¿½Zï¿½bï¿½gï¿½zï¿½ï¿½
+    unsigned int   SubsetNum;    // ï¿½Tï¿½uï¿½Zï¿½bï¿½gï¿½ï¿½
 };
 
-/// •`‰æ—piGPU‘¤jƒ‚ƒfƒ‹
-/// - Vertex/Index ƒoƒbƒtƒ@‚ÆƒTƒuƒZƒbƒgî•ñ‚ğ•Û
-/// - ModelRenderer ‚Ìƒ‚ƒfƒ‹ƒv[ƒ‹‚Å‹¤—L‚³‚ê‚é
+/// ï¿½`ï¿½ï¿½pï¿½iGPUï¿½ï¿½ï¿½jï¿½ï¿½ï¿½fï¿½ï¿½
+/// - Vertex/Index ï¿½oï¿½bï¿½tï¿½@ï¿½ÆƒTï¿½uï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½Ûï¿½
+/// - ModelRenderer ï¿½Ìƒï¿½ï¿½fï¿½ï¿½ï¿½vï¿½[ï¿½ï¿½ï¿½Å‹ï¿½ï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½
 struct MODEL
 {
-    ID3D11Buffer*  VertexBuffer; // ’¸“_ƒoƒbƒtƒ@
-    ID3D11Buffer*  IndexBuffer;  // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@
+    ID3D11Buffer*  VertexBuffer; // ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@
+    ID3D11Buffer*  IndexBuffer;  // ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@
 
-    SUBSET*        SubsetArray;  // ƒTƒuƒZƒbƒg”z—ñ
-    unsigned int   SubsetNum;    // ƒTƒuƒZƒbƒg”
+    SUBSET*        SubsetArray;  // ï¿½Tï¿½uï¿½Zï¿½bï¿½gï¿½zï¿½ï¿½
+    unsigned int   SubsetNum;    // ï¿½Tï¿½uï¿½Zï¿½bï¿½gï¿½ï¿½
 };
 
-/// 3Dƒ‚ƒfƒ‹‚ğ•`‰æ‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒg
-/// - OBJ/MTL ‚ğ“Ç‚İ‚İAƒTƒuƒZƒbƒg’PˆÊ‚Åƒ}ƒeƒŠƒAƒ‹/ƒeƒNƒXƒ`ƒƒ‚ğİ’è‚µ‚Ä•`‰æ‚·‚é
-/// - ƒ‚ƒfƒ‹‚ÍÃ“Iƒv[ƒ‹im_ModelPoolj‚Å‹¤—L‚µA“¯ˆêƒtƒ@ƒCƒ‹‚Í1‰ñ‚¾‚¯ƒ[ƒh‚·‚é
-/// - ƒVƒF[ƒ_[‚ª–¢İ’è‚Ìê‡‚ÍƒfƒtƒHƒ‹ƒgiBaseLitVS/PSj‚ğg—p‚·‚é
+/// 3Dï¿½ï¿½ï¿½fï¿½ï¿½ï¿½ï¿½`ï¿½æ‚·ï¿½ï¿½Rï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½g
+/// - OBJ/MTL ï¿½ï¿½Ç‚İï¿½ï¿½İAï¿½Tï¿½uï¿½Zï¿½bï¿½gï¿½Pï¿½Ê‚Åƒ}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½/ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½İ’è‚µï¿½Ä•`ï¿½æ‚·ï¿½ï¿½
+/// - ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½ÍÃ“Iï¿½vï¿½[ï¿½ï¿½ï¿½im_ModelPoolï¿½jï¿½Å‹ï¿½ï¿½Lï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½1ï¿½ñ‚¾‚ï¿½ï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½
+/// - ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½İ’ï¿½Ìê‡ï¿½Íƒfï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½iBaseLitVS/PSï¿½jï¿½ï¿½gï¿½pï¿½ï¿½ï¿½ï¿½
 class ModelRenderer : public Component
 {
 public:
-    /// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^
+    /// ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
     ModelRenderer() = default;
 
-    /// ƒfƒXƒgƒ‰ƒNƒ^
-    /// - Uninit() ‚ğŒÄ‚Ño‚µ‚ÄƒVƒF[ƒ_[“™‚ğ‰ğ•ú‚·‚é
+    /// ï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
+    /// - Uninit() ï¿½ï¿½Ä‚Ñoï¿½ï¿½ï¿½ÄƒVï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     ~ModelRenderer() override { Uninit(); }
 
     // ----------------------------------------------------------------------
-    // ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+    // ï¿½ï¿½ï¿½Cï¿½tï¿½Tï¿½Cï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½bï¿½h
     // ----------------------------------------------------------------------
-    /// ‰Šú‰»
-    /// - Owner ‚Ì Transform ‚ğQÆ‚Æ‚µ‚Ä•Û
-    /// - ƒVƒF[ƒ_[–¢İ’è‚Ìê‡‚ÍƒfƒtƒHƒ‹ƒgƒVƒF[ƒ_[‚ğƒ[ƒh
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    /// - Owner ï¿½ï¿½ Transform ï¿½ï¿½Qï¿½Æ‚Æ‚ï¿½ï¿½Ä•Ûï¿½
+    /// - ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½ï¿½İ’ï¿½Ìê‡ï¿½Íƒfï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½ï¿½ï¿½[ï¿½h
     void Init() override;
 
-    /// I—¹
-    /// - ƒVƒF[ƒ_[/“ü—ÍƒŒƒCƒAƒEƒg‚ğ‰ğ•ú
-    /// - ƒ‚ƒfƒ‹©‘Ì‚Íƒv[ƒ‹ŠÇ—‚Ì‚½‚ß‚±‚±‚Å‚Í‰ğ•ú‚µ‚È‚¢
+    /// ï¿½Iï¿½ï¿½
+    /// - ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[/ï¿½ï¿½ï¿½Íƒï¿½ï¿½Cï¿½Aï¿½Eï¿½gï¿½ï¿½ï¿½ï¿½
+    /// - ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½ï¿½ï¿½Ì‚Íƒvï¿½[ï¿½ï¿½ï¿½Ç—ï¿½ï¿½Ì‚ï¿½ï¿½ß‚ï¿½ï¿½ï¿½ï¿½Å‚Í‰ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
     void Uninit() override;
 
     // ----------------------------------------------------------------------
-    // Ã“I‘€ìiƒ‚ƒfƒ‹ƒv[ƒ‹j
+    // ï¿½Ã“Iï¿½ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½fï¿½ï¿½ï¿½vï¿½[ï¿½ï¿½ï¿½j
     // ----------------------------------------------------------------------
-    /// ƒ‚ƒfƒ‹‚ğ–‘O“Ç‚İ‚İ‚·‚é
-    /// - Šù‚Éƒv[ƒ‹‚É‘¶İ‚·‚éê‡‚Í‰½‚à‚µ‚È‚¢
+    /// ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½Ç‚İï¿½ï¿½İ‚ï¿½ï¿½ï¿½
+    /// - ï¿½ï¿½ï¿½Éƒvï¿½[ï¿½ï¿½ï¿½É‘ï¿½ï¿½İ‚ï¿½ï¿½ï¿½ê‡ï¿½Í‰ï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
     static void Preload(const char* FileName);
 
-    /// ƒ‚ƒfƒ‹ƒv[ƒ‹‚ğ‘S‰ğ•ú‚·‚é
+    /// ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½vï¿½[ï¿½ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// - Vertex/IndexBuffer
     /// - SubsetArray
-    /// - ƒTƒuƒZƒbƒg‚Ì Texture(SRV)
+    /// - ï¿½Tï¿½uï¿½Zï¿½bï¿½gï¿½ï¿½ Texture(SRV)
     static void UnloadAll();
 
     // ----------------------------------------------------------------------
-    // ƒCƒ“ƒXƒ^ƒ“ƒX‘€ì
+    // ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½ï¿½
     // ----------------------------------------------------------------------
     using Component::Component;
 
-    /// ƒ‚ƒfƒ‹‚ğ“Ç‚İ‚Şiƒv[ƒ‹QÆ‚ğæ“¾j
-    /// - Šù‚Éƒv[ƒ‹‚É‘¶İ‚·‚éê‡‚ÍQÆ‚ğæ“¾‚·‚é‚¾‚¯
-    /// - ‘¶İ‚µ‚È‚¢ê‡‚Íƒ[ƒh‚µ‚Äƒv[ƒ‹‚Ö“o˜^
+    /// ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½Şiï¿½vï¿½[ï¿½ï¿½ï¿½Qï¿½Æ‚ï¿½æ“¾ï¿½j
+    /// - ï¿½ï¿½ï¿½Éƒvï¿½[ï¿½ï¿½ï¿½É‘ï¿½ï¿½İ‚ï¿½ï¿½ï¿½ê‡ï¿½ÍQï¿½Æ‚ï¿½æ“¾ï¿½ï¿½ï¿½é‚¾ï¿½ï¿½
+    /// - ï¿½ï¿½ï¿½İ‚ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½Íƒï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½Äƒvï¿½[ï¿½ï¿½ï¿½Ö“oï¿½^
     void Load(const char* FileName);
 
-    /// ƒ‚ƒfƒ‹—pƒVƒF[ƒ_[‚ğİ’è‚·‚é
-    /// - ’¸“_ƒVƒF[ƒ_[/“ü—ÍƒŒƒCƒAƒEƒg/ƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚ğì¬‚µ‚Ä•Û
+    /// ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½pï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½İ’è‚·ï¿½ï¿½
+    /// - ï¿½ï¿½ï¿½_ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[/ï¿½ï¿½ï¿½Íƒï¿½ï¿½Cï¿½Aï¿½Eï¿½g/ï¿½sï¿½Nï¿½Zï¿½ï¿½ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½ï¿½ì¬ï¿½ï¿½ï¿½Ä•Ûï¿½
     void LoadShader(const char* vsFilePath, const char* psFilePath);
 
-    /// ƒ[ƒJƒ‹ƒXƒP[ƒ‹‚ğİ’è‚·‚éiTransform‚ÌƒXƒP[ƒ‹‚Æ‚Í•Ê˜gj
+    /// ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½ï¿½İ’è‚·ï¿½ï¿½iTransformï¿½ÌƒXï¿½Pï¿½[ï¿½ï¿½ï¿½Æ‚Í•Ê˜gï¿½j
     void SetLocalScale(float x, float y, float z) { m_LocalScale = { x, y, z }; }
 
-    /// ƒ‚ƒfƒ‹•`‰æ
-    /// - WorldMatrix İ’è ¨ VB/IB İ’è ¨ ƒTƒuƒZƒbƒg‚²‚Æ‚É Material/Texture ‚ğİ’è‚µ‚Ä•`‰æ
+    /// ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½`ï¿½ï¿½
+    /// - WorldMatrix ï¿½İ’ï¿½ ï¿½ï¿½ VB/IB ï¿½İ’ï¿½ ï¿½ï¿½ ï¿½Tï¿½uï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½Æ‚ï¿½ Material/Texture ï¿½ï¿½İ’è‚µï¿½Ä•`ï¿½ï¿½
     void Draw() override;
 
 private:
     // ----------------------------------------------------------------------
-    // ƒ‚ƒfƒ‹“Ç‚İ‚İ“à•”ˆ—
+    // ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½Ç‚İï¿½ï¿½İ“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     // ----------------------------------------------------------------------
-    /// ƒ‚ƒfƒ‹‚ğƒ[ƒh‚µ‚Ä GPU ƒoƒbƒtƒ@‚ğ¶¬‚·‚é
+    /// ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½ GPU ï¿½oï¿½bï¿½tï¿½@ï¿½ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½
     static void LoadModel(const char* FileName, MODEL* Model);
 
-    /// OBJƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚ŞiCPU‘¤ƒf[ƒ^ì¬j
+    /// OBJï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ŞiCPUï¿½ï¿½ï¿½fï¿½[ï¿½^ï¿½ì¬ï¿½j
     static void LoadObj(const char* FileName, MODEL_OBJ* ModelObj);
 
-    /// MTLƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚Şiƒ}ƒeƒŠƒAƒ‹”z—ñì¬j
+    /// MTLï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½Şiï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½zï¿½ï¿½ì¬ï¿½j
     static void LoadMaterial(const char* FileName, MODEL_MATERIAL** MaterialArray, unsigned int* MaterialNum);
 
 private:
     // ----------------------------------------------------------------------
-    // ƒfƒtƒHƒ‹ƒg‚ÌƒVƒF[ƒ_[ƒpƒX
+    // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½ÌƒVï¿½Fï¿½[ï¿½_ï¿½[ï¿½pï¿½X
     // ----------------------------------------------------------------------
-    static constexpr const char* kDefaultVSPath = "shader\\bin\\BaseLitVS.cso"; // ƒfƒtƒHƒ‹ƒg’¸“_ƒVƒF[ƒ_[
-    static constexpr const char* kDefaultPSPath = "shader\\bin\\BaseLitPS.cso"; // ƒfƒtƒHƒ‹ƒgƒsƒNƒZƒ‹ƒVƒF[ƒ_[
+    static constexpr const char* kDefaultVSPath = "shader\\bin\\BaseLitVS.cso"; // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½ï¿½ï¿½_ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[
+    static constexpr const char* kDefaultPSPath = "shader\\bin\\BaseLitPS.cso"; // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½sï¿½Nï¿½Zï¿½ï¿½ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[
 
 private:
     // ----------------------------------------------------------------------
-    // QÆ/ó‘Ô
+    // ï¿½Qï¿½ï¿½/ï¿½ï¿½ï¿½
     // ----------------------------------------------------------------------
-    Transform* m_Transform = nullptr;                         // ”ñŠ—LFOwner ‚Ì Transform QÆ
-    Vector3    m_LocalScale = { 1.0f, 1.0f, 1.0f };          // ƒ[ƒJƒ‹ƒXƒP[ƒ‹
+    Transform* m_Transform = nullptr;                         // ï¿½ñŠ—Lï¿½FOwner ï¿½ï¿½ Transform ï¿½Qï¿½ï¿½
+    Vector3    m_LocalScale = { 1.0f, 1.0f, 1.0f };          // ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½Xï¿½Pï¿½[ï¿½ï¿½
 
     // ----------------------------------------------------------------------
-    // ƒ‚ƒfƒ‹ƒv[ƒ‹
+    // ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½vï¿½[ï¿½ï¿½
     // ----------------------------------------------------------------------
-    static std::unordered_map<std::string, MODEL*> m_ModelPool; // Š—LFƒ[ƒhÏ‚İƒ‚ƒfƒ‹‚Ì‹¤—Lƒv[ƒ‹
-    MODEL* m_Model = nullptr;                                   // ”ñŠ—LFŒ»İQÆ‚µ‚Ä‚¢‚éƒ‚ƒfƒ‹
+    static std::unordered_map<std::string, MODEL*> m_ModelPool; // ï¿½ï¿½ï¿½Lï¿½Fï¿½ï¿½ï¿½[ï¿½hï¿½Ï‚İƒï¿½ï¿½fï¿½ï¿½ï¿½Ì‹ï¿½ï¿½Lï¿½vï¿½[ï¿½ï¿½
+    MODEL* m_Model = nullptr;                                   // ï¿½ñŠ—Lï¿½Fï¿½ï¿½ï¿½İQï¿½Æ‚ï¿½ï¿½Ä‚ï¿½ï¿½éƒ‚ï¿½fï¿½ï¿½
 
     // ----------------------------------------------------------------------
-    // ƒ‚ƒfƒ‹—pƒVƒF[ƒ_[
+    // ï¿½ï¿½ï¿½fï¿½ï¿½ï¿½pï¿½Vï¿½Fï¿½[ï¿½_ï¿½[
     // ----------------------------------------------------------------------
-    ID3D11VertexShader* m_VertexShader = nullptr;  // ’¸“_ƒVƒF[ƒ_[
-    ID3D11PixelShader*  m_PixelShader  = nullptr;  // ƒsƒNƒZƒ‹ƒVƒF[ƒ_[
-    ID3D11InputLayout*  m_VertexLayout = nullptr;  // “ü—ÍƒŒƒCƒAƒEƒg
+    ID3D11VertexShader* m_VertexShader = nullptr;  // ï¿½ï¿½ï¿½_ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[
+    ID3D11PixelShader*  m_PixelShader  = nullptr;  // ï¿½sï¿½Nï¿½Zï¿½ï¿½ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[
+    ID3D11InputLayout*  m_VertexLayout = nullptr;  // ï¿½ï¿½ï¿½Íƒï¿½ï¿½Cï¿½Aï¿½Eï¿½g
 };

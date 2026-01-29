@@ -1,26 +1,26 @@
-#pragma once
+ï»¿#pragma once
 
-// ƒVƒXƒeƒ€ŠÖ˜Aƒwƒbƒ_
+// ï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½Ö˜Aï¿½wï¿½bï¿½_
 #include <DirectXMath.h>
 #include <windows.h>
-// ƒQ[ƒ€ŠÖ˜Aƒwƒbƒ_
+// ï¿½Qï¿½[ï¿½ï¿½ï¿½Ö˜Aï¿½wï¿½bï¿½_
 #include "GameObject.h"
-// ƒRƒ“ƒ|[ƒlƒ“ƒgŠÖ˜Aƒwƒbƒ_
+// ï¿½Rï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½gï¿½Ö˜Aï¿½wï¿½bï¿½_
 #include "Transform.h"
 
 using namespace DirectX;
 
 /// <summary>
-/// ƒJƒƒ‰ƒNƒ‰ƒX
+/// ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½X
 /// </summary>
 class Camera : public GameObject
 {
 public:
     // ------------------------------------------------------------------------------
-    // ŠÖ”’è‹`
+    // ï¿½Öï¿½ï¿½ï¿½`
     // ------------------------------------------------------------------------------
     /// <summary>
-    /// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+    /// ï¿½ï¿½ï¿½Cï¿½tï¿½Tï¿½Cï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½bï¿½h
     /// </summary>
     void Init() override;
     void Uninit() override;
@@ -28,34 +28,34 @@ public:
     void Draw() override;
 
     /// <summary>
-    /// ƒJƒƒ‰ˆÊ’u‚Ìgetter
+    /// ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ê’uï¿½ï¿½getter
     /// </summary>
     const XMFLOAT3& GetPosition() const { return m_Position; }
 
     /// <summary>
-    /// ƒJƒƒ‰‚Ì’‹“_‚Ìgetter
+    /// ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ì’ï¿½ï¿½ï¿½ï¿½_ï¿½ï¿½getter
     /// </summary>
     const XMFLOAT3& GetTarget() const { return m_Target; }
     
     /// <summary>
-    /// ƒJƒƒ‰‚Ì‰ñ“]Šp‚ğæ“¾
+    /// ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ì‰ï¿½]ï¿½pï¿½ï¿½æ“¾
     /// </summary>
     float GetYaw() const { return m_Yaw; }
 
     /// <summary>
-    /// ƒrƒ…[s—ñ‚Ìgetter
+    /// ï¿½rï¿½ï¿½ï¿½[ï¿½sï¿½ï¿½ï¿½getter
     /// </summary>
     const XMMATRIX& GetViewMatrix() const { return m_View; }
 
     /// <summary>
-    /// Transform‚Ö‚ÌƒAƒNƒZƒX
-    /// ƒJƒƒ‰‚ÌˆÊ’uE‰ñ“]EƒXƒP[ƒ‹‚ğŠO•”‚©‚çG‚è‚½‚¢ê‡—p
+    /// Transformï¿½Ö‚ÌƒAï¿½Nï¿½Zï¿½X
+    /// ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ÌˆÊ’uï¿½Eï¿½ï¿½]ï¿½Eï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Gï¿½è‚½ï¿½ï¿½ï¿½ê‡ï¿½p
     /// </summary>
     Transform*       GetTransform()       { return &m_Transform; }
     const Transform* GetTransform() const { return &m_Transform; }
     
     /// <summary>
-    /// ƒJƒƒ‰‰ñ“]§Œä
+    /// ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     void RotateYaw(float angle) { m_Yaw += angle; }
     void RotatePitch(float angle);
@@ -63,40 +63,40 @@ public:
 
 private:
     // ------------------------------------------------------------------------------
-    // ’è”’è‹`
+    // ï¿½è”ï¿½ï¿½`
     // ------------------------------------------------------------------------------
-    // ƒJƒƒ‰‚Ì‰Šúİ’è’l
-    static constexpr float kDefaultYaw = XM_PI;                             // ƒfƒtƒHƒ‹ƒg‚ÌY²‰ñ‚è‚Ì‰ñ“]Špiƒ‰ƒWƒAƒ“j
-    static constexpr float kDefaultPitch = 0.7f;                            // ƒfƒtƒHƒ‹ƒg‚ÌX²‰ñ‚è‚Ì‰ñ“]Špiƒ‰ƒWƒAƒ“j
-    static constexpr float kDefaultDistance = 8.0f;                         // ƒfƒtƒHƒ‹ƒg‚ÌƒvƒŒƒCƒ„[‚©‚ç‚Ì‹——£
-    static constexpr XMFLOAT3 kDefaultCameraOffset{ 0.0f, 25.0f, -15.0f };  // ƒfƒtƒHƒ‹ƒg‚ÌƒJƒƒ‰ƒIƒtƒZƒbƒg
+    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½İ’ï¿½l
+    static constexpr float kDefaultYaw = XM_PI;                             // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½ï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½Ì‰ï¿½]ï¿½pï¿½iï¿½ï¿½ï¿½Wï¿½Aï¿½ï¿½ï¿½j
+    static constexpr float kDefaultPitch = 0.7f;                            // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½ï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½Ì‰ï¿½]ï¿½pï¿½iï¿½ï¿½ï¿½Wï¿½Aï¿½ï¿½ï¿½j
+    static constexpr float kDefaultDistance = 8.0f;                         // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Ìƒvï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½Ì‹ï¿½ï¿½ï¿½
+    static constexpr XMFLOAT3 kDefaultCameraOffset{ 0.0f, 25.0f, -15.0f };  // ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½ÌƒJï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½tï¿½Zï¿½bï¿½g
 
     // ------------------------------------------------------------------------------
-    // •Ï”’è‹`
+    // ï¿½Ïï¿½ï¿½ï¿½`
     // ------------------------------------------------------------------------------
-    // ƒRƒ“ƒ|[ƒlƒ“ƒg
-    Transform m_Transform;                                                  // TransformƒRƒ“ƒ|[ƒlƒ“ƒg
+    // ï¿½Rï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½g
+    Transform m_Transform;                                                  // Transformï¿½Rï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½g
 
-    // ƒJƒƒ‰s—ñŠÖ˜A
-    XMMATRIX m_Projection;                                                  // ƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ
-    XMMATRIX m_View;                                                        // ƒrƒ…[s—ñ
+    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½Ö˜A
+    XMMATRIX m_Projection;                                                  // ï¿½vï¿½ï¿½ï¿½Wï¿½Fï¿½Nï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
+    XMMATRIX m_View;                                                        // ï¿½rï¿½ï¿½ï¿½[ï¿½sï¿½ï¿½
 
-    // •Ö‹XãƒLƒƒƒbƒVƒ…
-    XMFLOAT3 m_Position{ 0.0f, 0.0f, 0.0f };                                // ƒJƒƒ‰ˆÊ’u
-    XMFLOAT3 m_Target{ 0.0f, 0.0f, 0.0f };                                  // ƒJƒƒ‰‚Ì’‹“_
-    XMFLOAT3 m_CameraOffset = kDefaultCameraOffset;                         // ƒJƒƒ‰‚ÌƒIƒtƒZƒbƒg
+    // ï¿½Ö‹Xï¿½ï¿½Lï¿½ï¿½ï¿½bï¿½Vï¿½ï¿½
+    XMFLOAT3 m_Position{ 0.0f, 0.0f, 0.0f };                                // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ê’u
+    XMFLOAT3 m_Target{ 0.0f, 0.0f, 0.0f };                                  // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ì’ï¿½ï¿½ï¿½ï¿½_
+    XMFLOAT3 m_CameraOffset = kDefaultCameraOffset;                         // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ÌƒIï¿½tï¿½Zï¿½bï¿½g
     
-    // ƒJƒƒ‰‚Ì‰ñ“]Šp‚Æ‹——£
-    float m_Yaw = kDefaultYaw;                                              // Y²‰ñ‚è‚Ì‰ñ“]Špiƒ‰ƒWƒAƒ“j
-    float m_Pitch = kDefaultPitch;                                          // X²‰ñ‚è‚Ì‰ñ“]Špiƒ‰ƒWƒAƒ“j
-    float m_Distance = kDefaultDistance;                                    // ƒvƒŒƒCƒ„[‚©‚ç‚Ì‹——£
+    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ì‰ï¿½]ï¿½pï¿½Æ‹ï¿½ï¿½ï¿½
+    float m_Yaw = kDefaultYaw;                                              // Yï¿½ï¿½ï¿½ï¿½ï¿½Ì‰ï¿½]ï¿½pï¿½iï¿½ï¿½ï¿½Wï¿½Aï¿½ï¿½ï¿½j
+    float m_Pitch = kDefaultPitch;                                          // Xï¿½ï¿½ï¿½ï¿½ï¿½Ì‰ï¿½]ï¿½pï¿½iï¿½ï¿½ï¿½Wï¿½Aï¿½ï¿½ï¿½j
+    float m_Distance = kDefaultDistance;                                    // ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½Ì‹ï¿½ï¿½ï¿½
 
-    // ƒ}ƒEƒX‘€ì—p
-	bool    m_FirstMouse = true;                                            // ‰‰ñƒ}ƒEƒX‘€ìƒtƒ‰ƒO
-	POINT   m_CenterPos;                                                    // ƒ}ƒEƒX‚Ì’†SˆÊ’u
-	float   m_MouseSensitivity = 0.002f;                                    // ƒ}ƒEƒXŠ´“x
+    // ï¿½}ï¿½Eï¿½Xï¿½ï¿½ï¿½ï¿½p
+	bool    m_FirstMouse = true;                                            // ï¿½ï¿½ï¿½ï¿½}ï¿½Eï¿½Xï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½O
+	POINT   m_CenterPos;                                                    // ï¿½}ï¿½Eï¿½Xï¿½Ì’ï¿½ï¿½Sï¿½Ê’u
+	float   m_MouseSensitivity = 0.002f;                                    // ï¿½}ï¿½Eï¿½Xï¿½ï¿½ï¿½x
 
-    // ƒfƒoƒbƒOƒJƒƒ‰—p
-    bool m_DebugCameraMode = false;                                         // ƒfƒoƒbƒOƒJƒƒ‰ƒ‚[ƒhƒtƒ‰ƒO
-    float m_DebugCameraSpeed = 0.15f;                                        // ƒfƒoƒbƒOƒJƒƒ‰‚ÌˆÚ“®‘¬“x
+    // ï¿½fï¿½oï¿½bï¿½Oï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½p
+    bool m_DebugCameraMode = false;                                         // ï¿½fï¿½oï¿½bï¿½Oï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½hï¿½tï¿½ï¿½ï¿½O
+    float m_DebugCameraSpeed = 0.15f;                                        // ï¿½fï¿½oï¿½bï¿½Oï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ÌˆÚ“ï¿½ï¿½ï¿½ï¿½x
 };

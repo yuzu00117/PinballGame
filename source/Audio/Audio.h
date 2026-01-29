@@ -1,59 +1,59 @@
-#pragma once
+ï»¿#pragma once
 
 #include <xaudio2.h>
 
 /// <summary>
-/// ƒI[ƒfƒBƒIŠÇ—ƒNƒ‰ƒX
+/// ï¿½Iï¿½[ï¿½fï¿½Bï¿½Iï¿½Ç—ï¿½ï¿½Nï¿½ï¿½ï¿½X
 /// </summary>
 class Audio
 {
 public:
 	// ------------------------------------------------------------------------------
-	// ŠÖ”’è‹`
+	// ï¿½Öï¿½ï¿½ï¿½`
 	// ------------------------------------------------------------------------------
 	/// <summary>
-	/// ƒI[ƒfƒBƒIƒVƒXƒeƒ€‚Ì‰Šú‰»E”jŠüˆ—
+	/// ï¿½Iï¿½[ï¿½fï¿½Bï¿½Iï¿½Vï¿½Xï¿½eï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Eï¿½jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	/// </summary>
 	static void InitMaster();
 	static void UninitMaster();
 
 	/// <summary>
-	/// ƒI[ƒfƒBƒIƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì”jŠüˆ—
+	/// ï¿½Iï¿½[ï¿½fï¿½Bï¿½Iï¿½Rï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½gï¿½Ì”jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	/// </summary>
 	void Uninit();
 
 	/// <summary>
-	/// ƒTƒEƒ“ƒhƒf[ƒ^‚Ì“Ç‚İ‚İ
+	/// ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚İï¿½ï¿½ï¿½
 	/// </summary>
 	void Load(const char *FileName);
 
 	///	<summary>
-	/// ƒTƒEƒ“ƒh‚ÌÄ¶E’â~
+	/// ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½ÌÄï¿½ï¿½Eï¿½ï¿½~
 	/// </summary>
 	void Play(bool Loop = false);
 	void Stop();
 
 	///	<summary>
-	/// ‰¹—Êİ’è
+	/// ï¿½ï¿½ï¿½Êİ’ï¿½
 	/// </summary>
 	void SetVolume(float Volume);
 
 	/// <summary>
-	/// ‰Šú‰»Ï‚İ‚©‚Ç‚¤‚©æ“¾
+	/// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï‚İ‚ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½ï¿½æ“¾
 	/// </summary>
 	bool IsInitialized() const { return m_Initialized; }
 
 private:
 	// ------------------------------------------------------------------------------
-	// •Ï”’è‹`
+	// ï¿½Ïï¿½ï¿½ï¿½`
 	// ------------------------------------------------------------------------------
-	static IXAudio2*				m_Xaudio;			   // XAudioƒCƒ“ƒ^[ƒtƒF[ƒX
-	static IXAudio2MasteringVoice*	m_MasteringVoice;	   // ƒ}ƒXƒ^ƒŠƒ“ƒOƒ{ƒCƒX
+	static IXAudio2*				m_Xaudio;			   // XAudioï¿½Cï¿½ï¿½ï¿½^ï¿½[ï¿½tï¿½Fï¿½[ï¿½X
+	static IXAudio2MasteringVoice*	m_MasteringVoice;	   // ï¿½}ï¿½Xï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½{ï¿½Cï¿½X
 
-	IXAudio2SourceVoice*			m_SourceVoice{};	   // ƒ\[ƒXƒ{ƒCƒX
-	BYTE*							m_SoundData{};		   // ƒTƒEƒ“ƒhƒf[ƒ^
+	IXAudio2SourceVoice*			m_SourceVoice{};	   // ï¿½\ï¿½[ï¿½Xï¿½{ï¿½Cï¿½X
+	BYTE*							m_SoundData{};		   // ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½fï¿½[ï¿½^
 
-	int								m_Length{};			   // ƒTƒEƒ“ƒhƒf[ƒ^’·
-	int								m_PlayLength{};		   // Ä¶’·
-	bool 							m_Initialized = false; // ‰Šú‰»Ï‚İƒtƒ‰ƒO
+	int								m_Length{};			   // ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½fï¿½[ï¿½^ï¿½ï¿½
+	int								m_PlayLength{};		   // ï¿½Äï¿½ï¿½ï¿½
+	bool 							m_Initialized = false; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï‚İƒtï¿½ï¿½ï¿½O
 };

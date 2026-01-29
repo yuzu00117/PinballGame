@@ -1,28 +1,28 @@
-#pragma once
+ï»¿#pragma once
 
 #include <memory>
 
-class GameObject; // ‘O•ûéŒ¾
+class GameObject; // ï¿½Oï¿½ï¿½ï¿½éŒ¾
 
 /// <summary>
-/// ‚·‚×‚Ä‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌŠî’êƒNƒ‰ƒX
+/// ï¿½ï¿½ï¿½×‚Ä‚ÌƒRï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½gï¿½ÌŠï¿½ï¿½Nï¿½ï¿½ï¿½X
 /// </summary>
 class Component
 {
 public:
-	// --- ŠÖ”’è‹` ---
-	// ƒfƒtƒHƒ‹ƒgƒRƒ“ƒXƒgƒ‰ƒNƒ^EƒfƒXƒgƒ‰ƒNƒ^
+	// --- ï¿½Öï¿½ï¿½ï¿½` ---
+	// ï¿½fï¿½tï¿½Hï¿½ï¿½ï¿½gï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^ï¿½Eï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
 	Component() = default;
 	virtual ~Component() = default;
 	
 	/// <summary>
-	/// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+	/// ï¿½ï¿½ï¿½Cï¿½tï¿½Tï¿½Cï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½bï¿½h
 	/// </summary>
 	virtual void Init() {};
 	virtual void Uninit() {};
 	virtual void Update(float deltaTime) {};
 	virtual void Draw() {};
 
-	// --- •Ï”’è‹` ---
-	GameObject* m_Owner = nullptr; // Š‘®‚·‚éƒIƒuƒWƒFƒNƒg‚Ö‚Ìƒ|ƒCƒ“ƒ^
+	// --- ï¿½Ïï¿½ï¿½ï¿½` ---
+	GameObject* m_Owner = nullptr; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½Ö‚Ìƒ|ï¿½Cï¿½ï¿½ï¿½^
 };

@@ -1,7 +1,7 @@
-#pragma once
+ï»¿#pragma once
 
 /// <summary>
-/// ƒfƒoƒbƒO—p‹@”\İ’èƒwƒbƒ_
+/// ï¿½fï¿½oï¿½bï¿½Oï¿½pï¿½@ï¿½\ï¿½İ’ï¿½wï¿½bï¿½_
 /// </summary>
 
-extern bool g_EnableColliderDebugDraw; // ƒRƒ‰ƒCƒ_[‚ÌƒfƒoƒbƒO•`‰æ—LŒøƒtƒ‰ƒO
+extern bool g_EnableColliderDebugDraw; // ï¿½Rï¿½ï¿½ï¿½Cï¿½_ï¿½[ï¿½Ìƒfï¿½oï¿½bï¿½Oï¿½`ï¿½ï¿½Lï¿½ï¿½ï¿½tï¿½ï¿½ï¿½O

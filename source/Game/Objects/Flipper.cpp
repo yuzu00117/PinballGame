@@ -1,4 +1,4 @@
-#include "Flipper.h"
+﻿#include "Flipper.h"
 #include "Input.h"
 
 // コンポーネント

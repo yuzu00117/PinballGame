@@ -1,4 +1,4 @@
-//#include "main.h"
+ï»¿//#include "main.h"
 //#include "renderer.h"
 //#include "explosion.h"
 //#include "camera.h"
@@ -8,7 +8,7 @@
 //{
 //    VERTEX_3D vertex[4];
 //
-//    // XY•½–ÊiZ=0j‚Å”Â‚ğì¬
+//    // XYï¿½ï¿½ï¿½ÊiZ=0ï¿½jï¿½Å”Â‚ï¿½ì¬
 //    vertex[0].Position = XMFLOAT3(-10.0f, 10.0f, 0.0f);
 //    vertex[0].Normal = XMFLOAT3(0.0f, 0.0f, 1.0f);
 //    vertex[0].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -29,7 +29,7 @@
 //    vertex[3].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 //    vertex[3].TexCoord = XMFLOAT2(1.0f, 1.0f);
 //
-//    // ’¸“_ƒoƒbƒtƒ@¶¬
+//    // ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½ï¿½ï¿½
 //    D3D11_BUFFER_DESC bd;
 //    ZeroMemory(&bd, sizeof(bd));
 //    bd.Usage = D3D11_USAGE_DEFAULT;
@@ -42,14 +42,14 @@
 //
 //    Renderer::GetDevice()->CreateBuffer(&bd, &sd, &m_VertexBuffer);
 //
-//    // ƒeƒNƒXƒ`ƒƒ“Ç‚İ‚İ
+//    // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
 //    TexMetadata metadata;
 //    ScratchImage image;
 //    LoadFromWICFile(L"asset\\texture\\explosion.png", WIC_FLAGS_NONE, &metadata, image);
 //    CreateShaderResourceView(Renderer::GetDevice(), image.GetImages(), image.GetImageCount(), metadata, &m_Texture);
 //    assert(m_Texture);
 //
-//    // ƒVƒF[ƒ_[“Ç‚İ‚İ
+//    // ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½Ç‚İï¿½ï¿½ï¿½
 //    Renderer::CreateVertexShader(&m_VertexShader, &m_VertexLayout, "shader\\bin\\unlitTextureVS.cso");
 //    Renderer::CreatePixelShader(&m_PixelShader, "shader\\bin\\unlitTexturePS.cso");
 //}
@@ -65,31 +65,31 @@
 //
 //void Explosion::Update()
 //{
-//    // Œo‰ßŠÔ‚ğ‰ÁZ
-//    m_ElapsedTime += 1.0f / 60.0f; // 60FPS‘O’ñBÀÛ‚Ídt‚ğ“n‚·‚Ì‚ª—‘z
+//    // ï¿½oï¿½ßï¿½ï¿½Ô‚ï¿½ï¿½ï¿½Z
+//    m_ElapsedTime += 1.0f / 60.0f; // 60FPSï¿½Oï¿½ï¿½Bï¿½ï¿½ï¿½Û‚ï¿½dtï¿½ï¿½nï¿½ï¿½ï¿½Ì‚ï¿½ï¿½ï¿½ï¿½z
 //
 //    if (m_ElapsedTime >= m_FrameTime) {
 //        m_ElapsedTime = 0.0f;
 //        m_CurrentFrame++;
 //        if (m_CurrentFrame >= m_TotalFrames) {
-//            m_CurrentFrame = 0; // ƒ‹[ƒvBÁ‚µ‚½‚¢ê‡‚ÍUninit“™
+//            m_CurrentFrame = 0; // ï¿½ï¿½ï¿½[ï¿½vï¿½Bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ï¿½Uninitï¿½ï¿½
 //        }
 //    }
 //}
 //
 //void Explosion::Draw()
 //{
-//    // ƒAƒ‹ƒtƒ@ƒuƒŒƒ“ƒh—LŒø‰»
-//    Renderer::SetATCEnable(true); // ’Êí‚ÌƒAƒ‹ƒtƒ@ƒuƒŒƒ“ƒh
+//    // ï¿½Aï¿½ï¿½ï¿½tï¿½@ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½hï¿½Lï¿½ï¿½ï¿½ï¿½
+//    Renderer::SetATCEnable(true); // ï¿½Êï¿½ÌƒAï¿½ï¿½ï¿½tï¿½@ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½h
 //
-//    // “ü—ÍƒŒƒCƒAƒEƒgİ’è
+//    // ï¿½ï¿½ï¿½Íƒï¿½ï¿½Cï¿½Aï¿½Eï¿½gï¿½İ’ï¿½
 //    Renderer::GetDeviceContext()->IASetInputLayout(m_VertexLayout);
 //
-//    // ƒVƒF[ƒ_[İ’è
+//    // ï¿½Vï¿½Fï¿½[ï¿½_ï¿½[ï¿½İ’ï¿½
 //    Renderer::GetDeviceContext()->VSSetShader(m_VertexShader, NULL, 0);
 //    Renderer::GetDeviceContext()->PSSetShader(m_PixelShader, NULL, 0);
 //
-//    // ƒXƒvƒ‰ƒCƒgƒV[ƒg‚ÌUVŒvZ
+//    // ï¿½Xï¿½vï¿½ï¿½ï¿½Cï¿½gï¿½Vï¿½[ï¿½gï¿½ï¿½UVï¿½vï¿½Z
 //    int frameX = m_CurrentFrame % m_FramesPerRow;
 //    int frameY = m_CurrentFrame / m_FramesPerRow;
 //    float u0 = 1.0f / m_FramesPerRow * frameX;
@@ -97,7 +97,7 @@
 //    float u1 = u0 + 1.0f / m_FramesPerRow;
 //    float v1 = v0 + 1.0f / m_FramesPerRow;
 //
-//    // ’¸“_ƒf[ƒ^‚ğ“s“x¶¬i–{—ˆ‚Íƒoƒbƒtƒ@‚ğg‚¢‰ñ‚·‚Ì‚ª—‘zj
+//    // ï¿½ï¿½ï¿½_ï¿½fï¿½[ï¿½^ï¿½ï¿½sï¿½xï¿½ï¿½ï¿½ï¿½ï¿½iï¿½{ï¿½ï¿½ï¿½Íƒoï¿½bï¿½tï¿½@ï¿½ï¿½gï¿½ï¿½ï¿½ñ‚·‚Ì‚ï¿½ï¿½ï¿½ï¿½zï¿½j
 //    VERTEX_3D vertex[4];
 //    float size = 5.0f;
 //    vertex[0].Position = XMFLOAT3(-size, size, 0.0f); vertex[0].TexCoord = XMFLOAT2(u0, v0);
@@ -105,10 +105,10 @@
 //    vertex[2].Position = XMFLOAT3(-size, -size, 0.0f); vertex[2].TexCoord = XMFLOAT2(u0, v1);
 //    vertex[3].Position = XMFLOAT3(size, -size, 0.0f); vertex[3].TexCoord = XMFLOAT2(u1, v1);
 //
-//    // ’¸“_ƒoƒbƒtƒ@‚ğXV
+//    // ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@ï¿½ï¿½Xï¿½V
 //    Renderer::GetDeviceContext()->UpdateSubresource(m_VertexBuffer, 0, NULL, vertex, 0, 0);
 //
-//    // ƒJƒƒ‰‚Ìƒrƒ…[s—ñæ“¾
+//    // ï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½Ìƒrï¿½ï¿½ï¿½[ï¿½sï¿½ï¿½æ“¾
 //    Camera* camera = nullptr;
 //    for (auto obj : GameManager::GetGameObjects()) {
 //        camera = dynamic_cast<Camera*>(obj);
@@ -120,10 +120,10 @@
 //    trans = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
 //
 //    if (camera) {
-//        // ƒQƒbƒ^[‚Åƒrƒ…[s—ñ‚ğæ“¾‚µAƒrƒ‹ƒ{[ƒhs—ñ‚ğì¬
+//        // ï¿½Qï¿½bï¿½^ï¿½[ï¿½Åƒrï¿½ï¿½ï¿½[ï¿½sï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½Aï¿½rï¿½ï¿½ï¿½{ï¿½[ï¿½hï¿½sï¿½ï¿½ï¿½ì¬
 //        XMMATRIX view = camera->GetViewMatrix();
 //        XMMATRIX invView = XMMatrixInverse(nullptr, view);
-//        // ‰ñ“]¬•ª‚Ì‚İ’Šo
+//        // ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚İ’ï¿½ï¿½o
 //        invView.r[3] = XMVectorSet(0, 0, 0, 1);
 //        rot = invView;
 //    }
@@ -134,17 +134,17 @@
 //    world = scale * rot * trans;
 //    Renderer::SetWorldMatrix(world);
 //
-//    // ’¸“_ƒoƒbƒtƒ@İ’è
+//    // ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@ï¿½İ’ï¿½
 //    UINT stride = sizeof(VERTEX_3D);
 //    UINT offset = 0;
 //    Renderer::GetDeviceContext()->IASetVertexBuffers(0, 1, &m_VertexBuffer, &stride, &offset);
 //
-//    // ƒeƒNƒXƒ`ƒƒİ’è
+//    // ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½İ’ï¿½
 //    Renderer::GetDeviceContext()->PSSetShaderResources(0, 1, &m_Texture);
 //
-//    // ƒvƒŠƒ~ƒeƒBƒuƒgƒ|ƒƒWİ’è
+//    // ï¿½vï¿½ï¿½ï¿½~ï¿½eï¿½Bï¿½uï¿½gï¿½|ï¿½ï¿½ï¿½Wï¿½İ’ï¿½
 //    Renderer::GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 //
-//    // ƒ|ƒŠƒSƒ“•`‰æ
+//    // ï¿½|ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½`ï¿½ï¿½
 //    Renderer::GetDeviceContext()->Draw(4, 0);
 //}

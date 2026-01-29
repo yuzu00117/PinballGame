@@ -1,25 +1,25 @@
-// result.cpp
+ï»¿// result.cpp
 #include "main.h"
 #include "result.h"
 #include "renderer.h"
 #include <windows.h>
 
 void Result::Init() {
-    // ƒXƒRƒAæ“¾‚âƒTƒEƒ“ƒhÄ¶‚È‚Ç‚Ì‰Šú‰»‚ª‚ ‚ê‚Î
+    // ï¿½Xï¿½Rï¿½Aï¿½æ“¾ï¿½ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½Äï¿½ï¿½È‚Ç‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 void Result::Uninit() {
-    // Œã•Ğ•t‚¯‚ª‚ ‚ê‚Î
+    // ï¿½ï¿½Ğ•tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 void Result::Update(float deltaTime) {
-    // ƒŠƒgƒ‰ƒC‰‰o‚âƒAƒjƒ[ƒVƒ‡ƒ“‚È‚Ç
+    // ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½oï¿½ï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½
 }
 
 void Result::Draw() {
-    // Œ‹‰Ê‰æ–Ê•\¦—á
+    // ï¿½ï¿½ï¿½Ê‰ï¿½Ê•\ï¿½ï¿½ï¿½ï¿½
     Renderer::DrawText(L"--- Result ---", 100, 200);
-    // ƒXƒRƒA‚ğ•\¦‚·‚éê‡‚Í GameManager ‚©•ÊƒNƒ‰ƒX‚©‚çæ“¾‚µ‚Ä“n‚·
-    // —á: Renderer::DrawText(scoreText, 100, 240);
+    // ï¿½Xï¿½Rï¿½Aï¿½ï¿½\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ï¿½ GameManager ï¿½ï¿½ï¿½ÊƒNï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½ï¿½æ“¾ï¿½ï¿½ï¿½Ä“nï¿½ï¿½
+    // ï¿½ï¿½: Renderer::DrawText(scoreText, 100, 240);
     Renderer::DrawText(L"Press Enter to Return to Title", 100, 280);
 }

@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 
 /// <summary>
-/// ƒQ[ƒ€‚ÅŽg—p‚·‚éƒTƒEƒ“ƒh‚Ìƒo[ƒ`ƒƒƒ‹ID‚ð’è‹`‚·‚éB
-/// Œ»Ý‚Í•K—v‚»‚¤‚È‚à‚Ì‚¾‚¯’è‹`‚µ‚Ä‚¢‚é‚ªA
-/// ŽÀÛ‚ÉŽg—p‚·‚éƒTƒEƒ“ƒh‚ª‘‚¦‚½‚çA‚±‚±‚É’Ç‰Á
+/// ï¿½Qï¿½[ï¿½ï¿½ï¿½ÅŽgï¿½pï¿½ï¿½ï¿½ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½Ìƒoï¿½[ï¿½`ï¿½ï¿½ï¿½ï¿½IDï¿½ï¿½ï¿½`ï¿½ï¿½ï¿½ï¿½B
+/// ï¿½ï¿½ï¿½Ý‚Í•Kï¿½vï¿½ï¿½ï¿½ï¿½ï¿½È‚ï¿½Ì‚ï¿½ï¿½ï¿½ï¿½ï¿½`ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚ªï¿½A
+/// ï¿½ï¿½ï¿½Û‚ÉŽgï¿½pï¿½ï¿½ï¿½ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½É’Ç‰ï¿½
 /// </summary>
 enum class SoundID
 {

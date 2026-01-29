@@ -1,24 +1,24 @@
-#pragma once
+ï»¿#pragma once
 
 #include "gameobject.h"
 #include "vector3.h"
 
-// ‘O•ûéŒ¾
+// ï¿½Oï¿½ï¿½ï¿½éŒ¾
 class MeshRenderer;
 class ColliderGroup;
 
 /// <summary>
-/// ƒsƒ“ƒ{[ƒ‹‚Ìƒz[ƒ‹iŒŠjƒIƒuƒWƒFƒNƒg
-/// ƒRƒ‰ƒCƒ_[‚É“–‚½‚Á‚½‚Æ‚«‚ÉABall / Enemy‚ğ”»’è‚µ‚Äˆ—‚·‚é
+/// ï¿½sï¿½ï¿½ï¿½{ï¿½[ï¿½ï¿½ï¿½Ìƒzï¿½[ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½jï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½g
+/// ï¿½Rï¿½ï¿½ï¿½Cï¿½_ï¿½[ï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½ÉABall / Enemyï¿½ğ”»’è‚µï¿½Äï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 class Hole : public GameObject
 {
 public:
     // ------------------------------------------------------------------------------
-    //  ŠÖ”’è‹` 
+    //  ï¿½Öï¿½ï¿½ï¿½` 
     // ------------------------------------------------------------------------------
     /// <summary>
-    /// ƒ‰ƒCƒtƒTƒCƒNƒ‹ƒƒ\ƒbƒh
+    /// ï¿½ï¿½ï¿½Cï¿½tï¿½Tï¿½Cï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½bï¿½h
     /// </summary>
     void Init() override;
     void Uninit() override;
@@ -26,29 +26,29 @@ public:
     void Draw() override;
 
     /// <summary>
-    /// Õ“ËƒR[ƒ‹ƒoƒbƒN
-    /// Hole‚ÌƒRƒ‰ƒCƒ_[‚É“–‚½‚Á‚½‚Æ‚«‚Ìˆ—
+    /// ï¿½Õ“ËƒRï¿½[ï¿½ï¿½ï¿½oï¿½bï¿½N
+    /// Holeï¿½ÌƒRï¿½ï¿½ï¿½Cï¿½_ï¿½[ï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Ìï¿½ï¿½ï¿½
     /// </summary>
     void OnCollisionEnter(const CollisionInfo& info) override;
 
     /// <summary>
-    /// ƒz[ƒ‹ˆÊ’u‚ÌGetter
+    /// ï¿½zï¿½[ï¿½ï¿½ï¿½Ê’uï¿½ï¿½Getter
     /// </summary>
     Vector3 GetHolePosition() const { return m_Transform.Position; }
 
 private:
     // ------------------------------------------------------------------------------
-    // ’è”’è‹`
+    // ï¿½è”ï¿½ï¿½`
     // ------------------------------------------------------------------------------
-    static constexpr const char* VertexShaderPath = // ’¸“_ƒVƒF[ƒ_‚ÌƒpƒX
+    static constexpr const char* VertexShaderPath = // ï¿½ï¿½ï¿½_ï¿½Vï¿½Fï¿½[ï¿½_ï¿½Ìƒpï¿½X
         "shader\\bin\\BaseLitVS.cso";   
-    static constexpr const char* PixelShaderPath  = // ƒsƒNƒZƒ‹ƒVƒF[ƒ_‚ÌƒpƒX
+    static constexpr const char* PixelShaderPath  = // ï¿½sï¿½Nï¿½Zï¿½ï¿½ï¿½Vï¿½Fï¿½[ï¿½_ï¿½Ìƒpï¿½X
         "shader\\bin\\BaseLitPS.cso";   
 
     // ------------------------------------------------------------------------------
-    // •Ï”’è‹`
+    // ï¿½Ïï¿½ï¿½ï¿½`
     // ------------------------------------------------------------------------------
-    // Œ©‚½–ÚE“–‚½‚è”»’è—pƒRƒ“ƒ|[ƒlƒ“ƒg
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ÚEï¿½ï¿½ï¿½ï¿½ï¿½è”»ï¿½ï¿½pï¿½Rï¿½ï¿½ï¿½|ï¿½[ï¿½lï¿½ï¿½ï¿½g
     MeshRenderer* m_MeshRenderer = nullptr;
     ColliderGroup* m_ColliderGroup = nullptr;
 };

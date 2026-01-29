@@ -1,22 +1,22 @@
-#pragma once
+ï»¿#pragma once
 
 #include "vector3.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 
 /// <summary>
-/// TransformƒNƒ‰ƒX
-/// ƒIƒuƒWƒFƒNƒg‚ÌˆÊ’uA‰ñ“]AƒXƒP[ƒ‹‚ğŠÇ—‚·‚é
+/// Transformï¿½Nï¿½ï¿½ï¿½X
+/// ï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½gï¿½ÌˆÊ’uï¿½Aï¿½ï¿½]ï¿½Aï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½ï¿½Ç—ï¿½ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 struct Transform
 {
-    Vector3 Position = { 0.0f, 0.0f, 0.0f };    // ˆÊ’u
-    Vector3 Rotation = { 0.0f, 0.0f, 0.0f };    // ‰ñ“]i“xj
-    Vector3 Scale    = { 1.0f, 1.0f, 1.0f };    // ƒXƒP[ƒ‹
-    Transform* Parent = nullptr;                // eTransform‚Ö‚Ìƒ|ƒCƒ“ƒ^
+    Vector3 Position = { 0.0f, 0.0f, 0.0f };    // ï¿½Ê’u
+    Vector3 Rotation = { 0.0f, 0.0f, 0.0f };    // ï¿½ï¿½]ï¿½iï¿½xï¿½j
+    Vector3 Scale    = { 1.0f, 1.0f, 1.0f };    // ï¿½Xï¿½Pï¿½[ï¿½ï¿½
+    Transform* Parent = nullptr;                // ï¿½eTransformï¿½Ö‚Ìƒ|ï¿½Cï¿½ï¿½ï¿½^
 
     /// <summary>
-    /// ƒ[ƒJƒ‹s—ñ‚ğ¶¬‚µ‚Ä•Ô‚·
+    /// ï¿½ï¿½ï¿½[ï¿½Jï¿½ï¿½ï¿½sï¿½ï¿½ğ¶ï¿½ï¿½ï¿½ï¿½Ä•Ô‚ï¿½
     /// </summary>
     XMMATRIX GetLocalMatrix() const
     {
@@ -30,22 +30,22 @@ struct Transform
     }
 
     /// <summary>
-    /// ƒ[ƒ‹ƒhs—ñ‚ğ¶¬‚µ‚Ä•Ô‚·
+    /// ï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½sï¿½ï¿½ğ¶ï¿½ï¿½ï¿½ï¿½Ä•Ô‚ï¿½
     /// </summary>
     XMMATRIX GetWorldMatrix() const
     {
         const auto LocalMatrix = GetLocalMatrix();
-        // e‚ª‚¢‚éê‡‚Íe‚Ìƒ[ƒ‹ƒhs—ñ‚ğŠ|‚¯‡‚í‚¹‚é
+        // ï¿½eï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Íeï¿½Ìƒï¿½ï¿½[ï¿½ï¿½ï¿½hï¿½sï¿½ï¿½ï¿½|ï¿½ï¿½ï¿½ï¿½ï¿½í‚¹ï¿½ï¿½
         return Parent ? (LocalMatrix * Parent->GetWorldMatrix()) : LocalMatrix;
     }
 
     /// <summary>
-    /// eTransform‚ğİ’è‚·‚é
+    /// ï¿½eTransformï¿½ï¿½İ’è‚·ï¿½ï¿½
     /// </summary>
     void SetParent(Transform* parent) { Parent = parent; }
 
     /// <summary>
-    /// eTransform‚ğƒNƒŠƒA‚·‚é
+    /// ï¿½eTransformï¿½ï¿½Nï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½
     /// </summary>
     void ClearParent() { Parent = nullptr; }
 };

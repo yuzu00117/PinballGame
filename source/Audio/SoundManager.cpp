@@ -1,50 +1,50 @@
-// soundManager.cpp
+ï»¿// soundManager.cpp
 #include "main.h"
 #include "SoundManager.h"
 
-// Ã“Iƒƒ“ƒo‚Ì’è‹`
+// ï¿½Ã“Iï¿½ï¿½ï¿½ï¿½ï¿½oï¿½Ì’ï¿½`
 SoundManager* SoundManager::s_Instance = nullptr;
 
-// ‰Šú‰»ˆ—
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void SoundManager::Init()
 {
-    // ƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX‚Ìİ’è
+    // ï¿½Vï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½gï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½Ìİ’ï¿½
     s_Instance = this;
 
-    // --- Œø‰Ê‰¹‚Ì“Ç‚İ‚İ ---
-    // ‚±‚±‚ÅƒTƒEƒ“ƒh‚ğ“Ç‚İ‚Ş
+    // --- ï¿½ï¿½ï¿½Ê‰ï¿½ï¿½Ì“Ç‚İï¿½ï¿½ï¿½ ---
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ÅƒTï¿½Eï¿½ï¿½ï¿½hï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
 }
 
-// ”jŠüˆ—
+// ï¿½jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void SoundManager::Uninit()
 {
-    // ©•ª‚ªƒCƒ“ƒXƒ^ƒ“ƒX‚È‚çŠJ•ú
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½Xï¿½È‚ï¿½Jï¿½ï¿½
     if (s_Instance == this)
     {
         s_Instance = nullptr;
     }
 
-    // “o˜^Ï‚İƒTƒEƒ“ƒh‚Ì‰ğ•ú
+    // ï¿½oï¿½^ï¿½Ï‚İƒTï¿½Eï¿½ï¿½ï¿½hï¿½Ì‰ï¿½ï¿½
     for (int i = 0; i < (int)SoundID::Count; ++i)
     {
         m_Sounds[i].Uninit();
     }
 }
 
-// XVˆ—
+// ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
 void SoundManager::Update(float deltaTime)
 {
-    // “Á‚ÉXVˆ—‚Í‚È‚µi‰¹ºŠÇ—‚È‚Ì‚Åj
-    // «—ˆ“I‚É‚ÍAƒtƒF[ƒhˆ—‚âˆêŠ‡ƒ~ƒ…[ƒg‚È‚Ç‚ğ‚±‚±‚Ås‚¤‚©‚à
+    // ï¿½ï¿½ï¿½ÉXï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Í‚È‚ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Ç—ï¿½ï¿½È‚Ì‚Åj
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½É‚ÍAï¿½tï¿½Fï¿½[ï¿½hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½êŠ‡ï¿½~ï¿½ï¿½ï¿½[ï¿½gï¿½È‚Ç‚ï¿½ï¿½ï¿½ï¿½ï¿½Åsï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
-// •`‰æˆ—
+// ï¿½`ï¿½æˆï¿½ï¿½
 void SoundManager::Draw()
 {
-    // •`‰æˆ—‚Í“Á‚É‚È‚µi‰¹ºŠÇ—‚È‚Ì‚Åj
+    // ï¿½`ï¿½æˆï¿½ï¿½ï¿½Í“ï¿½ï¿½É‚È‚ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Ç—ï¿½ï¿½È‚Ì‚Åj
 }
 
-// ƒTƒEƒ“ƒh‚Ì“Ç‚İ‚İ
+// ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½Ì“Ç‚İï¿½ï¿½ï¿½
 void SoundManager::Load(SoundID id, const char* filename)
 {
     int index = static_cast<int>(id);
@@ -54,9 +54,9 @@ void SoundManager::Load(SoundID id, const char* filename)
 }
 
 // ------------------------------------------------------------------------------
-// BGMESE‚ÌÄ¶ / ’â~
+// BGMï¿½ESEï¿½ÌÄï¿½ / ï¿½ï¿½~
 // ------------------------------------------------------------------------------
-// ƒTƒEƒ“ƒh‚ÌÄ¶
+// ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½ÌÄï¿½
 void SoundManager::Play(SoundID id, bool loop, float volume)
 {
     int index = static_cast<int>(id);
@@ -68,7 +68,7 @@ void SoundManager::Play(SoundID id, bool loop, float volume)
     m_Sounds[index].Play(loop);
 }
 
-// ƒTƒEƒ“ƒh‚Ì’â~
+// ï¿½Tï¿½Eï¿½ï¿½ï¿½hï¿½Ì’ï¿½~
 void SoundManager::Stop(SoundID id)
 {
     int index = static_cast<int>(id);
@@ -77,7 +77,7 @@ void SoundManager::Stop(SoundID id)
     m_Sounds[index].Stop();
 }
 
-// ‚·‚×‚Ä‚ÌƒTƒEƒ“ƒh‚ğ’â~
+// ï¿½ï¿½ï¿½×‚Ä‚ÌƒTï¿½Eï¿½ï¿½ï¿½hï¿½ï¿½ï¿½~
 void SoundManager::StopAll()
 {
     for (int i = 0; i < (int)SoundID::Count; ++i)
@@ -87,7 +87,7 @@ void SoundManager::StopAll()
 }
 
 // ------------------------------------------------------------------------------
-// ‰¹—Êİ’è
+// ï¿½ï¿½ï¿½Êİ’ï¿½
 // ------------------------------------------------------------------------------
 void SoundManager::SetMasterVolume(float volume)
 {

@@ -1,55 +1,55 @@
-// score.cpp
+ï»¿// score.cpp
 #include "main.h"
 #include "score.h"
 #include "renderer.h"
 #include <windows.h>
 #include <string>
 
-// Ã“Iƒƒ“ƒo‚Ì’è‹`
+// ï¿½Ã“Iï¿½ï¿½ï¿½ï¿½ï¿½oï¿½Ì’ï¿½`
 int Score::s_Score = 0;
 
 void Score::Init() {
-    // ‰Šú‰»ˆ—i•K—v‚É‰‚¶‚Äj
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Kï¿½vï¿½É‰ï¿½ï¿½ï¿½ï¿½Äj
 }
 
 void Score::Uninit() {
-    // I—¹ˆ—i•K—v‚É‰‚¶‚Äj
+    // ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Kï¿½vï¿½É‰ï¿½ï¿½ï¿½ï¿½Äj
 }
 
 void Score::Update(float deltaTime) {
-    // ƒfƒoƒbƒO—pF+ƒL[‚Æ-ƒL[‚ÅƒXƒRƒA‘Œ¸
+    // ï¿½fï¿½oï¿½bï¿½Oï¿½pï¿½F+ï¿½Lï¿½[ï¿½ï¿½-ï¿½Lï¿½[ï¿½ÅƒXï¿½Rï¿½Aï¿½ï¿½ï¿½ï¿½
     static bool prevPlus = false;
     static bool prevMinus = false;
     
-    // +ƒL[iVK_OEM_PLUS ‚Ü‚½‚Í VK_ADDj‚Ìˆ—
+    // +ï¿½Lï¿½[ï¿½iVK_OEM_PLUS ï¿½Ü‚ï¿½ï¿½ï¿½ VK_ADDï¿½jï¿½Ìï¿½ï¿½ï¿½
     SHORT ksPlus = GetAsyncKeyState(VK_OEM_PLUS);
     bool currPlus = (ksPlus & 0x8000) != 0;
     if (currPlus && !prevPlus) {
         s_Score += 100;
-        if (s_Score > 99999) s_Score = 99999; // 5Œ…§ŒÀ
+        if (s_Score > 99999) s_Score = 99999; // 5ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
     prevPlus = currPlus;
     
-    // -ƒL[iVK_OEM_MINUS ‚Ü‚½‚Í VK_SUBTRACTj‚Ìˆ—
+    // -ï¿½Lï¿½[ï¿½iVK_OEM_MINUS ï¿½Ü‚ï¿½ï¿½ï¿½ VK_SUBTRACTï¿½jï¿½Ìï¿½ï¿½ï¿½
     SHORT ksMinus = GetAsyncKeyState(VK_OEM_MINUS);
     bool currMinus = (ksMinus & 0x8000) != 0;
     if (currMinus && !prevMinus) {
         s_Score -= 100;
-        if (s_Score < 0) s_Score = 0; // •‰‚Ì’l‚É‚µ‚È‚¢
+        if (s_Score < 0) s_Score = 0; // ï¿½ï¿½ï¿½Ì’lï¿½É‚ï¿½ï¿½È‚ï¿½
     }
     prevMinus = currMinus;
 }
 
 void Score::Draw() {
-    // ‰æ–Ê¶ã‚ÉƒXƒRƒA‚ğ5Œ…‚Å•\¦
+    // ï¿½ï¿½Êï¿½ï¿½ï¿½ÉƒXï¿½Rï¿½Aï¿½ï¿½5ï¿½ï¿½ï¿½Å•\ï¿½ï¿½
     std::wstring scoreText = L"SCORE: " + std::to_wstring(s_Score);
     
-    // 5Œ…‚É‚È‚é‚æ‚¤‚É0–„‚ß‚·‚é
+    // 5ï¿½ï¿½ï¿½É‚È‚ï¿½æ‚¤ï¿½ï¿½0ï¿½ï¿½ï¿½ß‚ï¿½ï¿½ï¿½
     std::wstring paddedScore = std::to_wstring(s_Score);
     while (paddedScore.length() < 5) {
         paddedScore = L"0" + paddedScore;
     }
     
     std::wstring displayText = L"SCORE: " + paddedScore;
-    Renderer::DrawText(displayText, 10, 10); // ¶ãix=10, y=10j‚É•\¦
+    Renderer::DrawText(displayText, 10, 10); // ï¿½ï¿½ï¿½ï¿½ix=10, y=10ï¿½jï¿½É•\ï¿½ï¿½
 }

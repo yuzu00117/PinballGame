@@ -1,4 +1,4 @@
-#ifndef _VECTOR3_H
+﻿#ifndef _VECTOR3_H
 #define _VECTOR3_H
 
 #include<math.h>

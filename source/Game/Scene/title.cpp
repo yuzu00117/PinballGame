@@ -1,29 +1,29 @@
-// title.cpp
+ï»¿// title.cpp
 #include "main.h"
 #include "title.h"
 #include "renderer.h"
-#include <windows.h>   // •\¦ˆÊ’uŒvZ‚È‚Ç‚Å—˜—p‚·‚éê‡
+#include <windows.h>   // ï¿½\ï¿½ï¿½ï¿½Ê’uï¿½vï¿½Zï¿½È‚Ç‚Å—ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ê‡
 
 void Title::Init()
 {
-    // •K—v‚È‚ç‰Šú‰»B¡‰ñ‚Í“Á‚É‚È‚µ
+    // ï¿½Kï¿½vï¿½È‚ç‰ï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½Í“ï¿½ï¿½É‚È‚ï¿½
 }
 
 void Title::Uninit()
 {
-    // I—¹ˆ—B¡‰ñ‚Í“Á‚É‚È‚µ
+    // ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½Í“ï¿½ï¿½É‚È‚ï¿½
 }
 
 void Title::Update(float deltaTime)
 {
-    // ƒ^ƒCƒgƒ‹‰æ–ÊŒÅ—L‚Ì“®ìiƒAƒjƒ[ƒVƒ‡ƒ““™j‚ª‚ ‚ê‚Î‚±‚±‚É
+    // ï¿½^ï¿½Cï¿½gï¿½ï¿½ï¿½ï¿½ÊŒÅ—Lï¿½Ì“ï¿½ï¿½ï¿½iï¿½Aï¿½jï¿½ï¿½ï¿½[ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î‚ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 void Title::Draw()
 {
-    // GameManager::Draw() “à‚Å Begin()/End() ‚µ‚Ä‚¢‚é‚½‚ßA
-    // ‚±‚±‚Å‚ÍƒeƒLƒXƒg•`‰æ‚Ì‚İs‚¤
-    // ‰¼‚É Renderer::DrawText ‚ğg‚¤ê‡‚Ì—áF
+    // GameManager::Draw() ï¿½ï¿½ï¿½ Begin()/End() ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚½ï¿½ßA
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Å‚Íƒeï¿½Lï¿½Xï¿½gï¿½`ï¿½ï¿½Ì‚İsï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½ Renderer::DrawText ï¿½ï¿½gï¿½ï¿½ï¿½ê‡ï¿½Ì—ï¿½F
     Renderer::DrawText(L"=== PinBall Battle ===", 100, 200);
     Renderer::DrawText(L"Press Enter to Start", 100, 240);
 }
