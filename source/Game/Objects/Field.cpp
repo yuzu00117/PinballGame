@@ -167,6 +167,29 @@ void Field::Init()
     // 右ガイド（内側へ向ける）
     MakeGuide({ +guideX, guideY, guideZ }, -120.0f);
 
+    // ガイドの下に、更にコライダーのみを追加（ボールが潜り抜けないようにするため）
+    auto MakeGuideCollider = [&](const Vector3& position, float rotYDeg)
+    {
+        GameObject* guideObj = CreateChild();
+        guideObj->m_Transform.Position = position;
+        guideObj->m_Transform.Scale = { 1.0f, kWallHeight, 10.0f };   // 細長いガイド
+        guideObj->m_Transform.Rotation.y = rotYDeg;
+
+        // 当たり判定（Transform から自動反映）
+        auto colGroup = guideObj->AddComponent<ColliderGroup>();
+        colGroup->AddCollider<BoxCollider>();
+    };
+
+    // ガイドの位置
+    const float guideColliderX = kHalfWidth - 3.5f;     // 外壁との隙間をなくすため少し内側
+    const float guideColliderY = kWallHeight * 0.5f;
+    const float guideColliderZ = -kHalfHeight + 2.5f;
+
+    // 左ガイド（内側へ向ける）
+    MakeGuideCollider({ -guideColliderX, guideColliderY, guideColliderZ }, 120.0f);
+    // 右ガイド（内側へ向ける）
+    MakeGuideCollider({ +guideColliderX, guideColliderY, guideColliderZ }, -120.0f);
+
     // ----------------------------------------------------------------------
     // フィールド内オブジェクトの作成
     // ----------------------------------------------------------------------

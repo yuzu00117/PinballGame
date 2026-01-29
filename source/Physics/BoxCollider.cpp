@@ -361,8 +361,10 @@ static bool BoxVsSphere(BoxCollider* b, SphereCollider* s,
         // 前フレーム位置が OBB 外部にあった場合のみ CCD を試行
         float judgeRadius = radius * 1.05f; // 少し余裕を持たせる
         bool wasOutside = !IsSphereOverlappingOBB(p0, judgeRadius, obb);
+        (void)judgeRadius;
+        (void)wasOutside;
 
-        if (moveLen >= ccdMinMove && wasOutside)
+        if (moveLen >= ccdMinMove)
         {
             CcdHit hit;
             if (IntersectSegmentSphereVsOBB(p0, p1, obb, radius, &hit))
