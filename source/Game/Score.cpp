@@ -1,47 +1,82 @@
-﻿// score.cpp
+﻿#include "score.h"
+
+// システム
 #include "main.h"
-#include "score.h"
 #include "renderer.h"
+
+// Windows API / 標準ライブラリ
 #include <windows.h>
 #include <string>
 
-int Score::s_Score = 0;
+// ------------------------------------------------------------------------------
+// 初期化処理
+// ------------------------------------------------------------------------------
+void Score::Init()
+{
+    GameObject::Init();
 
-void Score::Init() {
+    // スコア初期化
+    s_Score = 0;
 }
 
-void Score::Uninit() {
+// ------------------------------------------------------------------------------
+// 終了処理
+// ------------------------------------------------------------------------------
+void Score::Uninit()
+{
+    GameObject::Uninit();
 }
 
-void Score::Update(float deltaTime) {
-    static bool prevPlus = false;
+// ------------------------------------------------------------------------------
+// 更新処理
+// ------------------------------------------------------------------------------
+// - '+' キー押下：スコア加算（100）
+// - '-' キー押下：スコア減算（100）
+// - 上限/下限を表示仕様に合わせてクランプ
+void Score::Update(float deltaTime)
+{
+    GameObject::Update(deltaTime);
+
+    static bool prevPlus  = false;
     static bool prevMinus = false;
-    
+
+    // '+' 入力（加算）
     SHORT ksPlus = GetAsyncKeyState(VK_OEM_PLUS);
     bool currPlus = (ksPlus & 0x8000) != 0;
-    if (currPlus && !prevPlus) {
+    if (currPlus && !prevPlus)
+    {
         s_Score += 100;
-        if (s_Score > 99999) s_Score = 99999;
+        if (s_Score > 99999)
+            s_Score = 99999;
     }
     prevPlus = currPlus;
-    
+
+    // '-' 入力（減算）
     SHORT ksMinus = GetAsyncKeyState(VK_OEM_MINUS);
     bool currMinus = (ksMinus & 0x8000) != 0;
-    if (currMinus && !prevMinus) {
+    if (currMinus && !prevMinus)
+    {
         s_Score -= 100;
-        if (s_Score < 0) s_Score = 0;
+        if (s_Score < 0)
+            s_Score = 0;
     }
     prevMinus = currMinus;
 }
 
-void Score::Draw() {
-    std::wstring scoreText = L"SCORE: " + std::to_wstring(s_Score);
-    
+// ------------------------------------------------------------------------------
+// 描画処理
+// ------------------------------------------------------------------------------
+// - スコアを5桁固定（ゼロ埋め）で左上に描画
+void Score::Draw()
+{
+    GameObject::Draw();
+
     std::wstring paddedScore = std::to_wstring(s_Score);
-    while (paddedScore.length() < 5) {
+    while (paddedScore.length() < 5)
+    {
         paddedScore = L"0" + paddedScore;
     }
-    
-    std::wstring displayText = L"SCORE: " + paddedScore;
+
+    const std::wstring displayText = L"SCORE: " + paddedScore;
     Renderer::DrawText(displayText, 10, 10);
 }
