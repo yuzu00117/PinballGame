@@ -44,7 +44,7 @@ FieldLayout Field::MakeStage01Layout()
     constexpr float kHoleZOffset = 0.2f;
     constexpr float kHoleSizeX = 3.0f;
     constexpr float kHoleSizeY = 1.5f;
-    constexpr float kHoleSizeZ = 1.0f;
+    constexpr float kHoleSizeZ = 0.75f;
     constexpr const char* kMainHoleId = "main";
 
     constexpr float kSpawnerY = 0.5f;
