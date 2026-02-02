@@ -31,7 +31,7 @@
 #include <vector>
 #include <type_traits>
 
-// コンポーネント関連ヘッダ
+// コンポーネント
 #include "Transform.h"
 #include "Collider.h"
 #include "Component.h"
