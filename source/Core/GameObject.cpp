@@ -1,9 +1,9 @@
 ﻿#include "GameObject.h"
 
-// システム関連
+// 標準ライブラリ
 #include <algorithm>
 
-// コンポーネント関連
+// コンポーネント
 #include "ColliderGroup.h"
 #include "Collider.h"
 
