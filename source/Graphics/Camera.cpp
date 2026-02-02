@@ -57,6 +57,10 @@ void Camera::Init()
         p.z + offset.z
     };
 
+    m_Transform.Rotation.x = XMConvertToDegrees(kDefaultPitch);
+    m_Transform.Rotation.y = XMConvertToDegrees(kDefaultYaw);
+    m_Transform.Rotation.z = 0.0f;
+
     const XMMATRIX world = m_Transform.GetWorldMatrix();
     XMStoreFloat3(&m_Position, world.r[3]);
 }
@@ -142,6 +146,14 @@ void Camera::Update(float deltaTime)
             ballPos.z + offset.z
         };
 
+        const float dx = ballPos.x - m_Transform.Position.x;
+        const float dy = ballPos.y - m_Transform.Position.y;
+        const float dz = ballPos.z - m_Transform.Position.z;
+        const float yaw = atan2f(dx, dz);
+        const float pitch = atan2f(dy, sqrtf(dx * dx + dz * dz));
+        m_Transform.Rotation.y = XMConvertToDegrees(yaw);
+        m_Transform.Rotation.x = XMConvertToDegrees(pitch);
+
         const XMMATRIX world = m_Transform.GetWorldMatrix();
         XMStoreFloat3(&m_Position, world.r[3]);
         return;
@@ -174,31 +186,34 @@ void Camera::Update(float deltaTime)
         // カーソルを中央へ戻して相対移動量を測定
         SetCursorPos(centerScreen.x, centerScreen.y);
 
-        m_Yaw += dx;
-        m_Pitch -= dy;
+        m_Transform.Rotation.y += XMConvertToDegrees(dx);
+        m_Transform.Rotation.x -= XMConvertToDegrees(dy);
 
         // Pitch クランプ（ジンバルロック回避）
-        const float kMaxPitch = XM_PIDIV2 - 0.1f;
-        const float kMinPitch = -XM_PIDIV2 + 0.1f;
-        if (m_Pitch > kMaxPitch) m_Pitch = kMaxPitch;
-        if (m_Pitch < kMinPitch) m_Pitch = kMinPitch;
+        const float kMaxPitch = XMConvertToDegrees(XM_PIDIV2 - 0.1f);
+        const float kMinPitch = XMConvertToDegrees(-XM_PIDIV2 + 0.1f);
+        if (m_Transform.Rotation.x > kMaxPitch) m_Transform.Rotation.x = kMaxPitch;
+        if (m_Transform.Rotation.x < kMinPitch) m_Transform.Rotation.x = kMinPitch;
     }
 
     // ----------------------------------------------------------------------
     // 前方/右ベクトル構築（Yaw/Pitch）
     // ----------------------------------------------------------------------
+    const float pitchRad = XMConvertToRadians(m_Transform.Rotation.x);
+    const float yawRad   = XMConvertToRadians(m_Transform.Rotation.y);
+
     XMVECTOR forward = XMVectorSet(
-        cosf(m_Pitch) * sinf(m_Yaw),
-        sinf(m_Pitch),
-        cosf(m_Pitch) * cosf(m_Yaw),
+        cosf(pitchRad) * sinf(yawRad),
+        sinf(pitchRad),
+        cosf(pitchRad) * cosf(yawRad),
         0.0f);
     forward = XMVector3Normalize(forward);
 
     XMVECTOR right = XMVector3Normalize(
         XMVectorSet(
-            sinf(m_Yaw - XM_PIDIV2),
+            sinf(yawRad - XM_PIDIV2),
             0.0f,
-            cosf(m_Yaw - XM_PIDIV2),
+            cosf(yawRad - XM_PIDIV2),
             0.0f));
 
     XMVECTOR move = XMVectorZero();
@@ -248,6 +263,14 @@ void Camera::Update(float deltaTime)
         ballPos.z + offset.z
     };
 
+    const float dx = ballPos.x - m_Transform.Position.x;
+    const float dy = ballPos.y - m_Transform.Position.y;
+    const float dz = ballPos.z - m_Transform.Position.z;
+    const float yaw = atan2f(dx, dz);
+    const float pitch = atan2f(dy, sqrtf(dx * dx + dz * dz));
+    m_Transform.Rotation.y = XMConvertToDegrees(yaw);
+    m_Transform.Rotation.x = XMConvertToDegrees(pitch);
+
     const XMMATRIX world = m_Transform.GetWorldMatrix();
     XMStoreFloat3(&m_Position, world.r[3]);
 #endif
@@ -290,13 +313,13 @@ void Camera::Draw()
 /// - angle: ラジアン
 void Camera::RotatePitch(float angle)
 {
-    m_Pitch += angle;
+    m_Transform.Rotation.x += XMConvertToDegrees(angle);
 
-    const float kMaxPitch = 1.3f;
-    const float kMinPitch = -0.3f;
+    const float kMaxPitch = XMConvertToDegrees(1.3f);
+    const float kMinPitch = XMConvertToDegrees(-0.3f);
 
-    if (m_Pitch > kMaxPitch) m_Pitch = kMaxPitch;
-    if (m_Pitch < kMinPitch) m_Pitch = kMinPitch;
+    if (m_Transform.Rotation.x > kMaxPitch) m_Transform.Rotation.x = kMaxPitch;
+    if (m_Transform.Rotation.x < kMinPitch) m_Transform.Rotation.x = kMinPitch;
 }
 
 /// 距離を設定する（クランプ）

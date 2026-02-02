@@ -12,14 +12,13 @@
 // - View/Projection は Draw() で毎フレーム確定し、Renderer に反映する。
 //
 // 構成:
-// - Transform         : カメラ位置の保持（自由カメラ時の移動に使用）
+// - Transform         : GameObject の Transform を利用（位置/回転）
 // - View / Projection : 描画に必要な行列
 // - Target            : LookAt の注視点（追従時はボール座標、自由時は前方）
 // - Debug 操作        : マウスルック + キー移動、カーソルのクリップ制御
 //
 // NOTE:
-// - 本クラスは GameObject::m_Transform を使わず、独自に Transform を保持している。
-//   （GameObject 側にも Transform がある設計の場合、二重管理になるため整理対象）
+// - GameObject::m_Transform をカメラの位置/回転として利用する。
 // - SetDistance / Pitch/Yaw を保持しているが、現状 Update() では距離/ピッチの追従反映が無い。
 //   （m_CameraOffset による固定オフセットで追従している）
 //------------------------------------------------------------------------------
@@ -76,7 +75,7 @@ public:
     const XMFLOAT3& GetTarget() const { return m_Target; }
 
     /// Yaw（ラジアン）
-    float GetYaw() const { return m_Yaw; }
+    float GetYaw() const { return XMConvertToRadians(m_Transform.Rotation.y); }
 
     /// View 行列（Draw() で構築）
     const XMMATRIX& GetViewMatrix() const { return m_View; }
@@ -93,7 +92,7 @@ public:
     // ----------------------------------------------------------------------
     /// Yaw 回転を加算する
     /// - angle: ラジアン
-    void RotateYaw(float angle) { m_Yaw += angle; }
+    void RotateYaw(float angle) { m_Transform.Rotation.y += XMConvertToDegrees(angle); }
 
     /// Pitch 回転を加算する（クランプ付き）
     /// - angle: ラジアン
@@ -115,10 +114,8 @@ private:
 
 private:
     // ----------------------------------------------------------------------
-    // Transform / 行列
+    // 行列
     // ----------------------------------------------------------------------
-    Transform m_Transform;     // NOTE: GameObject にも Transform がある場合、二重管理になる
-
     XMMATRIX  m_Projection{};
     XMMATRIX  m_View{};
 
@@ -132,8 +129,6 @@ private:
     // ----------------------------------------------------------------------
     // 姿勢/距離
     // ----------------------------------------------------------------------
-    float     m_Yaw      = kDefaultYaw;
-    float     m_Pitch    = kDefaultPitch;
     float     m_Distance = kDefaultDistance;
 
     // ----------------------------------------------------------------------
