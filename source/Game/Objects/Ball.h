@@ -99,6 +99,16 @@ private:
     /// 初期位置
     inline static const Vector3 kDefaultBallPosition = { 8.0f, 1.0f, -5.0f };
 
+    // ----------------------------------------------------------------------
+    // 物理設定
+    // ----------------------------------------------------------------------
+    static constexpr float kGravityAcceleration = 10.0f; // 重力加速度
+    static constexpr float kTableTiltAngleDeg   = 85.0f; // テーブル傾き（度）
+
+#if defined(_DEBUG)
+    static constexpr float kDebugVelocityStep   = 12.0f; // デバッグ操作時の速度加算値
+#endif
+
 private:
     // ----------------------------------------------------------------------
     // Component 参照（非所有）

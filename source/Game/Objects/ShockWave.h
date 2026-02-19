@@ -69,6 +69,9 @@ private:
     static constexpr const char* kShockWaveVertexShaderPath = "shader\\bin\\BaseLitVS.cso";
     static constexpr const char* kShockWavePixelShaderPath  = "shader\\bin\\BaseLitPS.cso";
 
+    // 衝撃波の色
+    static constexpr const XMFLOAT4 kShockWaveColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
     // ----------------------------------------------------------------------
     // 状態
     // ----------------------------------------------------------------------

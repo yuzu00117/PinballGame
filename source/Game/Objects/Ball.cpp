@@ -53,12 +53,10 @@ void Ball::Init()
     // ----------------------------------------------------------------------
     // ピンボール用の重力設定
     // ----------------------------------------------------------------------
-    const float g = 10.0f;           // 重力加速度
-    const float tiltDeg = 85.0f;     // テーブル傾き（度）
-    const float rad = tiltDeg * XM_PI / 180.0f;
+    const float rad = kTableTiltAngleDeg * XM_PI / 180.0f;
 
-    const float gy = -g * std::cosf(rad); // Y成分
-    const float gz = -g * std::sinf(rad); // Z成分
+    const float gy = -kGravityAcceleration * std::cosf(rad); // Y成分
+    const float gz = -kGravityAcceleration * std::sinf(rad); // Z成分
 
     m_RigidBody->m_Gravity = Vector3(0.0f, gy, gz);
 }
@@ -84,10 +82,10 @@ void Ball::Update(float deltaTime)
 {
 #if defined(_DEBUG)
     // NOTE: デバッグ用の直書き操作。物理挙動の検証用途として現状維持。
-    if (Input::GetKeyTrigger('W')) { m_RigidBody->m_Velocity.z += 12.0f; }
-    if (Input::GetKeyTrigger('S')) { m_RigidBody->m_Velocity.z -= 12.0f; }
-    if (Input::GetKeyTrigger('D')) { m_RigidBody->m_Velocity.x += 12.0f; }
-    if (Input::GetKeyTrigger('A')) { m_RigidBody->m_Velocity.x -= 12.0f; }
+    if (Input::GetKeyTrigger('W')) { m_RigidBody->m_Velocity.z += kDebugVelocityStep; }
+    if (Input::GetKeyTrigger('S')) { m_RigidBody->m_Velocity.z -= kDebugVelocityStep; }
+    if (Input::GetKeyTrigger('D')) { m_RigidBody->m_Velocity.x += kDebugVelocityStep; }
+    if (Input::GetKeyTrigger('A')) { m_RigidBody->m_Velocity.x -= kDebugVelocityStep; }
 #endif
 
     // Component 更新

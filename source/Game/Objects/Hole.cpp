@@ -25,7 +25,7 @@ void Hole::Init()
     m_MeshRenderer = AddComponent<MeshRenderer>();
     m_MeshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);
     m_MeshRenderer->CreateUnitBox();
-    m_MeshRenderer->m_Color = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f); // ダークグレー
+    m_MeshRenderer->m_Color = kHoleColor;
 
     // 当たり判定用
     m_ColliderGroup = AddComponent<ColliderGroup>();

@@ -16,15 +16,17 @@ Flipper::Flipper(Side side)
 void Flipper::Init()
 {
     // 左右で基準角度を決める
+    // 左右で基準角度を決める
+
     if (m_Side == Side::Left)
     {
-        m_DefaultAngle = +30.0f;
-        m_ActiveAngle  =   0.0f;
+        m_DefaultAngle = +kFlipperOpenAngle;
+        m_ActiveAngle  =  kFlipperCloseAngle;
     }
     else // Right
     {
-        m_DefaultAngle = -30.0f;
-        m_ActiveAngle =    0.0f;
+        m_DefaultAngle = -kFlipperOpenAngle;
+        m_ActiveAngle =   kFlipperCloseAngle;
     }
 
     // 親オブジェクトは回転軸のみ
@@ -59,7 +61,7 @@ void Flipper::Init()
     auto meshRenderer = m_ArmObject->AddComponent<MeshRenderer>();
     meshRenderer->LoadShader(VertexShaderPath, PixelShaderPath);    // シェーダーの設定
     meshRenderer->CreateUnitBox();
-    meshRenderer->m_Color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+    meshRenderer->m_Color = kFlipperColor;
 
     // ----------------------------------------------------------------------
     // ボックスコライダー追加

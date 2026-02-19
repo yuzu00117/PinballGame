@@ -26,7 +26,6 @@ void Title::Update(float deltaTime)
 // 描画処理
 void Title::Draw()
 {
-    // タイトル表示テキスト
-    Renderer::DrawText(L"=== PinBall Battle ===", 100, 200);
-    Renderer::DrawText(L"Press Enter to Start", 100, 240);
+    Renderer::DrawText(L"=== PinBall Battle ===", kTitleX, kTitleY);
+    Renderer::DrawText(L"Press Enter to Start", kPromptX, kPromptY);
 }
