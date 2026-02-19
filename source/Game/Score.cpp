@@ -45,8 +45,6 @@ void Score::Update(float deltaTime)
     static bool prevPlus  = false;
     static bool prevMinus = false;
 
-    static bool prevMinus = false;
-
     // '+' 入力（加算）
     SHORT ksPlus = GetAsyncKeyState(VK_OEM_PLUS);
     bool currPlus = (ksPlus & 0x8000) != 0;
