@@ -47,7 +47,7 @@ void Ball::Init()
 
 	// ModelRenderer を追加
 	m_ModelRenderer = AddComponent<ModelRenderer>();
-	m_ModelRenderer->Load(kBallModelPath);
+	m_ModelRenderer->Load(kBallModelPath.c_str());
 
 	// ColliderGroup + SphereCollider を追加
 	m_ColliderGroup = AddComponent<ColliderGroup>();

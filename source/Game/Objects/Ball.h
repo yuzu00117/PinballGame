@@ -104,20 +104,20 @@ private:
 	//------------------------------------------------------------------------------
 	// 物理設定
 	//------------------------------------------------------------------------------
-	static constexpr float kGravityAcceleration = 10.0f; // 重力加速度
-	static constexpr float kTableTiltAngleDeg = 85.0f; // テーブル傾き（度）
+	static constexpr float kGravityAcceleration = 10.0f; 	// 重力加速度
+	static constexpr float kTableTiltAngleDeg = 85.0f; 		// テーブル傾き（度）
 
 #if defined(_DEBUG)
-	static constexpr float kDebugVelocityStep = 12.0f; // デバッグ操作時の速度加算値
+	static constexpr float kDebugVelocityStep = 12.0f; 		// デバッグ操作時の速度加算値
 #endif
 
 private:
 	//------------------------------------------------------------------------------
 	// Component 参照（非所有）
 	//------------------------------------------------------------------------------
-	ModelRenderer* m_ModelRenderer = nullptr;  // 非所有：ModelRenderer
-	ColliderGroup* m_ColliderGroup = nullptr;  // 非所有：ColliderGroup
-	RigidBody* m_RigidBody = nullptr;  // 非所有：RigidBody
+	ModelRenderer* m_ModelRenderer = nullptr;  	// 非所有: ModelRenderer
+	ColliderGroup* m_ColliderGroup = nullptr;  	// 非所有: ColliderGroup
+	RigidBody* m_RigidBody = nullptr;  		   	// 非所有: RigidBody
 
 	//------------------------------------------------------------------------------
 	// ボール属性
