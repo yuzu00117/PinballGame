@@ -74,6 +74,9 @@ private:
     static constexpr const char* VertexShaderPath = "shader\\bin\\BaseLitVS.cso";
     static constexpr const char* PixelShaderPath  = "shader\\bin\\BaseLitPS.cso";
 
+    // ホールの色
+    static constexpr const XMFLOAT4 kHoleColor = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f); // ダークグレー
+
     // ----------------------------------------------------------------------
     // 参照（非所有）
     // ----------------------------------------------------------------------

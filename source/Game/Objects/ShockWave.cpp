@@ -30,7 +30,7 @@ void ShockWave::Init()
     m_MeshRenderer->SetTexture(kShockWaveTexturePath);
     m_MeshRenderer->CreateUnitPlane();
     m_MeshRenderer->SetLocalScale(kShockWaveStartRadius * 2.0f, 1.0f, kShockWaveStartRadius * 2.0f);
-    m_MeshRenderer->m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    m_MeshRenderer->m_Color = kShockWaveColor;
 
     m_Elapsed = 0.0f;
 }
@@ -62,7 +62,10 @@ void ShockWave::Update(float deltaTime)
     {
         m_MeshRenderer->SetLocalScale(radius * 2.0f, 1.0f, radius * 2.0f);
         const float alpha = 1.0f - t;
-        m_MeshRenderer->m_Color = { 1.0f, 1.0f, 1.0f, alpha };
+        constexpr float kBaseR = 1.0f;
+        constexpr float kBaseG = 1.0f;
+        constexpr float kBaseB = 1.0f;
+        m_MeshRenderer->m_Color = { kBaseR, kBaseG, kBaseB, alpha };
     }
 
     if (m_Elapsed >= kShockWaveDuration)

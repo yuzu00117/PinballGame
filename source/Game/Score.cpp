@@ -45,14 +45,16 @@ void Score::Update(float deltaTime)
     static bool prevPlus  = false;
     static bool prevMinus = false;
 
+    static bool prevMinus = false;
+
     // '+' 入力（加算）
     SHORT ksPlus = GetAsyncKeyState(VK_OEM_PLUS);
     bool currPlus = (ksPlus & 0x8000) != 0;
     if (currPlus && !prevPlus)
     {
-        s_Score += 100;
-        if (s_Score > 99999)
-            s_Score = 99999;
+        s_Score += kScoreIncrement;
+        if (s_Score > kMaxScore)
+            s_Score = kMaxScore;
     }
     prevPlus = currPlus;
 
@@ -61,9 +63,9 @@ void Score::Update(float deltaTime)
     bool currMinus = (ksMinus & 0x8000) != 0;
     if (currMinus && !prevMinus)
     {
-        s_Score -= 100;
-        if (s_Score < 0)
-            s_Score = 0;
+        s_Score -= kScoreIncrement;
+        if (s_Score < kMinScore)
+            s_Score = kMinScore;
     }
     prevMinus = currMinus;
 }
@@ -83,5 +85,5 @@ void Score::Draw()
     }
 
     const std::wstring displayText = L"SCORE: " + paddedScore;
-    Renderer::DrawText(displayText, 10, 10);
+    Renderer::DrawText(displayText, kScoreTextX, kScoreTextY);
 }

@@ -45,5 +45,11 @@ public:
     void Draw() override;
 
 private:
-    // 将来的に描画用リソースを保持する場合はここにメンバを追加する
+    // ----------------------------------------------------------------------
+    // テキストの描画位置
+    // ----------------------------------------------------------------------
+    static constexpr int kResultX = 100;
+    static constexpr int kResultY = 200;
+    static constexpr int kPromptX = 100;
+    static constexpr int kPromptY = 280;
 };

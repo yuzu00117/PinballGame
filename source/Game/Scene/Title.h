@@ -45,4 +45,13 @@ public:
     /// 描画処理
     /// - タイトル文字列と操作案内を描画する
     void Draw() override;
+
+private:
+    // ----------------------------------------------------------------------
+    // テキストの描画位置
+    // ----------------------------------------------------------------------
+    static constexpr int kTitleX = 100;
+    static constexpr int kTitleY = 200;
+    static constexpr int kPromptX = 100;
+    static constexpr int kPromptY = 240;
 };

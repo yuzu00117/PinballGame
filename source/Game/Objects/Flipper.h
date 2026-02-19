@@ -63,6 +63,13 @@ private:
     static constexpr float kFlipperUpSpeed = 2.5f;                  // フリッパーがボールを弾くときの上方向速度調整値
     static constexpr float kMinKickAngularVelDegPerSec = 30.0f;    // ボールを弾くときの最小角速度（度/秒）
 
+    // 角度制限
+    static constexpr float kFlipperOpenAngle = 30.0f;
+    static constexpr float kFlipperCloseAngle = 0.0f;
+
+    // 色
+    static constexpr const XMFLOAT4 kFlipperColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+
     // ----------------------------------------------------------------------
     // 変数定義
     // ----------------------------------------------------------------------

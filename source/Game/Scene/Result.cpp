@@ -1,4 +1,4 @@
-﻿#include "result.h"
+﻿#include "Result.h"
 
 // システム
 #include "main.h"
@@ -40,6 +40,6 @@ void Result::Draw()
 {
     GameObject::Draw();
 
-    Renderer::DrawText(L"--- Result ---", 100, 200);
-    Renderer::DrawText(L"Press Enter to Return to Title", 100, 280);
+    Renderer::DrawText(L"--- Result ---", kResultX, kResultY);
+    Renderer::DrawText(L"Press Enter to Return to Title", kPromptX, kPromptY);
 }
