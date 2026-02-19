@@ -16,8 +16,6 @@ Flipper::Flipper(Side side)
 void Flipper::Init()
 {
     // 左右で基準角度を決める
-    // 左右で基準角度を決める
-
     if (m_Side == Side::Left)
     {
         m_DefaultAngle = +kFlipperOpenAngle;

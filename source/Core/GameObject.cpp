@@ -72,10 +72,14 @@ void GameObject::Draw()
 }
 
 // ------------------------------------------------------------------------------
-// 子オブジェクトを追加する（基本版）
+// 子オブジェクト管理
 // ------------------------------------------------------------------------------
-// 戻り値は非所有ポインタ（所有権は親GameObject側が保持：m_Childrenのunique_ptr）
-// 生成直後に AttachChild により親子関係（m_Parent / Transformの親）が構築される
+// - 子オブジェクトの生成、アタッチ、破棄を行う
+// - 親子間のTransform同期もここで行う
+
+// 子オブジェクトを追加する（基本版）
+// - 戻り値は非所有ポインタ（所有権は親GameObject側が保持：m_Childrenのunique_ptr）
+// - 生成直後に AttachChild により親子関係（m_Parent / Transformの親）が構築される
 GameObject* GameObject::CreateChild()
 {
     auto child = std::make_unique<GameObject>();
@@ -84,10 +88,8 @@ GameObject* GameObject::CreateChild()
     return ptr;
 }
 
-// ------------------------------------------------------------------------------
 // 子オブジェクトをアタッチする
-// ------------------------------------------------------------------------------
-// child の所有権を受け取り、親子関係を設定する
+// - child の所有権を受け取り、親子関係を設定する
 // - m_Parent を設定
 // - m_Transform の親を設定（親Transformに追従する）
 void GameObject::AttachChild(std::unique_ptr<GameObject> child)
@@ -97,9 +99,7 @@ void GameObject::AttachChild(std::unique_ptr<GameObject> child)
     m_Children.push_back(std::move(child));
 }
 
-// ------------------------------------------------------------------------------
 // 子オブジェクトをデタッチする（親子関係も解除）
-// ------------------------------------------------------------------------------
 // NOTE: "Detach" という語感とは異なり、この実装は「所有を外へ渡す」のではなく
 //       親子関係を解除したあとに、m_Children.clear() で全破棄している点に注意
 void GameObject::DetachAllChildren()
@@ -115,7 +115,7 @@ void GameObject::DetachAllChildren()
 }
 
 // ------------------------------------------------------------------------------
-// 子オブジェクトも含めてすべての Collider を収集する
+// Collider収集
 // ------------------------------------------------------------------------------
 // - ColliderGroup は中に Collider を保持するため、グループ内をフラットに展開して追加する
 // - それ以外の Collider はそのまま追加する
