@@ -21,6 +21,7 @@ void Result::Init()
 	m_BgSprite->SetPosition(0.0f, 0.0f);
 	m_BgSprite->SetSize(
 		static_cast<float>(SCREEN_WIDTH),
+		static_cast<float>(SCREEN_HEIGHT));
 }
 
 //------------------------------------------------------------------------------
