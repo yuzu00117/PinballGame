@@ -30,7 +30,7 @@ FieldLayout Field::MakeStage01Layout()
 {
     FieldLayout layout;
 
-    constexpr float kFlipperZOffset = 3.0f;
+    constexpr float kFlipperZOffset = 4.0f;
     constexpr float kFlipperY = 0.5f;
     constexpr float kFlipperXInset = 2.5f;
 
@@ -42,7 +42,7 @@ FieldLayout Field::MakeStage01Layout()
 
     constexpr float kHoleY = 1.0f;
     constexpr float kHoleZOffset = 0.2f;
-    constexpr float kHoleSizeX = 3.0f;
+    constexpr float kHoleSizeX = 10.0f;
     constexpr float kHoleSizeY = 1.5f;
     constexpr float kHoleSizeZ = 0.75f;
     constexpr const char* kMainHoleId = "main";
@@ -159,7 +159,7 @@ void Field::Init()
     constexpr float kGuideWidth = 1.0f;
     constexpr float kGuideLength = 4.0f;
     constexpr float kGuideRotationDeg = 120.0f;
-    constexpr float kGuideZOffset = 3.9f;
+    constexpr float kGuideZOffset = 4.9f;
     constexpr float kGuideXInset = 1.5f;
     const XMFLOAT4 kGuideColor = XMFLOAT4(0.85f, 0.85f, 0.9f, 1.0f);
 
@@ -193,32 +193,32 @@ void Field::Init()
     // 右ガイド（内側へ向ける）
     MakeGuide({ +guideX, guideY, guideZ }, -kGuideRotationDeg);
 
-    // ガイドの下に、更にコライダーのみを追加（ボールが潜り抜けないようにするため）
-    constexpr float kGuideColliderLength = 10.0f;
-    constexpr float kGuideColliderZOffset = 2.5f;
-    constexpr float kGuideColliderXInset = 3.5f;
+    // // ガイドの下に、更にコライダーのみを追加（ボールが潜り抜けないようにするため）
+    // constexpr float kGuideColliderLength = 10.0f;
+    // constexpr float kGuideColliderZOffset = 3.5f;
+    // constexpr float kGuideColliderXInset = 3.5f;
 
-    auto MakeGuideCollider = [&](const Vector3& position, float rotYDeg)
-    {
-        GameObject* guideObj = CreateChild();
-        guideObj->m_Transform.Position = position;
-        guideObj->m_Transform.Scale = { kGuideWidth, kWallHeight, kGuideColliderLength };   // 細長いガイド
-        guideObj->m_Transform.Rotation.y = rotYDeg;
+    // auto MakeGuideCollider = [&](const Vector3& position, float rotYDeg)
+    // {
+    //     GameObject* guideObj = CreateChild();
+    //     guideObj->m_Transform.Position = position;
+    //     guideObj->m_Transform.Scale = { kGuideWidth, kWallHeight, kGuideColliderLength };   // 細長いガイド
+    //     guideObj->m_Transform.Rotation.y = rotYDeg;
 
-        // 当たり判定（Transform から自動反映）
-        auto colGroup = guideObj->AddComponent<ColliderGroup>();
-        colGroup->AddCollider<BoxCollider>();
-    };
+    //     // 当たり判定（Transform から自動反映）
+    //     auto colGroup = guideObj->AddComponent<ColliderGroup>();
+    //     colGroup->AddCollider<BoxCollider>();
+    // };
 
-    // ガイドの位置
-    const float guideColliderX = kHalfWidth - kGuideColliderXInset;     // 外壁との隙間をなくすため少し内側
-    const float guideColliderY = yCenter;
-    const float guideColliderZ = -kHalfHeight + kGuideColliderZOffset;
+    // // ガイドの位置
+    // const float guideColliderX = kHalfWidth - kGuideColliderXInset;     // 外壁との隙間をなくすため少し内側
+    // const float guideColliderY = yCenter;
+    // const float guideColliderZ = -kHalfHeight + kGuideColliderZOffset;
 
-    // 左ガイド（内側へ向ける）
-    MakeGuideCollider({ -guideColliderX, guideColliderY, guideColliderZ }, kGuideRotationDeg);
-    // 右ガイド（内側へ向ける）
-    MakeGuideCollider({ +guideColliderX, guideColliderY, guideColliderZ }, -kGuideRotationDeg);
+    // // 左ガイド（内側へ向ける）
+    // MakeGuideCollider({ -guideColliderX, guideColliderY, guideColliderZ }, kGuideRotationDeg);
+    // // 右ガイド（内側へ向ける）
+    // MakeGuideCollider({ +guideColliderX, guideColliderY, guideColliderZ }, -kGuideRotationDeg);
 
     // ----------------------------------------------------------------------
     // フィールド内オブジェクトの作成

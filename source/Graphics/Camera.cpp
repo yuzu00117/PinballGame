@@ -1,14 +1,11 @@
 ﻿#include "Camera.h"
 
-// システム
 #include "main.h"
 #include "renderer.h"
 #include "Input.h"
 #include "GameManager.h"
-
-// オブジェクト
 #include "Ball.h"
-
+#include <cstdlib>
 
 namespace
 {
@@ -30,7 +27,6 @@ namespace
         return nullptr;
     }
 }
-
 
 //------------------------------------------------------------------------------
 // ライフサイクル
@@ -156,11 +152,11 @@ void Camera::Update(float deltaTime)
 
         const XMMATRIX world = m_Transform.GetWorldMatrix();
         XMStoreFloat3(&m_Position, world.r[3]);
-        return;
     }
-
-    // ----------------------------------------------------------------------
-    // デバッグ：マウスルック + 移動
+    else
+    {
+        // ----------------------------------------------------------------------
+        // デバッグ：マウスルック + 移動
     // ----------------------------------------------------------------------
     HWND  hWnd = GetActiveWindow();
     POINT curPos{};
@@ -239,6 +235,7 @@ void Camera::Update(float deltaTime)
     m_Target.x = m_Transform.Position.x + XMVectorGetX(forward);
     m_Target.y = m_Transform.Position.y + XMVectorGetY(forward);
     m_Target.z = m_Transform.Position.z + XMVectorGetZ(forward);
+    }
 
 #else
     // ----------------------------------------------------------------------
@@ -274,8 +271,35 @@ void Camera::Update(float deltaTime)
     const XMMATRIX world = m_Transform.GetWorldMatrix();
     XMStoreFloat3(&m_Position, world.r[3]);
 #endif
-}
 
+    // ----------------------------------------------------------------------
+    // カメラシェイク更新
+    // ----------------------------------------------------------------------
+    if (m_ShakeTimer > 0.0f)
+    {
+        m_ShakeTimer -= deltaTime;
+        if (m_ShakeTimer <= 0.0f)
+        {
+            m_ShakeTimer = 0.0f;
+            m_ShakeOffset = { 0.0f, 0.0f, 0.0f };
+        }
+        else
+        {
+            // 減衰率（1.0 -> 0.0）
+            float fade = m_ShakeTimer / m_ShakeDuration;
+            float currentMag = m_ShakeMagnitude * fade;
+            
+            // -1.0 ~ 1.0 の乱数
+            float rx = ((rand() % 200) - 100) / 100.0f;
+            float ry = ((rand() % 200) - 100) / 100.0f;
+            float rz = ((rand() % 200) - 100) / 100.0f;
+            
+            m_ShakeOffset.x = rx * currentMag;
+            m_ShakeOffset.y = ry * currentMag;
+            m_ShakeOffset.z = rz * currentMag;
+        }
+    }
+}
 
 //------------------------------------------------------------------------------
 // 描画処理
@@ -296,15 +320,24 @@ void Camera::Draw()
     const XMMATRIX world = m_Transform.GetWorldMatrix();
     XMStoreFloat3(&m_Position, world.r[3]);
 
+    // シェイクの適用
+    XMFLOAT3 shakePos = m_Position;
+    XMFLOAT3 shakeTarget = m_Target;
+    shakePos.x += m_ShakeOffset.x;
+    shakePos.y += m_ShakeOffset.y;
+    shakePos.z += m_ShakeOffset.z;
+    shakeTarget.x += m_ShakeOffset.x;
+    shakeTarget.y += m_ShakeOffset.y;
+    shakeTarget.z += m_ShakeOffset.z;
+
     const XMFLOAT3 up{ 0.0f, 1.0f, 0.0f };
     m_View = XMMatrixLookAtLH(
-        XMLoadFloat3(&m_Position),
-        XMLoadFloat3(&m_Target),
+        XMLoadFloat3(&shakePos),
+        XMLoadFloat3(&shakeTarget),
         XMLoadFloat3(&up));
 
     Renderer::SetViewMatrix(m_View);
 }
-
 
 //------------------------------------------------------------------------------
 // 操作
@@ -336,4 +369,14 @@ void Camera::SetDistance(float distance)
 
     if (m_Distance < kMinDistance) m_Distance = kMinDistance;
     if (m_Distance > kMaxDistance) m_Distance = kMaxDistance;
+}
+
+/// カメラシェイクを開始する
+/// - duration: 揺れる時間（秒）
+/// - magnitude: 揺れの強さ
+void Camera::StartShake(float duration, float magnitude)
+{
+    m_ShakeTimer = duration;
+    m_ShakeDuration = duration;
+    m_ShakeMagnitude = magnitude;
 }

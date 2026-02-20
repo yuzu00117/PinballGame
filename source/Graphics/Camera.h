@@ -64,7 +64,6 @@ public:
     /// - Projection / View を生成して Renderer に適用する
     void Draw() override;
 
-public:
     // ----------------------------------------------------------------------
     // アクセサ
     // ----------------------------------------------------------------------
@@ -86,7 +85,6 @@ public:
     Transform*       GetTransform()       { return &m_Transform; }
     const Transform* GetTransform() const { return &m_Transform; }
 
-public:
     // ----------------------------------------------------------------------
     // 操作
     // ----------------------------------------------------------------------
@@ -102,6 +100,11 @@ public:
     /// NOTE:
     /// - 現状、Update() の追従処理では m_Distance が反映されていない（整理対象）
     void SetDistance(float distance);
+
+    /// カメラシェイクを開始する
+    /// - duration: 揺れる時間（秒）
+    /// - magnitude: 揺れの強さ
+    void StartShake(float duration, float magnitude);
 
 private:
     // ----------------------------------------------------------------------
@@ -125,6 +128,14 @@ private:
     XMFLOAT3  m_Position{ 0.0f, 0.0f, 0.0f };
     XMFLOAT3  m_Target  { 0.0f, 0.0f, 0.0f };
     XMFLOAT3  m_CameraOffset = kDefaultCameraOffset;
+
+    // ----------------------------------------------------------------------
+    // シェイク
+    // ----------------------------------------------------------------------
+    float     m_ShakeTimer     = 0.0f;
+    float     m_ShakeDuration  = 0.0f;
+    float     m_ShakeMagnitude = 0.0f;
+    XMFLOAT3  m_ShakeOffset    { 0.0f, 0.0f, 0.0f };
 
     // ----------------------------------------------------------------------
     // 姿勢/距離

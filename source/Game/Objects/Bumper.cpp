@@ -11,6 +11,8 @@
 // ゲームオブジェクト
 #include "Ball.h"
 #include "ShockWave.h"
+#include "Camera.h"
+#include "GameManager.h"
 
 namespace
 {
@@ -121,6 +123,16 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
         shockWave->m_Transform.Position = Vector3{ 0.0f, 0.0f, 0.0f };
 
         m_ShockCooldownTimer = kShockCooldown;
+
+        // バンパーヒット時の小さなカメラシェイク (0.15秒、強さ0.5)
+        for (auto obj : GameManager::GetGameObjects())
+        {
+            if (auto* cam = dynamic_cast<Camera*>(obj))
+            {
+                cam->StartShake(0.15f, 0.5f);
+                break;
+            }
+        }
     }
 
     // ----------------------------------------------------------------------
