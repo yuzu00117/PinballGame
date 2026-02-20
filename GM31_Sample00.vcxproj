@@ -233,6 +233,7 @@
     <ClCompile Include="source\Core\Input.cpp" />
     <ClCompile Include="source\Core\main.cpp" />
     <ClCompile Include="source\Core\GameManager.cpp" />
+    <ClCompile Include="source\Core\SceneFader.cpp" />
     <ClCompile Include="source\Core\TimeSystem.cpp" />
     <ClCompile Include="source\Game\HP.cpp" />
     <ClCompile Include="source\Game\Objects\Ball.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="source\Core\Input.h" />
     <ClInclude Include="source\Core\main.h" />
     <ClInclude Include="source\Core\GameManager.h" />
+    <ClInclude Include="source\Core\SceneFader.h" />
     <ClInclude Include="source\Core\TimeSystem.h" />
     <ClInclude Include="source\Core\Transform.h" />
     <ClInclude Include="source\Game\DebugSettings.h" />
@@ -296,6 +298,7 @@
     <ClInclude Include="source\Graphics\modelRenderer.h" />
     <ClInclude Include="source\Graphics\Sprite.h" />
     <ClInclude Include="source\Graphics\Renderer.h" />
+    <ClInclude Include="source\Math\Easing.h" />
     <ClInclude Include="source\Math\MathUtil.h" />
     <ClInclude Include="source\Math\Vector3.h" />
     <ClInclude Include="source\Physics\BoxCollider.h" />
