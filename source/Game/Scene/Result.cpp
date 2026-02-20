@@ -9,10 +9,18 @@
 //------------------------------------------------------------------------------
 // 初期化処理
 //------------------------------------------------------------------------------
-// NOTE: 現状はリソース生成なし（未実装）
+// - 背景スプライトを子オブジェクトとして生成し、TitleBackGround.png を設定する
+// - スプライトは画面全体（SCREEN_WIDTH x SCREEN_HEIGHT）を覆うサイズとする
 void Result::Init()
 {
 	GameObject::Init();
+
+	m_BgSprite = CreateChild<Sprite>();
+	m_BgSprite->Init();
+	m_BgSprite->SetTexture(kBgPath);
+	m_BgSprite->SetPosition(0.0f, 0.0f);
+	m_BgSprite->SetSize(
+		static_cast<float>(SCREEN_WIDTH),
 }
 
 //------------------------------------------------------------------------------
@@ -42,10 +50,10 @@ void Result::Update(float deltaTime)
 //------------------------------------------------------------------------------
 // 描画処理
 //------------------------------------------------------------------------------
-// - リザルト表示テキストを描画する
+// - 背景画像を先に描画し、その手前にテキストを重ねる
 void Result::Draw()
 {
-	GameObject::Draw();
+	m_BgSprite->Draw();
 
 	Renderer::DrawText(L"--- Result ---", kResultX, kResultY);
 	Renderer::DrawText(L"Press Enter to Return to Title", kPromptX, kPromptY);
