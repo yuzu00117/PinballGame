@@ -1,27 +1,27 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 // Sprite
 //------------------------------------------------------------------------------
-// ����:
-// �X�N���[�����W�x�[�X��2D�X�v���C�g�`����s���N���X�B
-// UI�EHUD�E�^�C�g���w�i�ȂǁA��ʂɒ��ړ\��t����2D�摜�̕\���Ɏg�p����B
+// 役割:
+// スクリーン座標ベースの2Dスプライト描画を行うクラス。
+// UI・HUD・タイトル背景など、画面に直接貼り付ける2D画像の表示に使用する。
 //
-// �݌v�Ӑ}:
-// �X�N���[�����W�i���㌴�_�E�s�N�Z���P�ʁj�ňʒu�ƃT�C�Y���w�肵�A
-// SetWorldViewProjection2D �ɂ�鐳�ˉe���e�ŕ`�悷��B
-// ���_�o�b�t�@�� DYNAMIC �ɂ��邱�ƂŁASetPosition / SetSize ����
-// ���t���[���Ă�ł��p�����[�^�������f�����݌v�Ƃ���B
+// 設計意図:
+// スクリーン座標（左上原点・ピクセル単位）で位置とサイズを指定し、
+// SetWorldViewProjection2D による正射影投影で描画する。
+// 頂点バッファを DYNAMIC にすることで、SetPosition / SetSize 等を
+// 毎フレーム呼んでもパラメータが即反映される設計とする。
 //
-// �\��:
-// - SetPosition / SetSize  : �X�N���[�����W�E�T�C�Y�w��
-// - SetColor               : �F�E�s�����x�ݒ�
-// - SetUV                  : UV�͈͐ݒ�i�X�v���C�g�V�[�g�Ή��j
-// - SetTexture             : �e�N�X�`���ǂݍ���
-// - Init / Draw            : ���C�t�T�C�N��
+// 構成:
+// - SetPosition / SetSize  : スクリーン座標・サイズ指定
+// - SetColor               : 色・不透明度設定
+// - SetUV                  : UV範囲設定（スプライトシート対応）
+// - SetTexture             : テクスチャ読み込み
+// - Init / Draw            : ライフサイクル
 //
 // NOTE:
-// Draw() ���Ŗ��t���[�� UpdateVertexBuffer() ���ĂԂ��߁A
-// SetPosition ���� Draw �̑O�ɌĂԂ��ƁB
-// �[�x�e�X�g�� Draw() ���Ŏ����I�ɖ������E��������B
+// Draw() 内で毎フレーム UpdateVertexBuffer() を呼ぶため、
+// SetPosition 等は Draw の前に呼ぶこと。
+// 深度テストは Draw() 内で自動的に無効化・復元する。
 //------------------------------------------------------------------------------
 #pragma once
 
@@ -37,57 +37,57 @@ public:
     void Draw()   override;
 
     // ------------------------------------------------------------------
-    // �ݒ�֐�
+    // 設定関数
     // ------------------------------------------------------------------
 
-    /// �X�N���[�����W�i���㌴�_�E�s�N�Z���P�ʁj��ݒ肷��
+    /// スクリーン座標（左上原点・ピクセル単位）を設定する
     void SetPosition(float x, float y) { m_X = x; m_Y = y; }
 
-    /// �\���T�C�Y�i�s�N�Z���P�ʁj��ݒ肷��
+    /// 表示サイズ（ピクセル単位）を設定する
     void SetSize(float width, float height) { m_Width = width; m_Height = height; }
 
-    /// �F�E�s�����x��ݒ肷��
-    /// - �e������ 0.0?1.0 �͈̔͂Ŏw�肷��
+    /// 色・不透明度を設定する
+    /// - 各成分は 0.0?1.0 の範囲で指定する
     void SetColor(float r, float g, float b, float a = 1.0f)
     {
         m_Color = XMFLOAT4(r, g, b, a);
     }
 
-    /// UV�͈͂�ݒ肷��
-    /// - �X�v���C�g�V�[�g�̃t���[���A�j���[�V�����Ɏg�p����
-    /// @param u0,v0  UV�̍���  @param u1,v1  UV�̉E��
+    /// UV範囲を設定する
+    /// - スプライトシートのフレームアニメーションに使用する
+    /// @param u0,v0  UVの左上  @param u1,v1  UVの右下
     void SetUV(float u0, float v0, float u1, float v1)
     {
         m_UV[0] = u0; m_UV[1] = v0;
         m_UV[2] = u1; m_UV[3] = v1;
     }
 
-    /// �e�N�X�`����ǂݍ���
-    /// - WIC �Ή��`���ipng / jpg / bmp�j���w�肷��
-    /// - �����e�N�X�`��������ꍇ�͉�����Ă���ēǂݍ��݂���
+    /// テクスチャを読み込む
+    /// - WIC 対応形式（png / jpg / bmp）を指定する
+    /// - 既存テクスチャがある場合は解放してから再読み込みする
     void SetTexture(const std::wstring& filePath);
 
 private:
-    /// ���_�o�b�t�@�������o�p�����[�^�ōX�V����
-    /// - NOTE: ���t���[�� Draw() ����Ă΂��
+    /// 頂点バッファをメンバパラメータで更新する
+    /// - NOTE: 毎フレーム Draw() から呼ばれる
     void UpdateVertexBuffer();
 
     // ------------------------------------------------------------------
-    // �V�F�[�_�[���\�[�X�i���L�j
+    // シェーダーリソース（所有）
     // ------------------------------------------------------------------
-    ID3D11Buffer*             m_VertexBuffer = nullptr; // ���L�F���I���_�o�b�t�@
-    ID3D11VertexShader*       m_VertexShader = nullptr; // ���L�F���_�V�F�[�_�[
-    ID3D11PixelShader*        m_PixelShader  = nullptr; // ���L�F�s�N�Z���V�F�[�_�[
-    ID3D11InputLayout*        m_VertexLayout = nullptr; // ���L�F���̓��C�A�E�g
-    ID3D11ShaderResourceView* m_Texture      = nullptr; // ���L�F�e�N�X�`���i�C�Ӂj
+    ID3D11Buffer*             m_VertexBuffer = nullptr; // 所有：動的頂点バッファ
+    ID3D11VertexShader*       m_VertexShader = nullptr; // 所有：頂点シェーダー
+    ID3D11PixelShader*        m_PixelShader  = nullptr; // 所有：ピクセルシェーダー
+    ID3D11InputLayout*        m_VertexLayout = nullptr; // 所有：入力レイアウト
+    ID3D11ShaderResourceView* m_Texture      = nullptr; // 所有：テクスチャ（任意）
 
     // ------------------------------------------------------------------
-    // �\���p�����[�^
+    // 表示パラメータ
     // ------------------------------------------------------------------
-    float    m_X      = 0.0f;                    // �X�N���[��X���W�i���㌴�_�j
-    float    m_Y      = 0.0f;                    // �X�N���[��Y���W�i���㌴�_�j
-    float    m_Width  = 100.0f;                  // �\�����i�s�N�Z���j
-    float    m_Height = 100.0f;                  // �\�������i�s�N�Z���j
-    XMFLOAT4 m_Color  = { 1.0f, 1.0f, 1.0f, 1.0f }; // �`��F�iRGBA�j
-    float    m_UV[4]  = { 0.0f, 0.0f, 1.0f, 1.0f }; // UV�͈� [u0, v0, u1, v1]
+    float    m_X      = 0.0f;                    // スクリーンX座標（左上原点）
+    float    m_Y      = 0.0f;                    // スクリーンY座標（左上原点）
+    float    m_Width  = 100.0f;                  // 表示幅（ピクセル）
+    float    m_Height = 100.0f;                  // 表示高さ（ピクセル）
+    XMFLOAT4 m_Color  = { 1.0f, 1.0f, 1.0f, 1.0f }; // 描画色（RGBA）
+    float    m_UV[4]  = { 0.0f, 0.0f, 1.0f, 1.0f }; // UV範囲 [u0, v0, u1, v1]
 };
