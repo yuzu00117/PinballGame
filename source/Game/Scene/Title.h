@@ -7,19 +7,19 @@
 //
 // 設計意図:
 // Title は「初期画面の表示担当」として GameObject のライフサイクルに乗せる。
-// 現状はテキスト描画のみを行い、入力監視や遷移処理は Update で実装する前提とする。
+// 背景画像の描画は Sprite クラスに委譲し、Title 自身は D3D リソースを保持しない。
 //
 // 構成:
 // - ライフサイクル         : Init / Uninit / Update / Draw
-// - 描画                   : Renderer::DrawText によるテキスト描画
-//
-// NOTE: 現段階では描画用リソース（D3D バッファ等）は保持しない
+// - 背景描画               : Sprite による TitleBackGround.png の全画面描画
+// - テキスト描画           : Renderer::DrawText によるタイトル文字・操作案内
 //
 // TODO: Enterキーによるシーン遷移処理をManagerから移動する
 //------------------------------------------------------------------------------
 #pragma once
 
 #include "GameObject.h"
+#include "Sprite.h"
 
 /// タイトル画面を表示するシーン用オブジェクト
 /// - Draw でタイトル文字列を描画する
@@ -54,4 +54,14 @@ private:
 	static constexpr int kTitleY = 200;
 	static constexpr int kPromptX = 100;
 	static constexpr int kPromptY = 240;
+
+	//------------------------------------------------------------------------------
+	// テクスチャのファイルパス
+	//------------------------------------------------------------------------------
+	static constexpr const wchar_t* kTitleBackGroundPath = L"asset\\texture\\TitleBackGround.png";
+
+	//------------------------------------------------------------------------------
+	// 子オブジェクト
+	//------------------------------------------------------------------------------
+	Sprite* m_BgSprite = nullptr; // 非所有：GameObjectの子として管理
 };

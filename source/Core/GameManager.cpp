@@ -104,28 +104,19 @@ void GameManager::Update(float deltaTime)
     prevDebugDraw = currDebugDraw;
 #endif // NDEBUG
 
-    // シーン切り替え処理
-    // Enter キー（VK_RETURN）が押されていたら、現在のシーンに応じて次のシーンへ
-	// 押下チェック
-	static bool prevEnter = false;
-	SHORT ks = GetAsyncKeyState(VK_RETURN);
-	bool currEnter = (ks & 0x8000) != 0; // 今回のフレームで押されているかどうか
-    if (currEnter && !prevEnter) { // 押された瞬間を検出
-        switch (m_CurrentScene) {
-        case Scene::Title:
-            ChangeScene(Scene::Game);
-            break;
 #if defined(_DEBUG)
-        case Scene::Game:
+    // デバッグ用：Game シーン中に Enter で強制的に Result へ遷移する
+    if (m_CurrentScene == Scene::Game)
+    {
+        static bool prevEnterDebug = false;
+        bool currEnterDebug = Input::GetKeyPress(VK_RETURN);
+        if (currEnterDebug && !prevEnterDebug)
+        {
             ChangeScene(Scene::Result);
-            break;
-#endif // _DEBUG
-        case Scene::Result:
-            ChangeScene(Scene::Title);
-            break;
         }
+        prevEnterDebug = currEnterDebug;
     }
-	prevEnter = currEnter; // 前回の状態を更新
+#endif // _DEBUG
 }
 
 // ----------------------------------------------------------------------

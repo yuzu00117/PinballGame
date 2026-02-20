@@ -9,7 +9,6 @@
 #include "Camera.h"
 #include "Field.h"
 #include "Ball.h"
-#include "Polygon.h"
 #include "Result.h"
 #include "Score.h"
 #include "SoundManager.h"
@@ -35,7 +34,6 @@ inline std::vector<GameObject*> CreateSceneObjects(Scene scene) {
         objs.push_back(new EnemyManager());
         objs.push_back(new Field());
         objs.push_back(new Ball());
-        objs.push_back(new Polygon2D());
         objs.push_back(new Score());
         objs.push_back(new HP());
         objs.push_back(new SoundManager());
