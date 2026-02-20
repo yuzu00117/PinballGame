@@ -6,6 +6,7 @@
 #include "Collider.h"
 #include "ColliderGroup.h"
 #include "RigidBody.h"
+#include "SceneFader.h"
 
 // システム関連
 #include "Audio.h"
@@ -37,6 +38,9 @@ void GameManager::Init()
     // 入力システム初期化
     Input::Init();
 
+    // フェードシステム初期化
+    SceneFader::Init();
+
 	// 現在のシーンのゲームオブジェクトを生成
     m_SceneGameObjects = CreateSceneObjects(m_CurrentScene);
     // 生成したGameObjectのInitを呼び出して初期化
@@ -55,6 +59,9 @@ void GameManager::Uninit() {
     }
     m_SceneGameObjects.clear();
 
+    // フェードシステム終了処理
+    SceneFader::Uninit();
+
     // レンダラー終了処理
 	Renderer::Uninit();
 
@@ -69,6 +76,13 @@ void GameManager::Update(float deltaTime)
 {
     // 入力状態の更新
     Input::Update();
+
+    // フェードシステム更新
+    SceneFader::Update(deltaTime);
+
+    // フェード中は GameObject の更新・当たり判定をスキップ
+    // NOTE: フェード中の入力受付を防ぎ、二重遷移を排除するため
+    if (SceneFader::IsFading()) return;
 
     // 各シーンのゲームオブジェクトを更新
     for (GameObject* gameObject : m_SceneGameObjects) {
@@ -131,6 +145,9 @@ void GameManager::Draw()
         gameObject->Draw();
     }
 
+    // フェードオーバーレイを最前面に描画
+    SceneFader::Draw();
+
 	Renderer::End(); // レンダリング終了
 }
 
@@ -139,22 +156,28 @@ void GameManager::Draw()
 // ----------------------------------------------------------------------
 void GameManager::ChangeScene(Scene newScene)
 {
-    // 旧シーン解放
-    for (GameObject* gameObject : m_SceneGameObjects) {
-        gameObject->Uninit();
-        delete gameObject;
-    }
-    m_SceneGameObjects.clear();
+    // フェード中の二重呼び出しを防ぐ
+    if (SceneFader::IsFading()) return;
 
-	// 現在のシーンを更新
-    m_CurrentScene = newScene;
+    // フェードアウト完了時にシーン切替を実行するコールバックを登録
+    SceneFader::BeginFade([newScene]()
+    {
+        // 旧シーン解放
+        for (GameObject* gameObject : m_SceneGameObjects) {
+            gameObject->Uninit();
+            delete gameObject;
+        }
+        m_SceneGameObjects.clear();
 
-	// 新シーン初期化
-	m_SceneGameObjects = CreateSceneObjects(newScene);
+        // 現在のシーンを更新
+        m_CurrentScene = newScene;
 
-    for (auto obj : m_SceneGameObjects) {
-        obj->Init();
-    }
+        // 新シーン初期化
+        m_SceneGameObjects = CreateSceneObjects(newScene);
+        for (auto* obj : m_SceneGameObjects) {
+            obj->Init();
+        }
+    });
 }
 
 // ----------------------------------------------------------------------
