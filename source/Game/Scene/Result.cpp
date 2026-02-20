@@ -3,6 +3,8 @@
 // システム
 #include "main.h"
 #include "renderer.h"
+#include "Input.h"
+#include "GameManager.h"
 
 //------------------------------------------------------------------------------
 // 初期化処理
@@ -26,10 +28,15 @@ void Result::Uninit()
 //------------------------------------------------------------------------------
 // 更新処理
 //------------------------------------------------------------------------------
-// NOTE: Enterキー監視などの遷移処理をここに実装する想定
+// - Enter キーが押された瞬間に Title シーンへ遷移する
 void Result::Update(float deltaTime)
 {
 	GameObject::Update(deltaTime);
+
+	if (Input::GetKeyTrigger(VK_RETURN))
+	{
+		GameManager::ChangeScene(GameManager::Scene::Title);
+	}
 }
 
 //------------------------------------------------------------------------------

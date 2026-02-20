@@ -3,6 +3,8 @@
 // システム
 #include "main.h"
 #include "renderer.h"
+#include "Input.h"
+#include "GameManager.h"
 
 // Windows API
 #include <windows.h>
@@ -34,9 +36,13 @@ void Title::Uninit()
 //------------------------------------------------------------------------------
 // 更新処理
 //------------------------------------------------------------------------------
-// TODO: Enterキー入力を検知し、次のシーンへ遷移する処理を実装する
+// - Enter キーが押された瞬間に Game シーンへ遷移する
 void Title::Update(float deltaTime)
 {
+	if (Input::GetKeyTrigger(VK_RETURN))
+	{
+		GameManager::ChangeScene(GameManager::Scene::Game);
+	}
 }
 
 //------------------------------------------------------------------------------
