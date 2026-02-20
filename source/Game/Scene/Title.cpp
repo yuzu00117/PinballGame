@@ -16,7 +16,7 @@ void Title::Init()
 {
 	m_BgSprite = CreateChild<Sprite>();
 	m_BgSprite->Init();
-	m_BgSprite->SetTexture(L"asset\\texture\\TitleBackGround.png");
+	m_BgSprite->SetTexture(kTitleBackGroundPath);
 	m_BgSprite->SetPosition(0.0f, 0.0f);
 	m_BgSprite->SetSize(
 		static_cast<float>(SCREEN_WIDTH),
