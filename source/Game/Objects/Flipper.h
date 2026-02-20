@@ -1,4 +1,24 @@
-﻿#pragma once
+﻿//------------------------------------------------------------------------------
+// Flipper.h
+//------------------------------------------------------------------------------
+// 役割:
+// ピンボールのフリッパクラス。
+// 親オブジェクトは回転軸として機能し、子オブジェクトにアームメッシュを持つ。
+// 実際の配置はFieldクラスで行う。
+//
+// 設計意図:
+// - 親子関係を利用して回転運動をシンプルに実装する
+// - 左右（Left/Right）の区別をコンストラクタで受け取る
+//
+// 構成:
+// - 親：回転軸（Transform.Rotationで制御）
+// - 子：アーム形状（MeshRenderer + BoxCollider）
+//
+// NOTE:
+// - 現在の実装では、どの位置で反射しても同じ力で弾く仕様になっているため、
+//   将来的に「当たった位置で弾く力が変わる」ように改良したい (TODO)
+//------------------------------------------------------------------------------
+#pragma once
 
 #include "GameObject.h"
 #include "Vector3.h"
@@ -6,92 +26,103 @@
 class CollliderGroup;
 class MeshRenderer;
 
-/// <summary>
 /// ピンボールのフリッパクラス
-/// 親オブジェクトは回転軸、子オブジェクトにアームメッシュを持つ
-/// 実際の配置はFieldクラスで行っています
-/// TODO: 現在の実装では、どの位置で反射しても同じ力で弾く仕様になっているため、
-///       将来的に「当たった位置で弾く力が変わる」ように改良したい
-/// </summary>
+/// - 親オブジェクトは回転軸、子オブジェクトにアームメッシュを持つ
+/// - 実際の配置はFieldクラスで行う
 class Flipper : public GameObject
 {
 public:
-    // ----------------------------------------------------------------------
-    // 構造体定義
-    // ----------------------------------------------------------------------
-    enum class Side
-    {
-        Left,
-        Right
-    };
+	//------------------------------------------------------------------------------
+	// 構造体定義
+	//------------------------------------------------------------------------------
+	enum class Side
+	{
+		Left,
+		Right
+	};
 
-    // ----------------------------------------------------------------------
-    // 関数定義
-    // ----------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+	// ライフサイクルメソッド
+	//------------------------------------------------------------------------------
+	/// コンストラクタ
+	Flipper(Side side);
 
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    Flipper(Side side); 
+	/// 初期化処理
+	void Init() override;
 
-    /// <summary>
-    /// ライフサイクルメソッド
-    /// </summary>
-    void Init() override;
-    void Update(float deltaTime) override;
-    void Draw() override;
-    void Uninit() override;
+	/// 更新処理
+	void Update(float deltaTime) override;
 
-    /// <summary>
-    /// 衝突コールバック
-    /// フリッパーでボールを弾くための簡易実装
-    /// </summary>
-    void OnCollisionStay(const CollisionInfo& info) override;
+	/// 描画処理
+	void Draw() override;
+
+	/// 終了処理
+	void Uninit() override;
+
+	/// 衝突コールバック
+	/// - フリッパーでボールを弾くための簡易実装を行う
+	void OnCollisionStay(const CollisionInfo& info) override;
 
 private:
-    // ----------------------------------------------------------------------
-    // 定数定義
-    // ----------------------------------------------------------------------
-    // アーム関連
-    static constexpr float kDefaultArmLength = 6.0f;                // デフォルトアーム長さ
-    static constexpr float kDefaultArmThickness = 1.5f;             // デフォルトアーム厚さ
-    static constexpr float kDefaultArmHeight = 2.0f;                // デフォルトアーム高さ
+	//------------------------------------------------------------------------------
+	// アーム設定
+	//------------------------------------------------------------------------------
+	static constexpr float kDefaultArmLength    = 6.0f; // デフォルトアーム長さ
+	static constexpr float kDefaultArmThickness = 1.5f; // デフォルトアーム厚さ
+	static constexpr float kDefaultArmHeight    = 2.0f; // デフォルトアーム高さ
 
-    // フリッパー動作関連
-    static constexpr float kFlipperRotateSpeedDegPerSec = 360.0f;   // フリッパー回転速度（度/秒）
-    static constexpr float kFlipperHorizontalSpeed = 50.0f;         // フリッパーがボールを弾くときの水平速度調整値
-    static constexpr float kFlipperUpSpeed = 2.5f;                  // フリッパーがボールを弾くときの上方向速度調整値
-    static constexpr float kMinKickAngularVelDegPerSec = 30.0f;    // ボールを弾くときの最小角速度（度/秒）
+	//------------------------------------------------------------------------------
+	// フリッパー動作設定
+	//------------------------------------------------------------------------------
+	static constexpr float kFlipperRotateSpeedDegPerSec = 360.0f; // フリッパー回転速度（度/秒）
+	static constexpr float kFlipperHorizontalSpeed      = 50.0f;  // フリッパーがボールを弾くときの水平速度調整値
+	static constexpr float kFlipperUpSpeed              = 2.5f;   // フリッパーがボールを弾くときの上方向速度調整値
+	static constexpr float kMinKickAngularVelDegPerSec  = 30.0f;  // ボールを弾くときの最小角速度（度/秒）
 
-    // 角度制限
-    static constexpr float kFlipperOpenAngle = 30.0f;
-    static constexpr float kFlipperCloseAngle = 0.0f;
+	//------------------------------------------------------------------------------
+	// 角度制限
+	//------------------------------------------------------------------------------
+	static constexpr float kFlipperOpenAngle  = 30.0f;
+	static constexpr float kFlipperCloseAngle = 0.0f;
 
-    // 色
-    static constexpr const XMFLOAT4 kFlipperColor = { 1.0f, 0.0f, 0.0f, 1.0f };
+	//------------------------------------------------------------------------------
+	// 色
+	//------------------------------------------------------------------------------
+	static constexpr const XMFLOAT4 kFlipperColor = { 1.0f, 0.0f, 0.0f, 1.0f };
 
-    // ----------------------------------------------------------------------
-    // 変数定義
-    // ----------------------------------------------------------------------
-    // 角度関連
-    float m_DefaultAngle;                                           // 休み位置
-    float m_ActiveAngle;                                            // 動作位置
-    float m_AngularVelDegPerSec;                                    // 角速度（度/秒）
+	//------------------------------------------------------------------------------
+	// シェーダーパス
+	//------------------------------------------------------------------------------
+	static constexpr const char* kVertexShaderPath = "shader\\bin\\BaseLitVS.cso";
+	static constexpr const char* kPixelShaderPath  = "shader\\bin\\BaseLitPS.cso";
 
-    const Side m_Side;                                              // 左右の区別用構造体変数
+private:
+	//------------------------------------------------------------------------------
+	// アームの角度
+	//------------------------------------------------------------------------------
+	float m_DefaultAngle = 0.0f;        // 休み位置
+	float m_ActiveAngle  = 0.0f;        // 動作位置
+	float m_AngularVelDegPerSec = 0.0f; // 角速度（度/秒）
 
-    // アーム用子オブジェクト
-    GameObject* m_ArmObject = nullptr;                              // アーム用子オブジェクトポインタ
+	//------------------------------------------------------------------------------
+	// アームの左右区別用
+	//------------------------------------------------------------------------------
+	const Side m_Side;
 
-    // アーム形状
-    float m_ArmLength = kDefaultArmLength;                          // アーム長さ
-    float m_ArmThickness = kDefaultArmThickness;                    // アーム厚さ
-    float m_ArmHeight = kDefaultArmHeight;                          // アーム高さ
-    
-    static constexpr const char* VertexShaderPath =                 // 頂点シェーダのパス
-        "shader\\bin\\BaseLitVS.cso";   
-    static constexpr const char* PixelShaderPath  =                 // ピクセルシェーダのパス
-        "shader\\bin\\BaseLitPS.cso";   
-    
-    BYTE GetActiveKey() const;                                      // 動作キー取得
+	//------------------------------------------------------------------------------
+	// アーム用子オブジェクト
+	//------------------------------------------------------------------------------
+	GameObject* m_ArmObject = nullptr; // 非所有: アーム用子オブジェクト
+
+	//------------------------------------------------------------------------------
+	// アーム形状
+	//------------------------------------------------------------------------------
+	float m_ArmLength    = kDefaultArmLength;
+	float m_ArmThickness = kDefaultArmThickness;
+	float m_ArmHeight    = kDefaultArmHeight;
+
+	//------------------------------------------------------------------------------
+	// 内部ヘルパー
+	//------------------------------------------------------------------------------
+	BYTE GetActiveKey() const; // 動作キー取得
 };  
