@@ -34,12 +34,12 @@ public:
 	//------------------------------------------------------------------------------
 	// 定数定義
 	//------------------------------------------------------------------------------
-	static constexpr int kScoreIncrement = 100;
-	static constexpr int kMaxScore = 99999;
-	static constexpr int kMinScore = 0;
+	static constexpr int kDebugScoreIncrement = 100; 	// デバッグ用のスコア加算値
+	static constexpr int kMaxScore = 99999;          	// 最大スコア
+	static constexpr int kMinScore = 0;              	// 最小スコア
 
-	static constexpr float kScoreBoardWidth = 384.0f;
-	static constexpr float kScoreBoardHeight = 256.0f;
+	static constexpr float kScoreBoardWidth = 384.0f;	// スコアボードの幅
+	static constexpr float kScoreBoardHeight = 256.0f;	// スコアボードの高さ
 
 	// デフォルトのスコアボードのサイズ
 	static constexpr float kDefaultScoreBoardSizeX = kScoreBoardWidth * 1.5f;
@@ -48,9 +48,6 @@ public:
 	// 画面中央上部にUI固定配置する
 	static constexpr float kScoreBoardX = SCREEN_WIDTH / 2.0f - kDefaultScoreBoardSizeX / 2.0f;
 	static constexpr float kScoreBoardY = -150.0f;
-
-	static constexpr int kScoreTextX = 10;
-	static constexpr int kScoreTextY = 10;
 
 	// スコアのスプライト表示用パラメータ
 	static constexpr float kScoreNumberWidth = 24.0f;  	// 1桁の幅
