@@ -341,6 +341,11 @@ void Renderer::SetWorldViewProjection2D()
 	XMMATRIX projection;
 	projection = XMMatrixOrthographicOffCenterLH(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f);
 	SetProjectionMatrix(projection);
+
+	// 定数バッファのバインドが他の描画処理で外れている場合に備えて強制再バインド
+	m_DeviceContext->VSSetConstantBuffers(0, 1, &m_WorldBuffer);
+	m_DeviceContext->VSSetConstantBuffers(1, 1, &m_ViewBuffer);
+	m_DeviceContext->VSSetConstantBuffers(2, 1, &m_ProjectionBuffer);
 }
 
 void Renderer::SetWorldMatrix(XMMATRIX WorldMatrix)

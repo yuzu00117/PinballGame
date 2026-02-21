@@ -22,7 +22,9 @@
 #pragma once
 
 #include "GameObject.h"
-
+#include <memory>
+#include "../Graphics/Sprite.h"
+#include "../Graphics/SpriteSheet.h"
 /// スコア管理・表示用 GameObject
 /// - スコアは static 変数として全体で共有される
 /// - Draw で常に現在のスコアを表示する
@@ -36,11 +38,36 @@ public:
 	static constexpr int kMaxScore = 99999;
 	static constexpr int kMinScore = 0;
 
+	static constexpr float kScoreBoardWidth = 384.0f;
+	static constexpr float kScoreBoardHeight = 256.0f;
+
+	// デフォルトのスコアボードのサイズ
+	static constexpr float kDefaultScoreBoardSizeX = kScoreBoardWidth * 1.5f;
+	static constexpr float kDefaultScoreBoardSizeY = kScoreBoardHeight * 1.5f;
+
+	// 画面中央上部にUI固定配置する
+	static constexpr float kScoreBoardX = SCREEN_WIDTH / 2.0f - kDefaultScoreBoardSizeX / 2.0f;
+	static constexpr float kScoreBoardY = -150.0f;
+
 	static constexpr int kScoreTextX = 10;
 	static constexpr int kScoreTextY = 10;
+
+	// スコアのスプライト表示用パラメータ
+	static constexpr float kScoreNumberWidth = 24.0f;  // 1桁の幅
+	static constexpr float kScoreNumberHeight = 36.0f; // 1桁の高さ
+	static constexpr float kScoreNumberScale = 2.5f;    // 拡大率（調整：より大きく）
+	static constexpr float kScoreNumberSpacing = 60.0f; // 桁間のスペース
+	
+	// スコアボード上での数字の描画開始位置（左上基準）
+	static constexpr float kScoreNumberOffsetX = 138.0f;
+	static constexpr float kScoreNumberOffsetY = 212.0f;
+
 	//------------------------------------------------------------------------------
 	// ライフサイクルメソッド
 	//------------------------------------------------------------------------------
+	Score();
+	~Score() override;
+
 	/// 初期化処理
 	void Init() override;
 
@@ -72,4 +99,7 @@ private:
 	// スコア管理
 	//------------------------------------------------------------------------------
 	static int s_Score;   // 共有スコア（全シーン共通）
+
+	std::unique_ptr<Sprite>      m_ScoreBoardSprite; // 所有：スコアボード画像スプライト
+	std::unique_ptr<SpriteSheet> m_NumberSprite;     // 所有：スコア数値のスプライトシート
 };

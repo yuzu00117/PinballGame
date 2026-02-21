@@ -112,6 +112,9 @@
     <ClCompile Include="source\Graphics\animationModel.cpp">
       <Filter>ソース ファイル\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="source\Graphics\SpriteSheet.cpp">
+      <Filter>ソース ファイル\Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="source\Graphics\Camera.cpp">
       <Filter>ソース ファイル\Graphics</Filter>
     </ClCompile>
@@ -226,6 +229,9 @@
       <Filter>ソース ファイル\Game</Filter>
     </ClInclude>
     <ClInclude Include="source\Graphics\animationModel.h">
+      <Filter>ソース ファイル\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Graphics\SpriteSheet.h">
       <Filter>ソース ファイル\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="source\Graphics\Camera.h">
