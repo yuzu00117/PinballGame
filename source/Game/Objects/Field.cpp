@@ -42,7 +42,7 @@ FieldLayout Field::MakeStage01Layout()
 
     constexpr float kHoleY = 1.0f;
     constexpr float kHoleZOffset = 0.2f;
-    constexpr float kHoleSizeX = 10.0f;
+    constexpr float kHoleSizeX = 20.0f;
     constexpr float kHoleSizeY = 1.5f;
     constexpr float kHoleSizeZ = 0.75f;
     constexpr const char* kMainHoleId = "main";
