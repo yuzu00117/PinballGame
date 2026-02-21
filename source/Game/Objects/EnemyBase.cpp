@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "HP.h"
 #include "EnemyManager.h"
+#include "Score.h"
 
 // ------------------------------------------------------------------------------
 // システム / コンポーネント
@@ -199,6 +200,9 @@ void EnemyBase::OnKilled()
 
     // エネミー撃破時のHP回復処理などを呼び出す
     HP::OnEnemyKilled();
+
+    // 撃破スコアを加算する
+    Score::AddScore(m_Score);
 
     // エネミー撃破時の小さなカメラシェイク (0.2秒、強さ1.0)
     for (auto obj : GameManager::GetGameObjects())

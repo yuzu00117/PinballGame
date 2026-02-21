@@ -4,43 +4,87 @@
 #include "main.h"
 #include "renderer.h"
 
-// Windows API / 標準ライブラリ
+// ゲームオブジェクト
+#include "Sprite.h"
+#include "SpriteSheet.h"
+
+// WindowsAPI / 標準ライブラリ
 #include <windows.h>
 #include <string>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // 静的メンバ定義
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// - ゲーム中のスコア変数の実体定義
 int Score::s_Score = 0;
 
-//------------------------------------------------------------------------------
+Score::Score() = default;
+Score::~Score() = default;
+
+// ------------------------------------------------------------------------------
 // 初期化処理
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// - インスタンス生成時の初期設定を行う
+// - スコアの初期化、画像スプライトや数値スプライトの読み込みと配置設定を行う
 void Score::Init()
 {
 	GameObject::Init();
 
 	// スコア初期化
 	s_Score = 0;
+
+	// スコアボードの準備
+	m_ScoreBoardSprite = std::make_unique<Sprite>();
+	m_ScoreBoardSprite->Init();
+	m_ScoreBoardSprite->SetTexture(L"asset/texture/ScoreBoard.png");
+	m_ScoreBoardSprite->SetSize(kDefaultScoreBoardSizeX, kDefaultScoreBoardSizeY);
+	m_ScoreBoardSprite->SetPosition(kScoreBoardX, kScoreBoardY);
+
+	// 数値スプライトの準備
+	m_NumberSprite = std::make_unique<SpriteSheet>();
+	m_NumberSprite->Init();
+	m_NumberSprite->SetTexture(L"asset/texture/ScoreNumber.png");
+
+	// 数字は 0~9 まで横に10分割
+	m_NumberSprite->SetGrid(10, 1);
+	m_NumberSprite->SetSize(kScoreNumberWidth * kScoreNumberScale, kScoreNumberHeight * kScoreNumberScale);
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // 終了処理
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// - 確保したスプライトリソースの破棄を行う
 void Score::Uninit()
 {
+	if (m_ScoreBoardSprite)
+	{
+		m_ScoreBoardSprite->Uninit();
+		m_ScoreBoardSprite.reset();
+	}
+
+	if (m_NumberSprite)
+	{
+		m_NumberSprite->Uninit();
+		m_NumberSprite.reset();
+	}
+
 	GameObject::Uninit();
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // 更新処理
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // - '+' キー押下：スコア加算（100）
 // - '-' キー押下：スコア減算（100）
 // - 上限/下限を表示仕様に合わせてクランプ
 void Score::Update(float deltaTime)
 {
 	GameObject::Update(deltaTime);
+
+	if (m_ScoreBoardSprite)
+	{
+		m_ScoreBoardSprite->Update(deltaTime);
+	}
 
 	static bool prevPlus  = false;
 	static bool prevMinus = false;
@@ -68,20 +112,44 @@ void Score::Update(float deltaTime)
 	prevMinus = currMinus;
 }
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // 描画処理
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// - スコアボードおよびスコア数値の描画を行う
 // - スコアを5桁固定（ゼロ埋め）で左上に描画
 void Score::Draw()
 {
 	GameObject::Draw();
 
-	std::wstring paddedScore = std::to_wstring(s_Score);
-	while (paddedScore.length() < 5)
+	if (m_ScoreBoardSprite)
 	{
-		paddedScore = L"0" + paddedScore;
+		m_ScoreBoardSprite->Draw();
 	}
 
-	const std::wstring displayText = L"SCORE: " + paddedScore;
-	Renderer::DrawText(displayText, kScoreTextX, kScoreTextY);
+	if (m_NumberSprite)
+	{
+		// 5桁のゼロ埋め文字列を取得
+		std::wstring paddedScore = std::to_wstring(s_Score);
+		while (paddedScore.length() < 5)
+		{
+			paddedScore = L"0" + paddedScore;
+		}
+
+		// 描画開始位置（スコアボードからの相対位置を反映）
+		float startX = kScoreBoardX + kScoreNumberOffsetX;
+		float startY = kScoreBoardY + kScoreNumberOffsetY;
+
+		// 各桁を描画
+		for (size_t i = 0; i < paddedScore.length(); ++i)
+		{
+			// 文字 ('0'~'9') からインデックス (0~9) に変換
+			int numIndex = paddedScore[i] - L'0';
+
+			// 位置とインデックスを設定して描画
+			float posX = startX + (i * kScoreNumberSpacing);
+			m_NumberSprite->SetPosition(posX, startY);
+			m_NumberSprite->SetIndex(numIndex);
+			m_NumberSprite->Draw();
+		}
+	}
 }

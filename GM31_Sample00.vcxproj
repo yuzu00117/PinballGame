@@ -254,6 +254,7 @@
     <ClCompile Include="source\Graphics\Camera.cpp" />
     <ClCompile Include="source\Graphics\modelRenderer.cpp" />
     <ClCompile Include="source\Graphics\Sprite.cpp" />
+    <ClCompile Include="source\Graphics\SpriteSheet.cpp" />
     <ClCompile Include="source\Graphics\Renderer.cpp" />
     <ClCompile Include="source\Physics\BoxCollider.cpp" />
     <ClCompile Include="source\Physics\Collider.cpp" />
@@ -297,6 +298,7 @@
     <ClInclude Include="source\Graphics\MeshRenderer.h" />
     <ClInclude Include="source\Graphics\modelRenderer.h" />
     <ClInclude Include="source\Graphics\Sprite.h" />
+    <ClInclude Include="source\Graphics\SpriteSheet.h" />
     <ClInclude Include="source\Graphics\Renderer.h" />
     <ClInclude Include="source\Math\Easing.h" />
     <ClInclude Include="source\Math\MathUtil.h" />
