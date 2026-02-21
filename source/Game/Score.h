@@ -53,14 +53,14 @@ public:
 	static constexpr int kScoreTextY = 10;
 
 	// スコアのスプライト表示用パラメータ
-	static constexpr float kScoreNumberWidth = 24.0f;  // 1桁の幅
-	static constexpr float kScoreNumberHeight = 36.0f; // 1桁の高さ
-	static constexpr float kScoreNumberScale = 2.5f;    // 拡大率（調整：より大きく）
-	static constexpr float kScoreNumberSpacing = 60.0f; // 桁間のスペース
+	static constexpr float kScoreNumberWidth = 24.0f;  	// 1桁の幅
+	static constexpr float kScoreNumberHeight = 36.0f; 	// 1桁の高さ
+	static constexpr float kScoreNumberScale = 0.8f;    // 拡大率（少し小さめ）
+	static constexpr float kScoreNumberSpacing = 20.0f; // 桁間のスペース
 	
 	// スコアボード上での数字の描画開始位置（左上基準）
-	static constexpr float kScoreNumberOffsetX = 138.0f;
-	static constexpr float kScoreNumberOffsetY = 212.0f;
+	static constexpr float kScoreNumberOffsetX = 310.0f;
+	static constexpr float kScoreNumberOffsetY = 172.0f;
 
 	//------------------------------------------------------------------------------
 	// ライフサイクルメソッド

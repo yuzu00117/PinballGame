@@ -45,23 +45,23 @@ public:
     // スプライトシート設定
     //------------------------------------------------------------------------------
     /// 画像の分割数を設定する（等分割用）
-    /// @param cols 横方向の分割数（列数）
-    /// @param rows 縦方向の分割数（行数）
+    /// - cols: 横方向の分割数（列数）
+    /// - rows: 縦方向の分割数（行数）
     void SetGrid(int cols, int rows);
 
     /// ピクセル単位で直接UV座標を設定する
     /// - 等分割ではどうしてもズレるような、不規則なスプライトシートに対応する
-    /// @param x 左上のX座標（ピクセル）
-    /// @param y 左上のY座標（ピクセル）
-    /// @param width 切り抜く幅（ピクセル）
-    /// @param height 切り抜く高さ（ピクセル）
-    /// @param texWidth テクスチャ全体の幅（ピクセル）
-    /// @param texHeight テクスチャ全体の高さ（ピクセル）
+    /// - x: 左上のX座標（ピクセル）
+    /// - y: 左上のY座標（ピクセル）
+    /// - width: 切り抜く幅（ピクセル）
+    /// - height: 切り抜く高さ（ピクセル）
+    /// - texWidth: テクスチャ全体の幅（ピクセル）
+    /// - texHeight: テクスチャ全体の高さ（ピクセル）
     void SetUVRect(float x, float y, float width, float height, float texWidth, float texHeight);
 
     /// 表示するコマのインデックスを設定する（等分割モード用）
     /// - 0 から始まり、横方向（右）に進み、端で次の行へ進む順番
-    /// @param index 表示するコマの番号
+    /// - index: 表示するコマの番号
     void SetIndex(int index);
 
 private:
