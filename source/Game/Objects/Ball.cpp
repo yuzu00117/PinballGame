@@ -149,5 +149,6 @@ void Ball::ResetBall()
 	if (m_RigidBody)
 	{
 		m_RigidBody->m_Velocity = { 0.0f, 0.0f, 0.0f };
+		m_RigidBody->m_PreviousPosition = kDefaultBallPosition;
 	}
 }
