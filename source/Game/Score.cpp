@@ -94,7 +94,7 @@ void Score::Update(float deltaTime)
 	bool currPlus = (ksPlus & 0x8000) != 0;
 	if (currPlus && !prevPlus)
 	{
-		s_Score += kScoreIncrement;
+		s_Score += kDebugScoreIncrement;
 		if (s_Score > kMaxScore)
 			s_Score = kMaxScore;
 	}
@@ -105,7 +105,7 @@ void Score::Update(float deltaTime)
 	bool currMinus = (ksMinus & 0x8000) != 0;
 	if (currMinus && !prevMinus)
 	{
-		s_Score -= kScoreIncrement;
+		s_Score -= kDebugScoreIncrement;
 		if (s_Score < kMinScore)
 			s_Score = kMinScore;
 	}
