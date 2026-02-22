@@ -1,13 +1,13 @@
-// PostBlurPS.hlsl
-// ƒKƒEƒVƒAƒ“‚Ú‚©‚µ—pƒVƒF[ƒ_[
+ï»¿// PostBlurPS.hlsl
+// ã‚¬ã‚¦ã‚·ã‚¢ãƒ³ã¼ã‹ã—ç”¨ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼
 
 Texture2D gTex : register(t0);
 SamplerState gSamp : register(s0);
 
 cbuffer BlurCB : register(b0)
 {
-    float2 TexelSize; // ƒeƒNƒXƒ`ƒƒ‚Ì1ƒsƒNƒZƒ‹‚ ‚½‚è‚ÌƒTƒCƒY (1/W, 1/H)
-    float2 Dir;       // ‚Ú‚©‚·•ûŒü (1,0) ‚à‚µ‚­‚Í (0,1)
+    float2 TexelSize; // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®1ãƒ”ã‚¯ã‚»ãƒ«ã‚ãŸã‚Šã®ã‚µã‚¤ã‚º (1/W, 1/H)
+    float2 Dir;       // ã¼ã‹ã™æ–¹å‘ (1,0) ã‚‚ã—ãã¯ (0,1)
 };
 
 struct PSIn
@@ -16,7 +16,7 @@ struct PSIn
     float2 uv   : TEXCOORD0;
 };
 
-// 7ƒ^ƒbƒv‚ÌƒKƒEƒVƒAƒ“ƒtƒBƒ‹ƒ^‚Ìd‚İ
+// 7ã‚¿ãƒƒãƒ—ã®ã‚¬ã‚¦ã‚·ã‚¢ãƒ³ãƒ•ã‚£ãƒ«ã‚¿ã®é‡ã¿
 static const float WEIGHTS[7] = {
     0.00598, 0.060626, 0.241843, 0.383103, 0.241843, 0.060626, 0.00598
 };
@@ -25,7 +25,7 @@ float4 main(PSIn i) : SV_TARGET
 {
     float4 color = 0;
     
-    // Œ»İ‚ÌƒsƒNƒZƒ‹‚ğ’†S‚ÉA-3 ` +3 ƒsƒNƒZƒ‹‚Ì”ÍˆÍ‚ÅƒTƒ“ƒvƒŠƒ“ƒO
+    // ç¾åœ¨ã®ãƒ”ã‚¯ã‚»ãƒ«ã‚’ä¸­å¿ƒã«ã€-3 ï½ +3 ãƒ”ã‚¯ã‚»ãƒ«ã®ç¯„å›²ã§ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°
     [unroll]
     for (int j = -3; j <= 3; ++j)
     {

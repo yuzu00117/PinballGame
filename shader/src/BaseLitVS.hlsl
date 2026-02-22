@@ -1,4 +1,4 @@
-// BaseLitVS.hlsl
+﻿// BaseLitVS.hlsl
 // エンジン側（Renderer.cpp）の前提:
 //  - InputLayout: POSITION, NORMAL, COLOR, TEXCOORD
 //  - VS 用 CB スロット: b0(World), b1(View), b2(Proj)

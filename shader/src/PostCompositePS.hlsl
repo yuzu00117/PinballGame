@@ -1,8 +1,8 @@
-// PostCompositePS.hlsl
-// ƒƒCƒ“‰æ‘œ‚Æƒuƒ‹[ƒ€‰æ‘œ‚ğ‡¬‚µ‚ÄLDR‰»‚·‚é
+ï»¿// PostCompositePS.hlsl
+// ãƒ¡ã‚¤ãƒ³ç”»åƒã¨ãƒ–ãƒ«ãƒ¼ãƒ ç”»åƒã‚’åˆæˆã—ã¦LDRåŒ–ã™ã‚‹
 
-Texture2D gMainTex  : register(t0); // ƒƒCƒ“ƒJƒ‰[ (HDR)
-Texture2D gBloomTex : register(t1); // ‚Ú‚©‚µ‚½Œõ (HDR)
+Texture2D gMainTex  : register(t0); // ãƒ¡ã‚¤ãƒ³ã‚«ãƒ©ãƒ¼ (HDR)
+Texture2D gBloomTex : register(t1); // ã¼ã‹ã—ãŸå…‰ (HDR)
 SamplerState gSamp  : register(s0);
 
 struct PSIn
@@ -11,7 +11,7 @@ struct PSIn
     float2 uv   : TEXCOORD0;
 };
 
-// ACES ToneMapping (ŠÖ”)
+// ACES ToneMapping (é–¢æ•°)
 float3 ACESFilm(float3 x)
 {
     float a = 2.51f;
@@ -24,17 +24,17 @@ float3 ACESFilm(float3 x)
 
 float4 main(PSIn i) : SV_TARGET
 {
-    // ƒƒCƒ“ƒJƒ‰[æ“¾
+    // ãƒ¡ã‚¤ãƒ³ã‚«ãƒ©ãƒ¼å–å¾—
     float4 mainCol  = gMainTex.Sample(gSamp, i.uv);
-    // ƒuƒ‹[ƒ€ƒJƒ‰[æ“¾i‰ÁZ‡¬Œü‚¯j
+    // ãƒ–ãƒ«ãƒ¼ãƒ ã‚«ãƒ©ãƒ¼å–å¾—ï¼ˆåŠ ç®—åˆæˆå‘ã‘ï¼‰
     float4 bloomCol = gBloomTex.Sample(gSamp, i.uv);
     
-    // ƒuƒ‹[ƒ€‹­“xi•K—v‚É‰‚¶‚Ä’²®j
+    // ãƒ–ãƒ«ãƒ¼ãƒ å¼·åº¦ï¼ˆå¿…è¦ã«å¿œã˜ã¦èª¿æ•´ï¼‰
     float bloomIntensity = 0.5f;
-    // HDR‡¬
+    // HDRåˆæˆ
     float3 hdrCol = mainCol.rgb + (bloomCol.rgb * bloomIntensity);
     
-    // TONE MAPPING (HDR -> LDR•ÏŠ·)
+    // TONE MAPPING (HDR -> LDRå¤‰æ›)
     // float3 ldrCol = ACESFilm(hdrCol);
     float3 ldrCol = saturate(hdrCol);
     

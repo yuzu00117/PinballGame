@@ -1,5 +1,5 @@
-// PostVS.hlsl
-// �t���X�N���[���`��p���_�V�F�[�_�[�i���_�o�b�t�@�Ȃ��j
+﻿// PostVS.hlsl
+// フルスクリーン描画用頂点シェーダー（頂点バッファなし）
 
 struct PSIn
 {
@@ -10,7 +10,7 @@ struct PSIn
 PSIn main(uint vI : SV_VertexID)
 {
     PSIn o;
-    // SV_VertexID (0,1,2) ���� �t���X�N���[���ɂȂ鋐��ȎO�p�`�𐶐�
+    // SV_VertexID (0,1,2) から フルスクリーンになる巨大な三角形を生成
     o.uv = float2((vI << 1) & 2, vI & 2);
     o.posH = float4(o.uv * float2(2, -2) + float2(-1, 1), 0, 1);
     return o;

@@ -1,16 +1,16 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Common.hlsli"
 #include "Material.hlsli"
 
 float ToonRamp(float x, float steps, float smoothWidth)
 {
-    // steps: 2..6 ‚­‚ç‚¢‘z’è
+    // steps: 2..6 ãã‚‰ã„æƒ³å®š
     steps = max(steps, 1.0f);
     float t = x * steps;
     float base = floor(t) / steps;
     float frac = t - floor(t);
-    // ‹«ŠE‚¾‚¯­‚µŠŠ‚ç‚©‚É
+    // å¢ƒç•Œã ã‘å°‘ã—æ»‘ã‚‰ã‹ã«
     float s = smoothstep(0.5f - smoothWidth, 0.5f + smoothWidth, frac);
     return base + s * (1.0f / steps);
 }
@@ -26,10 +26,10 @@ float3 BRDF_Toon(float3 N, float3 V, float3 L, float3 radiance, MaterialParams m
     float ramp = ToonRamp(NdotL, m.toonSteps, m.toonSmooth);
     float3 diffuse = m.baseColor * ramp;
 
-    // ƒgƒD[ƒ“ƒXƒyƒLƒ…ƒ‰FƒnƒCƒ‰ƒCƒg‚ğ’iŠK‰»i•K—v‚È‚¯‚ê‚Î0‚É‚µ‚Ä‚à‚¢‚¢j
+    // ãƒˆã‚¥ãƒ¼ãƒ³ã‚¹ãƒšã‚­ãƒ¥ãƒ©ï¼šãƒã‚¤ãƒ©ã‚¤ãƒˆã‚’æ®µéšåŒ–ï¼ˆå¿…è¦ãªã‘ã‚Œã°0ã«ã—ã¦ã‚‚ã„ã„ï¼‰
     float3 H = SafeNormalize(L + V);
     float specRaw = pow(saturate(dot(N, H)), lerp(128.0f, 16.0f, m.roughness));
-    float specToon = step(0.5f, specRaw); // ’´ƒVƒ“ƒvƒ‹iŒã‚Åè‡’lƒpƒ‰ƒ[ƒ^‰»„§j
+    float specToon = step(0.5f, specRaw); // è¶…ã‚·ãƒ³ãƒ—ãƒ«ï¼ˆå¾Œã§é–¾å€¤ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿åŒ–æ¨å¥¨ï¼‰
     float3 specular = 0.04f.xxx * specToon;
 
     return (diffuse + specular) * radiance;

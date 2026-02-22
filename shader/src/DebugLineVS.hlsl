@@ -1,10 +1,10 @@
-// DebugLineVS.hlsl
+ï»¿// DebugLineVS.hlsl
 #include "Common.hlsli"
 
 cbuffer CBWorld : register(b0)
 {
     float4x4 gWorld;
-    float4x4 gWorldInvTranspose; // g‚í‚È‚¢‚ªAb0‚ÌƒTƒCƒYˆê’v‚Ì‚½‚ß“ü‚ê‚Ä‚¨‚­
+    float4x4 gWorldInvTranspose; // ä½¿ã‚ãªã„ãŒã€b0ã®ã‚µã‚¤ã‚ºä¸€è‡´ã®ãŸã‚å…¥ã‚Œã¦ãŠã
 };
 
 cbuffer CBView : register(b1)
