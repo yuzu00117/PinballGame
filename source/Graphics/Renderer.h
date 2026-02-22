@@ -6,6 +6,7 @@
 #include <d2d1.h>
 #include <dwrite.h>
 #include <string>
+#include <vector>
 
 // ------------------------------------------------------------------------------
 // 構造体定義
@@ -89,6 +90,30 @@ private:
 	static IDWriteTextFormat* m_TextFormat;
 	static ID2D1SolidColorBrush* m_Brush;
 
+	// 追加：ブルーム/ポストプロセス用メンバ
+	static ID3D11Texture2D*          m_MainHDRTex;
+	static ID3D11RenderTargetView*   m_MainHDRRTV;
+	static ID3D11ShaderResourceView* m_MainHDRSRV;
+
+	static ID3D11Texture2D*          m_LuminanceTex;
+	static ID3D11RenderTargetView*   m_LuminanceRTV;
+	static ID3D11ShaderResourceView* m_LuminanceSRV;
+
+	static ID3D11Texture2D*          m_BlurTex;
+	static ID3D11RenderTargetView*   m_BlurRTV;
+	static ID3D11ShaderResourceView* m_BlurSRV;
+
+	static ID3D11VertexShader* m_PostVS;
+	static ID3D11PixelShader*  m_PostLuminancePS;
+	static ID3D11PixelShader*  m_PostBlurPS;
+	static ID3D11PixelShader*  m_PostCompositePS;
+
+	struct BlurCB {
+		DirectX::XMFLOAT2 TexelSize;
+		DirectX::XMFLOAT2 Dir;
+	};
+	static ID3D11Buffer* m_BlurCBuffer;
+
 
 
 public:
@@ -116,6 +141,14 @@ public:
 
 	static void CreateVertexShader(ID3D11VertexShader** VertexShader, ID3D11InputLayout** VertexLayout, const char* FileName);
 	static void CreatePixelShader(ID3D11PixelShader** PixelShader, const char* FileName);
+
+	// 追加：テキスト描画キュー
+	struct TextDesc {
+		std::wstring text;
+		float x;
+		float y;
+	};
+	static std::vector<TextDesc> m_TextList;
 
 	// 追加：テキスト描画
 	static void DrawText(const std::wstring& text, float x, float y);

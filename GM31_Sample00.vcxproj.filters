@@ -56,6 +56,18 @@
     </FxCompile>
     <FxCompile Include="shader\src\unlitTexturePS.hlsl" />
     <FxCompile Include="shader\src\unlitTextureVS.hlsl" />
+    <FxCompile Include="shader\src\PostVS.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\src\PostLuminancePS.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\src\PostBlurPS.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
+    <FxCompile Include="shader\src\PostCompositePS.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Audio\audio.cpp">

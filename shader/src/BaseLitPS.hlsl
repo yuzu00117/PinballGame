@@ -67,7 +67,8 @@ float4 main(PSIn i) : SV_TARGET
     float3 ambient = gMat.Ambient.rgb * gLight.Ambient.rgb;
     float3 diffuse = baseColor * (gLight.Diffuse.rgb * ndl);
 
-    float3 col = ambient + diffuse;
+    // Emissionの加算
+    float3 col = ambient + diffuse + gMat.Emission.rgb;
 
     return float4(col, alpha);
 }

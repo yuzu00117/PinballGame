@@ -65,6 +65,7 @@ void Flipper::Init()
 	meshRenderer->LoadShader(kVertexShaderPath, kPixelShaderPath);    // シェーダーの設定
 	meshRenderer->CreateUnitBox();
 	meshRenderer->m_Color = kFlipperColor;
+	meshRenderer->m_EmissionColor = { 3.0f, 0.0f, 0.0f, 1.0f }; // さらに強く赤色に発光させる (1.0を超える値を使用)
 
 	//------------------------------------------------------------------------------
 	// ボックスコライダー追加
