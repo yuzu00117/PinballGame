@@ -1,4 +1,4 @@
-﻿// PostCompositePS.hlsl
+// PostCompositePS.hlsl
 // メイン画像とブルーム画像を合成してLDR化する
 
 Texture2D gMainTex  : register(t0); // メインカラー (HDR)

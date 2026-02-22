@@ -1,4 +1,4 @@
-﻿// PostVS.hlsl
+// PostVS.hlsl
 // フルスクリーン描画用頂点シェーダー（頂点バッファなし）
 
 struct PSIn

@@ -1,4 +1,4 @@
-﻿// DebugLineVS.hlsl
+// DebugLineVS.hlsl
 #include "Common.hlsli"
 
 cbuffer CBWorld : register(b0)

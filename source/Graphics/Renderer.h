@@ -3,10 +3,16 @@
 #include <d3d11.h>
 #include <dxgi.h>
 #include <DirectXMath.h>
+
+using namespace DirectX;
+
 #include <d2d1.h>
 #include <dwrite.h>
 #include <string>
 #include <vector>
+#include <vector>
+
+class PostProcess;
 
 // ------------------------------------------------------------------------------
 // 構造体定義
@@ -95,24 +101,7 @@ private:
 	static ID3D11RenderTargetView*   m_MainHDRRTV;
 	static ID3D11ShaderResourceView* m_MainHDRSRV;
 
-	static ID3D11Texture2D*          m_LuminanceTex;
-	static ID3D11RenderTargetView*   m_LuminanceRTV;
-	static ID3D11ShaderResourceView* m_LuminanceSRV;
-
-	static ID3D11Texture2D*          m_BlurTex;
-	static ID3D11RenderTargetView*   m_BlurRTV;
-	static ID3D11ShaderResourceView* m_BlurSRV;
-
-	static ID3D11VertexShader* m_PostVS;
-	static ID3D11PixelShader*  m_PostLuminancePS;
-	static ID3D11PixelShader*  m_PostBlurPS;
-	static ID3D11PixelShader*  m_PostCompositePS;
-
-	struct BlurCB {
-		DirectX::XMFLOAT2 TexelSize;
-		DirectX::XMFLOAT2 Dir;
-	};
-	static ID3D11Buffer* m_BlurCBuffer;
+	static PostProcess* m_PostProcess;   // 所有：ポストプロセス描画管理
 
 
 

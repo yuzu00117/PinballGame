@@ -1,4 +1,4 @@
-﻿// DebugLinePS.hlsl
+// DebugLinePS.hlsl
 #include "Common.hlsli"
 
 struct PS_IN_LINE

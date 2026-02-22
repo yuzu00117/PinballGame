@@ -1,4 +1,4 @@
-﻿// PostLuminancePS.hlsl
+// PostLuminancePS.hlsl
 // レンダーターゲットから高輝度なピクセルだけを抽出する
 
 Texture2D gTex : register(t0);

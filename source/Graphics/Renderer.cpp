@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "renderer.h"
+#include "PostProcess.h"
 #include <io.h>
 
 
@@ -38,19 +39,8 @@ ID3D11Texture2D*          Renderer::m_MainHDRTex = nullptr;
 ID3D11RenderTargetView*   Renderer::m_MainHDRRTV = nullptr;
 ID3D11ShaderResourceView* Renderer::m_MainHDRSRV = nullptr;
 
-ID3D11Texture2D*          Renderer::m_LuminanceTex = nullptr;
-ID3D11RenderTargetView*   Renderer::m_LuminanceRTV = nullptr;
-ID3D11ShaderResourceView* Renderer::m_LuminanceSRV = nullptr;
+PostProcess* Renderer::m_PostProcess = nullptr;
 
-ID3D11Texture2D*          Renderer::m_BlurTex = nullptr;
-ID3D11RenderTargetView*   Renderer::m_BlurRTV = nullptr;
-ID3D11ShaderResourceView* Renderer::m_BlurSRV = nullptr;
-
-ID3D11VertexShader* Renderer::m_PostVS = nullptr;
-ID3D11PixelShader*  Renderer::m_PostLuminancePS = nullptr;
-ID3D11PixelShader*  Renderer::m_PostBlurPS = nullptr;
-ID3D11PixelShader*  Renderer::m_PostCompositePS = nullptr;
-ID3D11Buffer*       Renderer::m_BlurCBuffer = nullptr;
 std::vector<Renderer::TextDesc> Renderer::m_TextList;
 static ID3D11Buffer* 		s_DebugVB 		= nullptr;
 static UINT 				s_DebugVBBytes 	= 0;
@@ -307,60 +297,8 @@ void Renderer::Init()
 	m_Device->CreateRenderTargetView(m_MainHDRTex, NULL, &m_MainHDRRTV);
 	m_Device->CreateShaderResourceView(m_MainHDRTex, NULL, &m_MainHDRSRV);
 
-	// 抽出・ぼかし用RenderTarget生成 (1/4縮小)
-	hdrTexDesc.Width = SCREEN_WIDTH / 4;
-	hdrTexDesc.Height = SCREEN_HEIGHT / 4;
-	m_Device->CreateTexture2D(&hdrTexDesc, NULL, &m_LuminanceTex);
-	m_Device->CreateRenderTargetView(m_LuminanceTex, NULL, &m_LuminanceRTV);
-	m_Device->CreateShaderResourceView(m_LuminanceTex, NULL, &m_LuminanceSRV);
-
-	m_Device->CreateTexture2D(&hdrTexDesc, NULL, &m_BlurTex);
-	m_Device->CreateRenderTargetView(m_BlurTex, NULL, &m_BlurRTV);
-	m_Device->CreateShaderResourceView(m_BlurTex, NULL, &m_BlurSRV);
-
-	// ポストプロセス用シェーダー読み込み
-	FILE* fp;
-	long int fsize;
-	unsigned char* buffer;
-
-	// VS
-	fp = fopen("shader\\bin\\PostVS.cso", "rb");
-	if (fp) {
-		fseek(fp, 0, SEEK_END); fsize = ftell(fp); fseek(fp, 0, SEEK_SET);
-		buffer = new unsigned char[fsize]; fread(buffer, fsize, 1, fp); fclose(fp);
-		m_Device->CreateVertexShader(buffer, fsize, NULL, &m_PostVS);
-		delete[] buffer;
-	}
-	
-	// PS
-	fp = fopen("shader\\bin\\PostLuminancePS.cso", "rb");
-	if (fp) {
-		fseek(fp, 0, SEEK_END); fsize = ftell(fp); fseek(fp, 0, SEEK_SET);
-		buffer = new unsigned char[fsize]; fread(buffer, fsize, 1, fp); fclose(fp);
-		m_Device->CreatePixelShader(buffer, fsize, NULL, &m_PostLuminancePS);
-		delete[] buffer;
-	}
-	fp = fopen("shader\\bin\\PostBlurPS.cso", "rb");
-	if (fp) {
-		fseek(fp, 0, SEEK_END); fsize = ftell(fp); fseek(fp, 0, SEEK_SET);
-		buffer = new unsigned char[fsize]; fread(buffer, fsize, 1, fp); fclose(fp);
-		m_Device->CreatePixelShader(buffer, fsize, NULL, &m_PostBlurPS);
-		delete[] buffer;
-	}
-	fp = fopen("shader\\bin\\PostCompositePS.cso", "rb");
-	if (fp) {
-		fseek(fp, 0, SEEK_END); fsize = ftell(fp); fseek(fp, 0, SEEK_SET);
-		buffer = new unsigned char[fsize]; fread(buffer, fsize, 1, fp); fclose(fp);
-		m_Device->CreatePixelShader(buffer, fsize, NULL, &m_PostCompositePS);
-		delete[] buffer;
-	}
-
-	D3D11_BUFFER_DESC bcDesc{};
-	bcDesc.Usage = D3D11_USAGE_DEFAULT;
-	bcDesc.ByteWidth = sizeof(BlurCB);
-	bcDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	m_Device->CreateBuffer(&bcDesc, NULL, &m_BlurCBuffer);
-
+	m_PostProcess = new PostProcess();
+	m_PostProcess->Init();
 }
 
 void Renderer::Uninit()
@@ -384,17 +322,9 @@ void Renderer::Uninit()
     if (m_DWriteFactory) { m_DWriteFactory->Release(); m_DWriteFactory = nullptr; }
     if (m_D2DRT)         { m_D2DRT->Release();         m_D2DRT = nullptr; }
     if (m_D2DFactory)    { m_D2DFactory->Release();    m_D2DFactory = nullptr; }
-    if (m_BlurCBuffer)     { m_BlurCBuffer->Release(); m_BlurCBuffer = nullptr; }
-    if (m_PostCompositePS) { m_PostCompositePS->Release(); m_PostCompositePS = nullptr; }
-    if (m_PostBlurPS)      { m_PostBlurPS->Release(); m_PostBlurPS = nullptr; }
-    if (m_PostLuminancePS) { m_PostLuminancePS->Release(); m_PostLuminancePS = nullptr; }
-    if (m_PostVS)          { m_PostVS->Release(); m_PostVS = nullptr; }
-    if (m_BlurSRV)         { m_BlurSRV->Release(); m_BlurSRV = nullptr; }
-    if (m_BlurRTV)         { m_BlurRTV->Release(); m_BlurRTV = nullptr; }
-    if (m_BlurTex)         { m_BlurTex->Release(); m_BlurTex = nullptr; }
-    if (m_LuminanceSRV)    { m_LuminanceSRV->Release(); m_LuminanceSRV = nullptr; }
-    if (m_LuminanceRTV)    { m_LuminanceRTV->Release(); m_LuminanceRTV = nullptr; }
-    if (m_LuminanceTex)    { m_LuminanceTex->Release(); m_LuminanceTex = nullptr; }
+
+    if (m_PostProcess)   { m_PostProcess->Uninit(); delete m_PostProcess; m_PostProcess = nullptr; }
+
     if (m_MainHDRSRV)      { m_MainHDRSRV->Release(); m_MainHDRSRV = nullptr; }
     if (m_MainHDRRTV)      { m_MainHDRRTV->Release(); m_MainHDRRTV = nullptr; }
     if (m_MainHDRTex)      { m_MainHDRTex->Release(); m_MainHDRTex = nullptr; }
@@ -423,61 +353,16 @@ void Renderer::End()
 	m_DeviceContext->OMSetDepthStencilState(m_DepthStateDisable, 0);
 
 	// --------------------------------------------------------
-	// 1. 輝度抽出パス (HDR -> LuminanceTex 1/4)
-	// --------------------------------------------------------
-	m_DeviceContext->OMSetRenderTargets(1, &m_LuminanceRTV, nullptr);
-	D3D11_VIEWPORT vpQ = { 0.0f, 0.0f, (float)SCREEN_WIDTH / 4, (float)SCREEN_HEIGHT / 4, 0.0f, 1.0f };
-	m_DeviceContext->RSSetViewports(1, &vpQ);
-
-	m_DeviceContext->IASetInputLayout(nullptr);
-	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	m_DeviceContext->VSSetShader(m_PostVS, nullptr, 0);
-	m_DeviceContext->PSSetShader(m_PostLuminancePS, nullptr, 0);
-
-	m_DeviceContext->PSSetShaderResources(0, 1, &m_MainHDRSRV);
-	m_DeviceContext->Draw(3, 0);
-	m_DeviceContext->PSSetShaderResources(0, 2, nullSRV); // 外す
-
-	// --------------------------------------------------------
-	// 2. ぼかしパス1 (LuminanceTex -> BlurTex) 横方向
-	// --------------------------------------------------------
-	m_DeviceContext->OMSetRenderTargets(1, &m_BlurRTV, nullptr);
-	m_DeviceContext->PSSetShader(m_PostBlurPS, nullptr, 0);
-
-	BlurCB cb{};
-	cb.TexelSize = { 1.0f / (SCREEN_WIDTH / 4.0f), 1.0f / (SCREEN_HEIGHT / 4.0f) };
-	cb.Dir = { 1.0f, 0.0f };
-	m_DeviceContext->UpdateSubresource(m_BlurCBuffer, 0, nullptr, &cb, 0, 0);
-	m_DeviceContext->PSSetConstantBuffers(0, 1, &m_BlurCBuffer);
-
-	m_DeviceContext->PSSetShaderResources(0, 1, &m_LuminanceSRV);
-	m_DeviceContext->Draw(3, 0);
-	m_DeviceContext->PSSetShaderResources(0, 2, nullSRV);
-
-	// --------------------------------------------------------
-	// 3. ぼかしパス2 (BlurTex -> LuminanceTex) 縦方向
-	// --------------------------------------------------------
-	m_DeviceContext->OMSetRenderTargets(1, &m_LuminanceRTV, nullptr);
-	cb.Dir = { 0.0f, 1.0f };
-	m_DeviceContext->UpdateSubresource(m_BlurCBuffer, 0, nullptr, &cb, 0, 0);
-
-	m_DeviceContext->PSSetShaderResources(0, 1, &m_BlurSRV);
-	m_DeviceContext->Draw(3, 0);
-	m_DeviceContext->PSSetShaderResources(0, 2, nullSRV);
-
-	// --------------------------------------------------------
-	// 4. 合成・トーンマッピングパス (Main + LuminanceTex -> BackBuffer)
+	// リファクタリング後：PostProcess クラスに一連の処理を委譲
 	// --------------------------------------------------------
 	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, nullptr);
 	D3D11_VIEWPORT vpF = { 0.0f, 0.0f, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT, 0.0f, 1.0f };
 	m_DeviceContext->RSSetViewports(1, &vpF);
 
-	m_DeviceContext->PSSetShader(m_PostCompositePS, nullptr, 0);
-	
-	ID3D11ShaderResourceView* srvs[] = { m_MainHDRSRV, m_LuminanceSRV };
-	m_DeviceContext->PSSetShaderResources(0, 2, srvs);
-	m_DeviceContext->Draw(3, 0);
-	m_DeviceContext->PSSetShaderResources(0, 2, nullSRV);
+	if (m_PostProcess)
+	{
+		m_PostProcess->Draw(m_MainHDRSRV);
+	}
 
 	// --------------------------------------------------------
 	// 終了処理

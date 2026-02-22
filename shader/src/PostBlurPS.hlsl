@@ -1,4 +1,4 @@
-﻿// PostBlurPS.hlsl
+// PostBlurPS.hlsl
 // ガウシアンぼかし用シェーダー
 
 Texture2D gTex : register(t0);

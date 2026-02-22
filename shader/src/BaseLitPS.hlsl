@@ -1,4 +1,4 @@
-﻿// BaseLitPS.hlsl
+// BaseLitPS.hlsl
 // エンジン側（Renderer.cpp）の前提:
 //  - PS 用 CB スロット: b3(Material), b4(Light)
 // LIGHT は平行光源（Directional）のみ。
