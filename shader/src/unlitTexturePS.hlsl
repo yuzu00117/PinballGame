@@ -5,7 +5,7 @@ SamplerState   g_SamplerState : register(s0);
 
 cbuffer CBMaterial : register(b2)
 {
-    float4 gMatDiffuse;     // VS‚Æ“¯‚¶CB‚ğ‘z’èi–¢g—p‚Å‚àˆê’v‚³‚¹‚éj
+    float4 gMatDiffuse;     // VSã¨åŒã˜CBã‚’æƒ³å®šï¼ˆæœªä½¿ç”¨ã§ã‚‚ä¸€è‡´ã•ã›ã‚‹ï¼‰
     int    gTextureEnable;  // 0/1
     float3 pad;
 };

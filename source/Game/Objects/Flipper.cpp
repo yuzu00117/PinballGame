@@ -65,6 +65,7 @@ void Flipper::Init()
 	meshRenderer->LoadShader(kVertexShaderPath, kPixelShaderPath);    // シェーダーの設定
 	meshRenderer->CreateUnitBox();
 	meshRenderer->m_Color = kFlipperColor;
+	meshRenderer->m_EmissionColor = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 	//------------------------------------------------------------------------------
 	// ボックスコライダー追加

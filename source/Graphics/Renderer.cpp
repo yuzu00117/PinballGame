@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "renderer.h"
+#include "PostProcess.h"
 #include <io.h>
 
 
@@ -34,6 +35,13 @@ IDWriteFactory* Renderer::m_DWriteFactory = nullptr;
 IDWriteTextFormat* Renderer::m_TextFormat = nullptr;
 ID2D1SolidColorBrush* Renderer::m_Brush = nullptr;
 
+ID3D11Texture2D*          Renderer::m_MainHDRTex = nullptr;
+ID3D11RenderTargetView*   Renderer::m_MainHDRRTV = nullptr;
+ID3D11ShaderResourceView* Renderer::m_MainHDRSRV = nullptr;
+
+PostProcess* Renderer::m_PostProcess = nullptr;
+
+std::vector<Renderer::TextDesc> Renderer::m_TextList;
 static ID3D11Buffer* 		s_DebugVB 		= nullptr;
 static UINT 				s_DebugVBBytes 	= 0;
 static ID3D11VertexShader*	s_DebugLineVS	= nullptr;
@@ -161,7 +169,7 @@ void Renderer::Init()
 
 	m_Device->CreateDepthStencilState( &depthStencilDesc, &m_DepthStateEnable );
 
-	//depthStencilDesc.DepthEnable = FALSE;
+	depthStencilDesc.DepthEnable = FALSE;
 	depthStencilDesc.DepthWriteMask	= D3D11_DEPTH_WRITE_MASK_ZERO;
 	m_Device->CreateDepthStencilState( &depthStencilDesc, &m_DepthStateDisable );
 
@@ -223,8 +231,8 @@ void Renderer::Init()
 	LIGHT light{};
 	light.Enable = true;
 	light.Direction = XMFLOAT4(0.3f, -1.0f, 0.3f, 0.0f);
-	light.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	light.Diffuse = XMFLOAT4(1.5f, 1.5f, 1.5f, 1.0f);
+	light.Ambient = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+	light.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	SetLight(light);
 
 
@@ -274,7 +282,23 @@ void Renderer::Init()
 	hr = m_D2DRT->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &m_Brush);
 	assert(SUCCEEDED(hr));
 
+	// ブルーム用RenderTarget生成 (HDR)
+	D3D11_TEXTURE2D_DESC hdrTexDesc{};
+	hdrTexDesc.Width = SCREEN_WIDTH;
+	hdrTexDesc.Height = SCREEN_HEIGHT;
+	hdrTexDesc.MipLevels = 1;
+	hdrTexDesc.ArraySize = 1;
+	hdrTexDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	hdrTexDesc.SampleDesc.Count = 1;
+	hdrTexDesc.SampleDesc.Quality = 0;
+	hdrTexDesc.Usage = D3D11_USAGE_DEFAULT;
+	hdrTexDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	m_Device->CreateTexture2D(&hdrTexDesc, NULL, &m_MainHDRTex);
+	m_Device->CreateRenderTargetView(m_MainHDRTex, NULL, &m_MainHDRRTV);
+	m_Device->CreateShaderResourceView(m_MainHDRTex, NULL, &m_MainHDRSRV);
 
+	m_PostProcess = new PostProcess();
+	m_PostProcess->Init();
 }
 
 void Renderer::Uninit()
@@ -299,17 +323,72 @@ void Renderer::Uninit()
     if (m_D2DRT)         { m_D2DRT->Release();         m_D2DRT = nullptr; }
     if (m_D2DFactory)    { m_D2DFactory->Release();    m_D2DFactory = nullptr; }
 
+    if (m_PostProcess)   { m_PostProcess->Uninit(); delete m_PostProcess; m_PostProcess = nullptr; }
+
+    if (m_MainHDRSRV)      { m_MainHDRSRV->Release(); m_MainHDRSRV = nullptr; }
+    if (m_MainHDRRTV)      { m_MainHDRRTV->Release(); m_MainHDRRTV = nullptr; }
+    if (m_MainHDRTex)      { m_MainHDRTex->Release(); m_MainHDRTex = nullptr; }
+
 }
 
 void Renderer::Begin()
 {
 	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	m_DeviceContext->ClearRenderTargetView( m_RenderTargetView, clearColor );
+	// メイン描画先をHDRテクスチャにする
+	m_DeviceContext->ClearRenderTargetView( m_MainHDRRTV, clearColor );
 	m_DeviceContext->ClearDepthStencilView( m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_DeviceContext->OMSetRenderTargets(1, &m_MainHDRRTV, m_DepthStencilView);
+
+	// 前フレームのポストプロセスで無効化したステートを復旧する
+	SetDepthEnable(true);
+	SetATCEnable(false); // 通常のアルファブレンドにする
 }
 
 void Renderer::End()
 {
+	ID3D11ShaderResourceView* nullSRV[] = { nullptr, nullptr };
+
+	// ポストプロセス描画用にブレンドステートを無効化（不透明上書き）
+	m_DeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+	m_DeviceContext->OMSetDepthStencilState(m_DepthStateDisable, 0);
+
+	// --------------------------------------------------------
+	// リファクタリング後：PostProcess クラスに一連の処理を委譲
+	// --------------------------------------------------------
+	m_DeviceContext->OMSetRenderTargets(1, &m_RenderTargetView, nullptr);
+	D3D11_VIEWPORT vpF = { 0.0f, 0.0f, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT, 0.0f, 1.0f };
+	m_DeviceContext->RSSetViewports(1, &vpF);
+
+	if (m_PostProcess)
+	{
+		m_PostProcess->Draw(m_MainHDRSRV);
+	}
+
+	// --------------------------------------------------------
+	// 終了処理
+	// --------------------------------------------------------
+	// 次のフレームに備えてRTVをメインHDAに戻しておく処理（Beginでやるのでなくても良いが念のため）
+	m_DeviceContext->OMSetRenderTargets(1, &m_MainHDRRTV, m_DepthStencilView);
+
+	// D2D テキストの遅延描画
+	if (!m_TextList.empty())
+	{
+		m_D2DRT->BeginDraw();
+		for (const auto& t : m_TextList)
+		{
+			D2D1_RECT_F layout = D2D1::RectF(t.x, t.y, t.x + 800.0f, t.y + 200.0f);
+			m_D2DRT->DrawText(
+				t.text.c_str(),
+				static_cast<UINT32>(t.text.length()),
+				m_TextFormat,
+				layout,
+				m_Brush
+			);
+		}
+		m_D2DRT->EndDraw();
+		m_TextList.clear();
+	}
+
 	m_SwapChain->Present( 1, 0 );
 }
 
@@ -443,18 +522,7 @@ void Renderer::CreatePixelShader( ID3D11PixelShader** PixelShader, const char* F
 
 void Renderer::DrawText(const std::wstring& text, float x, float y)
 {
-	m_D2DRT->BeginDraw();
-
-	D2D1_RECT_F layout = D2D1::RectF(x, y, x + 800, y + 200);
-	m_D2DRT->DrawText(
-		text.c_str(),
-		static_cast<UINT32>(text.length()),
-		m_TextFormat,
-		layout,
-		m_Brush
-	);
-
-	m_D2DRT->EndDraw();
+	m_TextList.push_back({text, x, y});
 }
 
 static void EnsureDebugLinePipeline()

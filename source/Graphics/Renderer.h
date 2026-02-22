@@ -3,9 +3,16 @@
 #include <d3d11.h>
 #include <dxgi.h>
 #include <DirectXMath.h>
+
+using namespace DirectX;
+
 #include <d2d1.h>
 #include <dwrite.h>
 #include <string>
+#include <vector>
+#include <vector>
+
+class PostProcess;
 
 // ------------------------------------------------------------------------------
 // 構造体定義
@@ -89,6 +96,13 @@ private:
 	static IDWriteTextFormat* m_TextFormat;
 	static ID2D1SolidColorBrush* m_Brush;
 
+	// 追加：ブルーム/ポストプロセス用メンバ
+	static ID3D11Texture2D*          m_MainHDRTex;
+	static ID3D11RenderTargetView*   m_MainHDRRTV;
+	static ID3D11ShaderResourceView* m_MainHDRSRV;
+
+	static PostProcess* m_PostProcess;   // 所有：ポストプロセス描画管理
+
 
 
 public:
@@ -116,6 +130,14 @@ public:
 
 	static void CreateVertexShader(ID3D11VertexShader** VertexShader, ID3D11InputLayout** VertexLayout, const char* FileName);
 	static void CreatePixelShader(ID3D11PixelShader** PixelShader, const char* FileName);
+
+	// 追加：テキスト描画キュー
+	struct TextDesc {
+		std::wstring text;
+		float x;
+		float y;
+	};
+	static std::vector<TextDesc> m_TextList;
 
 	// 追加：テキスト描画
 	static void DrawText(const std::wstring& text, float x, float y);

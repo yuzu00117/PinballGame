@@ -383,6 +383,7 @@ void ModelRenderer::LoadObj(const char* FileName, MODEL_OBJ* ModelObj)
     defaultMat.Material.Ambient       = XMFLOAT4(0, 0, 0, 1);
     defaultMat.Material.Diffuse       = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
     defaultMat.Material.Specular      = XMFLOAT4(0, 0, 0, 1);
+    defaultMat.Material.Emission      = XMFLOAT4(0, 0, 0, 1);
     defaultMat.Material.Shininess     = 0.0f;
     defaultMat.Material.TextureEnable = false;
     defaultMat.Texture               = nullptr;
@@ -626,6 +627,7 @@ void ModelRenderer::LoadMaterial(const char* FileName, MODEL_MATERIAL** Material
             materialArray[mc].Material.Ambient       = XMFLOAT4(0, 0, 0, 1);
             materialArray[mc].Material.Diffuse       = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
             materialArray[mc].Material.Specular      = XMFLOAT4(0, 0, 0, 1);
+            materialArray[mc].Material.Emission      = XMFLOAT4(0, 0, 0, 1);
             materialArray[mc].Material.Shininess     = 0.0f;
             materialArray[mc].Material.TextureEnable = false;
             materialArray[mc].Texture               = nullptr;

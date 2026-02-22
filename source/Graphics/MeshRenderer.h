@@ -34,6 +34,7 @@ public:
     Vector3 m_LocalScale = { 1.0f, 1.0f, 1.0f };
 	MeshShape m_Shape = MeshShape::Custom;
 	XMFLOAT4 m_Color = XMFLOAT4(1, 1, 1, 1);
+	XMFLOAT4 m_EmissionColor = XMFLOAT4(0, 0, 0, 1);
 	bool m_EnableTexture = false;
 
 private:
@@ -205,6 +206,7 @@ public:
         MATERIAL mat{};
         mat.Diffuse = m_Color;
         mat.Ambient = {1,1,1,1};
+        mat.Emission = m_EmissionColor;
         mat.TextureEnable = m_EnableTexture;
 
         Renderer::SetMaterial(mat);

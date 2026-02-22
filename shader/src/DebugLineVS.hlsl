@@ -4,7 +4,7 @@
 cbuffer CBWorld : register(b0)
 {
     float4x4 gWorld;
-    float4x4 gWorldInvTranspose; // 使わないが、b0のサイズ一致のため入れておく
+    float4x4 gWorldInvTranspose; // 菴ｿ繧上↑縺�縺後｜0縺ｮ繧ｵ繧､繧ｺ荳閾ｴ縺ｮ縺溘ａ蜈･繧後※縺翫￥
 };
 
 cbuffer CBView : register(b1)
