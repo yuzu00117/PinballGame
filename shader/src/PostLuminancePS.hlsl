@@ -10,20 +10,19 @@ struct PSIn
     float2 uv   : TEXCOORD0;
 };
 
-// 抽出する輝度の閾値（要調整）
-static const float LUM_THRESHOLD = 1.0f;
+// しきい値（これより明るい部分を抽出）
+static const float LUM_THRESHOLD = 1.2f;
 
 float4 main(PSIn i) : SV_TARGET
 {
     float4 col = gTex.Sample(gSamp, i.uv);
     
-    // RGBの最大成分が閾値を超えているか
+    // RGBの最大値
     float maxCol = max(col.r, max(col.g, col.b));
     
     if (maxCol > LUM_THRESHOLD)
     {
-        // 閾値を超えた分を取り出すか、そのまま全色出すか
-        // 単純化のためそのまま出力する
+        // 閾値を超えた色だけを取り出す（発光部分を自然にぼかすため）
         return float4(col.rgb, 1.0f);
     }
     

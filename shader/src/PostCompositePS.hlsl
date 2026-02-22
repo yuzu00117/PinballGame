@@ -29,11 +29,14 @@ float4 main(PSIn i) : SV_TARGET
     // ブルームカラー取得（加算合成向け）
     float4 bloomCol = gBloomTex.Sample(gSamp, i.uv);
     
+    // ブルーム強度（必要に応じて調整）
+    float bloomIntensity = 0.5f;
     // HDR合成
-    float3 hdrCol = mainCol.rgb + bloomCol.rgb;
+    float3 hdrCol = mainCol.rgb + (bloomCol.rgb * bloomIntensity);
     
     // TONE MAPPING (HDR -> LDR変換)
-    float3 ldrCol = ACESFilm(hdrCol);
+    // float3 ldrCol = ACESFilm(hdrCol);
+    float3 ldrCol = saturate(hdrCol);
     
     return float4(ldrCol, 1.0f);
 }

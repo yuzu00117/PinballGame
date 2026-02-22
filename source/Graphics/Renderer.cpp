@@ -179,7 +179,7 @@ void Renderer::Init()
 
 	m_Device->CreateDepthStencilState( &depthStencilDesc, &m_DepthStateEnable );
 
-	//depthStencilDesc.DepthEnable = FALSE;
+	depthStencilDesc.DepthEnable = FALSE;
 	depthStencilDesc.DepthWriteMask	= D3D11_DEPTH_WRITE_MASK_ZERO;
 	m_Device->CreateDepthStencilState( &depthStencilDesc, &m_DepthStateDisable );
 
@@ -241,8 +241,8 @@ void Renderer::Init()
 	LIGHT light{};
 	light.Enable = true;
 	light.Direction = XMFLOAT4(0.3f, -1.0f, 0.3f, 0.0f);
-	light.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	light.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 0.5f);
+	light.Ambient = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+	light.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	SetLight(light);
 
 
@@ -408,11 +408,19 @@ void Renderer::Begin()
 	m_DeviceContext->ClearRenderTargetView( m_MainHDRRTV, clearColor );
 	m_DeviceContext->ClearDepthStencilView( m_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_DeviceContext->OMSetRenderTargets(1, &m_MainHDRRTV, m_DepthStencilView);
+
+	// 前フレームのポストプロセスで無効化したステートを復旧する
+	SetDepthEnable(true);
+	SetATCEnable(false); // 通常のアルファブレンドにする
 }
 
 void Renderer::End()
 {
 	ID3D11ShaderResourceView* nullSRV[] = { nullptr, nullptr };
+
+	// ポストプロセス描画用にブレンドステートを無効化（不透明上書き）
+	m_DeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+	m_DeviceContext->OMSetDepthStencilState(m_DepthStateDisable, 0);
 
 	// --------------------------------------------------------
 	// 1. 輝度抽出パス (HDR -> LuminanceTex 1/4)
