@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "gameObject.h"
+#include <memory>
+#include "../Graphics/Sprite.h"
 
 /// <summary>
 /// HP管理クラス
@@ -61,6 +63,20 @@ private:
     static constexpr float kDefaultHolePenalty = 10.0f;  // デフォルトのホールペナルティ
     static constexpr float kDefaultKillHeal    = 5.0f;   // デフォルトの撃破回復量
 
+    // HPボード画像の表示サイズ
+    static constexpr float kBoardWidth  = 560.0f; // HPボードの表示幅
+    static constexpr float kBoardHeight =  70.0f; // HPボードの表示高さ
+
+    // 画面下中央に配置する座標（左上原点）
+    static constexpr float kBoardX = (1280.0f - kBoardWidth)  / 2.0f; // 画面水平中央
+    static constexpr float kBoardY =  720.0f - kBoardHeight - 10.0f;   // 画面底から少し上
+
+    // HPバーの表示サイズ・オフセット（ボード内の位置）
+    static constexpr float kBarOffsetX  =  80.0f;  // ボード左端からの余白
+    static constexpr float kBarOffsetY  =  20.0f;  // ボード上端からの余白
+    static constexpr float kBarMaxWidth = 355.0f;  // HP100% 時のバー幅
+    static constexpr float kBarHeight   =  20.0f;  // バーの高さ
+
     // ------------------------------------------------------------------------------
     // 変数定義（Private）
     // インスタンス化しないので、staticメンバで管理
@@ -73,4 +89,8 @@ private:
     static float s_DrainPerSec;                          // 毎秒のHP減少量
     static float s_HolePenalty;                          // 敵がホールに入ったときのペナルティ
     static float s_KillHeal;                             // 敵を倒したときの回復量
+
+    // HPボード・HPバー スプライト
+    std::unique_ptr<Sprite> m_BoardSprite; // 所有：HPボード背景画像
+    std::unique_ptr<Sprite> m_BarSprite;   // 所有：HPバースプライト（テクスチャなし）
 };

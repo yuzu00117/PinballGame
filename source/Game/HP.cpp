@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 #include "MathUtil.h"
+#include "../Graphics/Sprite.h"
 
 // --------------------------------------------------------------------------------
 // Staticメンバ変数定義
@@ -29,12 +30,39 @@ void HP::Init()
     s_DrainPerSec = kDefaultDrainPerSec; // 毎秒のHP減少量
     s_HolePenalty = kDefaultHolePenalty; // 敵がホールに入ったときのペナルティ
     s_KillHeal    = kDefaultKillHeal;    // 敵を倒したときの回復量
+
+    // --- HPボード画像の初期化 ---
+    m_BoardSprite = std::make_unique<Sprite>();
+    m_BoardSprite->Init();
+    m_BoardSprite->SetTexture(L"asset/texture/HPBoard.png");
+    m_BoardSprite->SetSize(kBoardWidth, kBoardHeight);
+    m_BoardSprite->SetPosition(kBoardX, kBoardY);
+
+    // --- HPバースプライトの初期化 ---
+    // NOTE: テクスチャなし・SetColor のみで色塗りする
+    m_BarSprite = std::make_unique<Sprite>();
+    m_BarSprite->Init();
+    m_BarSprite->SetSize(kBarMaxWidth, kBarHeight);
+    m_BarSprite->SetPosition(kBoardX + kBarOffsetX, kBoardY + kBarOffsetY);
+    m_BarSprite->SetColor(0.2f, 0.9f, 0.2f); // 初期色：緑
 }
 
 // 終了処理
 void HP::Uninit()
 {
-    // 特にやることなし
+    // HPボード画像の解放
+    if (m_BoardSprite)
+    {
+        m_BoardSprite->Uninit();
+        m_BoardSprite.reset();
+    }
+
+    // HPバースプライトの解放
+    if (m_BarSprite)
+    {
+        m_BarSprite->Uninit();
+        m_BarSprite.reset();
+    }
 }
 
 // 更新処理
@@ -42,6 +70,19 @@ void HP::Update(float deltaTime)
 {
     // 毎秒HP減少処理
     Drain(deltaTime);
+
+    // --- HPバー幅・色の更新 ---
+    if (m_BarSprite)
+    {
+        const float ratio    = GetHP01();
+        const float barWidth = kBarMaxWidth * ratio;
+        m_BarSprite->SetSize(barWidth, kBarHeight);
+
+        // HP割合に応じて色変化（段階切替）
+        if      (ratio >= 0.6f) { m_BarSprite->SetColor(0.2f,  0.9f,  0.2f); }   // 緑
+        else if (ratio >= 0.3f) { m_BarSprite->SetColor(0.95f, 0.85f, 0.1f); }   // 黄
+        else                    { m_BarSprite->SetColor(0.9f,  0.2f,  0.2f); }   // 赤
+    }
 
 #if defined(_DEBUG)
     // --- デバッグ操作 ---
@@ -59,12 +100,27 @@ void HP::Update(float deltaTime)
 // 描画処理
 void HP::Draw()
 {
-    // --- HP表示 ---
-    int hp  = static_cast<int>(s_HP);
-    int max = static_cast<int>(s_MaxHP);
-    
-    std::wstring text = L"HP: " + std::to_wstring(hp) + L" / " + std::to_wstring(max);
-    Renderer::DrawText(text, 10.0f, 30.0f);
+    // --- HPボード画像の描画 ---
+    if (m_BoardSprite)
+    {
+        m_BoardSprite->Draw();
+    }
+
+    // --- HPバーの描画 ---
+    if (m_BarSprite)
+    {
+        m_BarSprite->Draw();
+    }
+
+    // --- HPテキスト表示（数字のみ・バーの右隣に配置）---
+    // int hp = static_cast<int>(s_HP);
+
+    // std::wstring text = std::to_wstring(hp);
+
+    // // バー右端の10px右・バーと縦中央揃え（フォントサイズ24基準）
+    // const float textX = kBoardX + kBarOffsetX + kBarMaxWidth + 10.0f;
+    // const float textY = kBoardY + kBarOffsetY + (kBarHeight - 24.0f) * 0.5f;
+    // Renderer::DrawText(text, textX, textY);
 }
 
 // --------------------------------------------------------------------------------
