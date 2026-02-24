@@ -11,7 +11,7 @@
 // - どこからでもアクセスできるように、グローバル参照（簡易シングルトン）を提供する。
 //
 // 構成:
-// - Audio m_Sounds[SoundID::Count] : SoundIDto対応したAudio 実体
+// - Audio m_Sounds[SoundID::Count] : SoundID に対応した Audio 実体
 // - m_MasterVolume                 : 全体音量（0.0〜1.0 にクランプ）
 // - s_Instance                     : グローバル参照（Init 後のみ有効）
 //
