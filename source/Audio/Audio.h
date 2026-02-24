@@ -2,22 +2,23 @@
 // Audio
 //------------------------------------------------------------------------------
 // 役割:
-// XAudio2 を用いて音声（効果音/SE想定）のロードと再生を行う。
-// Master（IXAudio2 / MasteringVoice）は静的に1つだけ初期化して共有する。
+// XAudio2 を用いて音声（BGM / SE）のロードと再生を行う。
+// マスター（IXAudio2 / MasteringVoice）は静的に1つだけ保持し全インスタンスで共有する。
 //
 // 設計意図:
-// XAudio2 のデバイス/マスター管理をクラス外へ漏らさず、
-// 各Audioインスタンスは「音データ＋SourceVoice」の管理に集中させる。
+// XAudio2 のデバイス / マスター管理をクラス外へ漏らさず、
+// 各インスタンスは「音データ + SourceVoice」の管理にのみ集中させる。
 //
 // 構成:
-// - Master管理（static） : InitMaster / UninitMaster, IXAudio2, MasteringVoice
+// - Master 管理（static）: InitMaster / UninitMaster, IXAudio2, MasteringVoice
 // - インスタンス管理    : Load / Play / Stop / SetVolume / Uninit
 //
 // NOTE:
-// - Load は RIFF WAVE（fmt/data チャンク）読み込みのみ対応。失敗時は assert で停止し、
-//   失敗を呼び出し側へ返す仕組みはない。確保したバッファは Uninit で delete[] 解放する。
+// - Load は RIFF WAVE（fmt/data チャンク）読み込みのみ対応。
+//   失敗時は assert で停止し、呼び出し側へエラーを返す仕組みはない。
 // - COM 初期化は InitMaster 内で CoInitializeEx(COINIT_MULTITHREADED) を実行し、
-//   UninitMaster で CoUninitialize を呼ぶ。別箇所で COM を管理している場合は衝突に注意。
+//   UninitMaster で CoUninitialize を呼ぶ。
+//   別箇所で COM を管理している場合は衝突に注意。
 //------------------------------------------------------------------------------
 #pragma once
 #include <xaudio2.h>

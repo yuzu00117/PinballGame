@@ -2,26 +2,26 @@
 // SoundManager
 //------------------------------------------------------------------------------
 // 役割:
-// ゲーム内で使用するサウンド（BGM/SE）を SoundID で一元管理し、
+// ゲーム内で使用するサウンド（BGM / SE）を SoundID で一元管理し、
 // 読み込み・再生・停止・マスターボリューム制御を提供する。
 //
 // 設計意図:
-// - GameObject ライフサイクル（Init/Uninit/Update/Draw）に統合して管理する。
-// - SoundID -> Audio 配列の対応で高速にアクセスする（テーブル方式）。
+// - GameObject ライフサイクル（Init / Uninit / Update / Draw）に統合して管理する。
+// - SoundID → Audio 配列の対応で高速にアクセスする（テーブル方式）。
 // - どこからでもアクセスできるように、グローバル参照（簡易シングルトン）を提供する。
 //
 // 構成:
-// - Audio m_Sounds[SoundID::Count] : SoundIDごとの音声実体
-// - MasterVolume                  : 全体音量（0.0〜1.0にクランプ）
-// - GetInstance()                 : グローバル参照取得（Init後のみ有効）
+// - Audio m_Sounds[SoundID::Count] : SoundID に対応した Audio 実体
+// - m_MasterVolume                 : 全体音量（0.0〜1.0 にクランプ）
+// - s_Instance                     : グローバル参照（Init 後のみ有効）
 //
 // NOTE:
-// - GetInstance() は Init() 実行後にのみ使用可能（それ以前は未定義）。
+// - GetInstance() は Init() 実行後にのみ使用可能（それ以前は未定義動作）。
 // - 不正な SoundID は無視して return する（現状はエラー通知なし）。
 // - Draw() は音声に描画がないため空実装。
 // TODO:
 // - BGM/SEのグループ制御（StopBGM / StopSE）
-// - フェードイン/フェードアウト、クロスフェード
+// - フェードイン / フェードアウト、クロスフェード
 //------------------------------------------------------------------------------
 #pragma once
 
