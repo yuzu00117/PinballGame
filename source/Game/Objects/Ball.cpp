@@ -26,6 +26,10 @@
 // 入力
 #include "input.h"
 
+// オーディオ
+#include "SoundManager.h"
+#include "SoundID.h"
+
 // コンポーネント
 #include "ModelRenderer.h"
 #include "ColliderGroup.h"
@@ -126,6 +130,15 @@ void Ball::Update(float deltaTime)
 			m_RigidBody->m_Velocity.y = 0.0f;
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+// 衝突開始コールバック
+//------------------------------------------------------------------------------
+// - 衝突が発生した瞬間に SoundManager 経由で BallHit SE を再生する
+void Ball::OnCollisionEnter(const CollisionInfo& /*info*/)
+{
+	SoundManager::GetInstance().Play(SoundID::SE_BallHit);
 }
 
 //------------------------------------------------------------------------------

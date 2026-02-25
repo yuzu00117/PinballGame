@@ -81,6 +81,10 @@ public:
 	/// - 速度をゼロクリアする（RigidBody側）
 	void ResetBall();
 
+	/// 衝突開始時コールバック
+	/// - 衝突時に BallHit SE を再生する
+	void OnCollisionEnter(const CollisionInfo& info) override;
+
 private:
 	//------------------------------------------------------------------------------
 	// ボールのモデルパス
