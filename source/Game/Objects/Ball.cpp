@@ -36,6 +36,9 @@
 #include "SphereCollider.h"
 #include "RigidBody.h"
 
+// ゲームオブジェクト
+#include "Field.h"
+
 //------------------------------------------------------------------------------
 // 初期化処理
 //------------------------------------------------------------------------------
@@ -135,9 +138,16 @@ void Ball::Update(float deltaTime)
 //------------------------------------------------------------------------------
 // 衝突開始コールバック
 //------------------------------------------------------------------------------
-// - 衝突が発生した瞬間に SoundManager 経由で BallHit SE を再生する
-void Ball::OnCollisionEnter(const CollisionInfo& /*info*/)
+// - Fieldとの衝突時はフィールド面を転がる間連続再生されるため、SE を再生しない
+// NOTE: 衝突相手の Owner を dynamic_cast<Field*> で判定する
+void Ball::OnCollisionEnter(const CollisionInfo& info)
 {
+	// Field との衝突時は SE を再生しない
+	if (info.other && dynamic_cast<Field*>(info.other->m_Owner))
+	{
+		return;
+	}
+
 	SoundManager::GetInstance().Play(SoundID::SE_BallHit);
 }
 
