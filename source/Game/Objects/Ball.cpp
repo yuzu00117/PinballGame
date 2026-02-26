@@ -148,8 +148,13 @@ void Ball::OnCollisionEnter(const CollisionInfo& info)
 	// Field との衝突時は SE を再生しない（床を転がる間、連続再生されるため）
 	if (dynamic_cast<Field*>(info.other->m_Owner)) return;
 
-	// Bumper との衝突時は SE を再生しない（ショックウェーブ SE と混在するため）
-	if (dynamic_cast<Bumper*>(info.other->m_Owner)) return;
+	// Bumper との衝突時は、ShockWave が展開される場合のみ SE_BallHit を省略する
+	// クールダウン中は ShockWave が発生しないため、フィードバック確保のため SE_BallHit を鳳らす
+	if (auto* bumper = dynamic_cast<Bumper*>(info.other->m_Owner))
+	{
+		if (!bumper->IsInShockCooldown()) return; // ShockWave SE が鳳るので BallHit は不要
+		// クールダウン中 → ShockWave が出ないので BallHit を鳳らす（フォールスルー）
+	}
 
 	SoundManager::GetInstance().Play(SoundID::SE_BallHit);
 }
