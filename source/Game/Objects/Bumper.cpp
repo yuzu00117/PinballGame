@@ -52,6 +52,10 @@ void Bumper::Init()
 // ------------------------------------------------------------------------------
 void Bumper::Update(float deltaTime)
 {
+    // フレーム先頭でリセット（Ball::OnCollisionEnter より先に呼ばれるため、
+    // このフレームの OnCollisionEnter 後に値が確定する）
+    m_ShockWaveJustCreated = false;
+
     GameObject::Update(deltaTime);
 
     if (m_ShockCooldownTimer > 0.0f)
@@ -122,7 +126,8 @@ void Bumper::OnCollisionEnter(const CollisionInfo& info)
         // 子オブジェクトなのでローカル原点に置く（親Transformでワールド位置が決まる）
         shockWave->m_Transform.Position = Vector3{ 0.0f, 0.0f, 0.0f };
 
-        m_ShockCooldownTimer = kShockCooldown;
+        m_ShockCooldownTimer   = kShockCooldown;
+        m_ShockWaveJustCreated = true; // このフレームで生成したことを記録
 
         // バンパーヒット時の小さなカメラシェイク (0.15秒、強さ0.5)
         for (auto obj : GameManager::GetGameObjects())

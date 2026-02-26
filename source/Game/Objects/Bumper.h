@@ -58,10 +58,12 @@ public:
     // ----------------------------------------------------------------------
     // クエリ
     // ----------------------------------------------------------------------
-    /// 衝撃波発生クールダウン中か否かを返す
-    /// - true  : クールダウン中（ShockWave は生成されない）
-    /// - false : クールダウン外（次の衝突で ShockWave が生成される）
-    bool IsInShockCooldown() const { return m_ShockCooldownTimer > 0.0f; }
+    /// このフレームで ShockWave を生成したかどうかを返す
+    /// - true  : 今フレームのバンパー衝突で ShockWave が生成された
+    /// - false : ShockWave は生成されていない（クールダウン中の再ヒット等）
+    /// NOTE: Bumper::OnCollisionEnter が Ball::OnCollisionEnter より先に呼ばれるため、
+    ///       Ball がこの値を評価する時点でフラグは正しくセットされている
+    bool WasShockWaveJustCreated() const { return m_ShockWaveJustCreated; }
 
     // ----------------------------------------------------------------------
     // 衝突イベント
@@ -93,6 +95,7 @@ private:
     // ----------------------------------------------------------------------
     // 状態
     // ----------------------------------------------------------------------
-    float m_ShockCooldownTimer = 0.0f; // 衝撃波発生のクールダウンタイマー（秒）
+    float m_ShockCooldownTimer   = 0.0f;  // 衝撃波発生のクールダウンタイマー（秒）
+    bool  m_ShockWaveJustCreated = false; // このフレームで ShockWave を生成したか
 };
 
