@@ -12,9 +12,16 @@ SoundManager* SoundManager::s_Instance = nullptr;
 // 初期化
 // ------------------------------------------------------------------------------
 // - グローバル参照（s_Instance）を this に設定する
+// - ゲームBGM のロードとループ再生を行う
 void SoundManager::Init()
 {
     s_Instance = this;
+
+    Load(SoundID::BGM_Game, "asset/sounds/BGM/GameBGM.wav");
+    Play(SoundID::BGM_Game, /*loop=*/true);
+
+    Load(SoundID::SE_BallHit,   "asset/sounds/SE/BallHit.wav");
+    Load(SoundID::SE_ShockWave, "asset/sounds/SE/ShockWave.wav");
 }
 
 // ------------------------------------------------------------------------------

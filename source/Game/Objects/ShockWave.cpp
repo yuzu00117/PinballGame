@@ -1,17 +1,18 @@
 ﻿#include "ShockWave.h"
 
-// ------------------------------------------------------------------------------
 // コンポーネント
-// ------------------------------------------------------------------------------
 #include "ColliderGroup.h"
 #include "SphereCollider.h"
 #include "MeshRenderer.h"
 
-// ------------------------------------------------------------------------------
 // ゲームオブジェクト
-// ------------------------------------------------------------------------------
 #include "EnemyBase.h"
 #include "HP.h"
+#include "Ball.h"
+
+// オーディオ
+#include "SoundManager.h"
+#include "SoundID.h"
 
 // ------------------------------------------------------------------------------
 // 初期化処理
@@ -122,6 +123,12 @@ void ShockWave::Uninit()
 void ShockWave::OnTriggerEnter(const CollisionInfo& info)
 {
 	if (!info.other || !info.other->m_Owner) return;
+
+	// ボールと接触したとき SE を再生する
+	if (dynamic_cast<Ball*>(info.other->m_Owner))
+	{
+		SoundManager::GetInstance().Play(SoundID::SE_ShockWave);
+	}
 
 	if (auto* enemy = dynamic_cast<EnemyBase*>(info.other->m_Owner))
 	{

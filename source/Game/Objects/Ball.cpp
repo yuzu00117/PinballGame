@@ -26,11 +26,19 @@
 // 入力
 #include "input.h"
 
+// オーディオ
+#include "SoundManager.h"
+#include "SoundID.h"
+
 // コンポーネント
 #include "ModelRenderer.h"
 #include "ColliderGroup.h"
 #include "SphereCollider.h"
 #include "RigidBody.h"
+
+// ゲームオブジェクト
+#include "Field.h"
+#include "Bumper.h"
 
 //------------------------------------------------------------------------------
 // 初期化処理
@@ -126,6 +134,31 @@ void Ball::Update(float deltaTime)
 			m_RigidBody->m_Velocity.y = 0.0f;
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+// 衝突開始コールバック
+//------------------------------------------------------------------------------
+// - Fieldとの衝突時はフィールド面を転がる間連続再生されるため、SE を再生しない
+// NOTE: 衝突相手の Owner を dynamic_cast<Field*> で判定する
+void Ball::OnCollisionEnter(const CollisionInfo& info)
+{
+	if (!info.other || !info.other->m_Owner) return;
+
+	// Field との衝突時は SE を再生しない（床を転がる間、連続再生されるため）
+	if (dynamic_cast<Field*>(info.other->m_Owner)) return;
+
+	// Bumper との衝突時は、ShockWave が展開される場合のみ SE_BallHit を省略する
+	// クールダウン中は ShockWave が発生しないため、フィードバック確保のため SE_BallHit を鳴らす
+	// NOTE: Bumper::OnCollisionEnter は Ball::OnCollisionEnter より先に呼ばれるため、
+	//       WasShockWaveJustCreated() は評価時点で正しい値を持つ（呼び出し順序非依存）
+	if (auto* bumper = dynamic_cast<Bumper*>(info.other->m_Owner))
+	{
+		if (bumper->WasShockWaveJustCreated()) return; // ShockWave SE が鳴るので BallHit は不要
+		// クールダウン中の再ヒット → ShockWave が出ないので BallHit を鳴らす（フォールスルー）
+	}
+
+	SoundManager::GetInstance().Play(SoundID::SE_BallHit);
 }
 
 //------------------------------------------------------------------------------
