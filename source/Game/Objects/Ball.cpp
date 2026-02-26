@@ -38,6 +38,7 @@
 
 // ゲームオブジェクト
 #include "Field.h"
+#include "Bumper.h"
 
 //------------------------------------------------------------------------------
 // 初期化処理
@@ -142,11 +143,13 @@ void Ball::Update(float deltaTime)
 // NOTE: 衝突相手の Owner を dynamic_cast<Field*> で判定する
 void Ball::OnCollisionEnter(const CollisionInfo& info)
 {
-	// Field との衝突時は SE を再生しない
-	if (info.other && dynamic_cast<Field*>(info.other->m_Owner))
-	{
-		return;
-	}
+	if (!info.other || !info.other->m_Owner) return;
+
+	// Field との衝突時は SE を再生しない（床を転がる間、連続再生されるため）
+	if (dynamic_cast<Field*>(info.other->m_Owner)) return;
+
+	// Bumper との衝突時は SE を再生しない（ショックウェーブ SE と混在するため）
+	if (dynamic_cast<Bumper*>(info.other->m_Owner)) return;
 
 	SoundManager::GetInstance().Play(SoundID::SE_BallHit);
 }

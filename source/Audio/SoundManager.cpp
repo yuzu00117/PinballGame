@@ -20,7 +20,8 @@ void SoundManager::Init()
     Load(SoundID::BGM_Game, "asset/sounds/BGM/GameBGM.wav");
     Play(SoundID::BGM_Game, /*loop=*/true);
 
-    Load(SoundID::SE_BallHit, "asset/sounds/SE/BallHit.wav");
+    Load(SoundID::SE_BallHit,   "asset/sounds/SE/BallHit.wav");
+    Load(SoundID::SE_ShockWave, "asset/sounds/SE/ShockWave.wav");
 }
 
 // ------------------------------------------------------------------------------
